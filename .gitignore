@@ -1,2 +1,3 @@
 cdr-data/*
+!cdr-data/.gitkeep
 spring-dood/target/*
