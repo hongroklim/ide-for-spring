@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  # code-server
+  cdr:
+    environment:
+      TZ: "Asia/Seoul"
+    build:
+      context: .
+      dockerfile: ./cdr-Dockerfile
+    volumes:
+        # dood
+      - /var/run/docker.sock:/var/run/docker.sock
+        # data (extensions, settings etc)
+      - ./cdr-data:/home/coder/.local/share/code-server
+        # project
+      - ./spring-dood:/home/coder/spring-dood
+        # maven repository
+      - $HOME/.m2/repository:/home/coder/.m2/repository
+        # tomcat deploy (wired with tomcat)
+      - webapps:/home/coder/webapps
+    ports:
+      - 127.0.0.1:8081:8080
+
+  # WAS
+  tomcat:
+    environment:
+      TZ: "Asia/Seoul"
+      JPDA_ADDRESS: "8000"
+      JPDA_TRANSPORT: "dt_socket"
+    build:
+      context: .
+      dockerfile: ./spring-Dockerfile
+    volumes:
+        # maven repository
+      - $HOME/.m2/repository:/root/.m2/repository
+        # tomcat deploy (wired with cdr)
+      - webapps:/usr/local/tomcat/webapps
+    ports:
+      - 127.0.0.1:8082:8080
+    command:
+      ["catalina.sh", "jpda", "run"]
+
+
+volumes:
+  webapps:

@@ -1,0 +1,23 @@
+# maven build
+FROM maven:3.6.3-openjdk-8-slim AS MVN
+
+ARG APP_NAME=spring-dood
+
+# copy repository
+RUN mkdir -p /root/.m2/repository
+COPY /root/.m2/repository /root/.m2/repository
+
+COPY $APP_NAME/pom.xml /tmp/$APP_NAME/pom.xml
+COPY $APP_NAME/src /tmp/$APP_NAME/src
+
+RUN mvn clean package -f "/tmp/$APP_NAME/pom.xml"
+
+# tomcat
+FROM tomcat:7.0.105-jdk8-openjdk-slim-buster
+ARG APP_NAME=spring-dood
+COPY --from=MVN /root/webapps/$APP_NAME*.war $CATALINA_HOME/webapps/$APP_NAME.war
+RUN chmod 646 -R $CATALINA_HOME/webapps/$APP_NAME.war
+
+# logging and URIEncoding
+RUN sed -i "s/\[localhost\]\.level = INFO/\[localhost\]\.level = DEBUG/g" /usr/local/tomcat/conf/logging.properties \
+    && sed -i "s/<Connector port=\"8080\"/<Connector port=\"8080\" URIEncoding=\"UTF-8\"/g" /usr/local/tomcat/conf/server.xml
