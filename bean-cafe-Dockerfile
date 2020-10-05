@@ -5,7 +5,6 @@ ARG APP_NAME=spring-dood
 
 # copy repository
 RUN mkdir -p /root/.m2/repository
-COPY /root/.m2/repository /root/.m2/repository
 
 COPY $APP_NAME/pom.xml /tmp/$APP_NAME/pom.xml
 COPY $APP_NAME/src /tmp/$APP_NAME/src

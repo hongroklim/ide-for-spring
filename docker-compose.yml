@@ -14,7 +14,7 @@ services:
         # data (extensions, settings etc)
       - ./cdr-data:/home/coder/.local/share/code-server
         # project
-      - ./spring-dood:/home/coder/spring-dood
+      - ./bean-cafe:/home/coder/bean-cafe
         # maven repository
       - $HOME/.m2/repository:/home/coder/.m2/repository
         # tomcat deploy (wired with tomcat)
@@ -30,7 +30,7 @@ services:
       JPDA_TRANSPORT: "dt_socket"
     build:
       context: .
-      dockerfile: ./spring-Dockerfile
+      dockerfile: ./bean-cafe-Dockerfile
     volumes:
         # maven repository
       - $HOME/.m2/repository:/root/.m2/repository
