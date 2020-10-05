@@ -1,7 +1,7 @@
 # maven build
 FROM maven:3.6.3-openjdk-8-slim AS MVN
 
-ARG APP_NAME=spring-dood
+ARG APP_NAME=bean-cafe
 
 # copy repository
 RUN mkdir -p /root/.m2/repository
@@ -13,7 +13,7 @@ RUN mvn clean package -f "/tmp/$APP_NAME/pom.xml"
 
 # tomcat
 FROM tomcat:7.0.105-jdk8-openjdk-slim-buster
-ARG APP_NAME=spring-dood
+ARG APP_NAME=bean-cafe
 COPY --from=MVN /root/webapps/$APP_NAME*.war $CATALINA_HOME/webapps/$APP_NAME.war
 RUN chmod 646 -R $CATALINA_HOME/webapps/$APP_NAME.war
 

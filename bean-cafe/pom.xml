@@ -5,11 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dev.rokong</groupId>
-  <artifactId>spring-dood</artifactId>
+  <artifactId>bean-cafe</artifactId>
   <version>0.0.1</version>
   <packaging>war</packaging>
 
-  <name>spring-dood Maven Webapp</name>
+  <name>bean cafe Maven Webapp</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
@@ -99,7 +99,7 @@
   </dependencies>
 
   <build>
-    <finalName>spring-dood</finalName>
+    <finalName>bean-cafe</finalName>
     <pluginManagement>
       <plugins>
 	<!--

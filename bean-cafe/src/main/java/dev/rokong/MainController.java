@@ -13,7 +13,7 @@ public class MainController {
 
     @RequestMapping("/rok")
     public String helloSpring(Model model){
-        model.addAttribute("message", "hello spring! after change request mapping");
+        model.addAttribute("message", "hello spring! after change main controller");
         return "/mainPage";
     }
 }
