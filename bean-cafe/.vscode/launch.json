@@ -8,15 +8,9 @@
             "type": "java",
             "name": "Debug Tomcat",
             "request": "attach",
-            "hostName": "172.20.0.3",
+            "hostName": "172.18.0.14",
             "port": 8000
-        },
-
-        {
-            "type": "java",
-            "name": "Debug (Launch) - Current File",
-            "request": "launch",
-            "mainClass": "${file}"
         }
+
     ]
 }

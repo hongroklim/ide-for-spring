@@ -21,6 +21,37 @@ services:
       - webapps:/home/coder/webapps
     ports:
       - 127.0.0.1:8081:8080
+    networks:
+      intranet: 
+        ipv4_address: 172.18.0.11
+
+  # database
+  psql:
+    environment:
+      POSTGRES_PASSWORD: "ghdfhr"
+    image: postgres:9-alpine
+    volumes:
+        # database data
+      - psql-data:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5432:5432
+    networks:
+      intranet:
+        ipv4_address: 172.18.0.12
+  
+  # query tool
+  pgadmin4:
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "hongrr123@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "ghdfhr"
+    image: dpage/pgadmin4:latest
+    volumes:
+      - pga-data:/var/lib/pgadmin
+    ports:
+      - 127.0.0.1:5433:80
+    networks:
+      intranet:
+        ipv4_address: 172.18.0.13
 
   # WAS
   tomcat:
@@ -38,9 +69,22 @@ services:
       - webapps:/usr/local/tomcat/webapps
     ports:
       - 127.0.0.1:8082:8080
+    networks:
+      intranet:
+        ipv4_address: 172.18.0.14
     command:
       ["catalina.sh", "jpda", "run"]
 
+networks:
+  intranet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1
 
 volumes:
   webapps:
+  psql-data:
+  pga-data:
