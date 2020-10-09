@@ -6,10 +6,10 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Debug Tomcat",
+            "name": "Debug Wildfly",
             "request": "attach",
             "hostName": "172.18.0.14",
-            "port": 8000
+            "port": 8787
         }
 
     ]

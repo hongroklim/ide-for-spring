@@ -21,14 +21,11 @@ COPY --from=0 /root/wildfly/standalone/deployments/$APP_NAME.war /tmp/$APP_NAME.
 USER root
 RUN mv /tmp/$APP_NAME.war $JBOSS_HOME/standalone/deployments/ \
     && mkdir -p $JBOSS_HOME/standalone/log/ \
-    && touch server.log audit.log \
-    && chown -R jboss:0 $JBOSS_HOME/standalone/log/
+    && touch $JBOSS_HOME/standalone/log/server.log $JBOSS_HOME/standalone/log/audit.log \
+    && chown -R jboss:0 $JBOSS_HOME/standalone/log/ \
+    #&& $JBOSS_HOME/bin/add-user.sh admin ghdfhr --silent \
+    && echo "JAVA_OPTS=\"$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=*:8787,server=y,suspend=n\"" \
+       >> $JBOSS_HOME/bin/standalone.conf
 USER jboss
-#RUN chown -R jboss:0 $JBOSS_HOME/standalone/deployments/$APP_NAME.war \
-#USER root
-#RUN chmod 646 -R $JBOSS_HOME/standalone/deployments/$APP_NAME.war
-#USER jboss
 
-# TODO standalone.xml
-
-# deployments volume
+#CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
