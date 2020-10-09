@@ -16,9 +16,8 @@ public class MainController {
 
     @RequestMapping("/rok")
     public String helloSpring(Model model){
-        model.addAttribute("message", "hello spring! after change main controller");
+        model.addAttribute("message", "hello spring! restart by code-server");
         model.addAttribute("currentDate", mainService.currentDate());
-        org.mybatis.spring.SqlSessionFactoryBean a;
         return "/mainPage";
     }
 }

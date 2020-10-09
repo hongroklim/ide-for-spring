@@ -1,5 +1,5 @@
 # maven build
-FROM maven:3.6.3-openjdk-8-slim AS MVN
+FROM maven:3.6.3-openjdk-8-slim
 
 ARG APP_NAME=bean-cafe
 
@@ -11,12 +11,24 @@ COPY $APP_NAME/src /tmp/$APP_NAME/src
 
 RUN mvn clean package -f "/tmp/$APP_NAME/pom.xml"
 
-# tomcat
-FROM tomcat:7.0.105-jdk8-openjdk-slim-buster
-ARG APP_NAME=bean-cafe
-COPY --from=MVN /root/webapps/$APP_NAME*.war $CATALINA_HOME/webapps/$APP_NAME.war
-RUN chmod 646 -R $CATALINA_HOME/webapps/$APP_NAME.war
+# wildfly
+FROM jboss/wildfly:20.0.1.Final
 
-# logging and URIEncoding
-RUN sed -i "s/\[localhost\]\.level = INFO/\[localhost\]\.level = DEBUG/g" /usr/local/tomcat/conf/logging.properties \
-    && sed -i "s/<Connector port=\"8080\"/<Connector port=\"8080\" URIEncoding=\"UTF-8\"/g" /usr/local/tomcat/conf/server.xml
+ARG APP_NAME=bean-cafe
+
+COPY --from=0 /root/wildfly/standalone/deployments/$APP_NAME.war /tmp/$APP_NAME.war
+
+USER root
+RUN mv /tmp/$APP_NAME.war $JBOSS_HOME/standalone/deployments/ \
+    && mkdir -p $JBOSS_HOME/standalone/log/ \
+    && touch server.log audit.log \
+    && chown -R jboss:0 $JBOSS_HOME/standalone/log/
+USER jboss
+#RUN chown -R jboss:0 $JBOSS_HOME/standalone/deployments/$APP_NAME.war \
+#USER root
+#RUN chmod 646 -R $JBOSS_HOME/standalone/deployments/$APP_NAME.war
+#USER jboss
+
+# TODO standalone.xml
+
+# deployments volume
