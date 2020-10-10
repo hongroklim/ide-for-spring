@@ -1,4 +1,4 @@
-package dev.rokong;
+package dev.rokong.main;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;

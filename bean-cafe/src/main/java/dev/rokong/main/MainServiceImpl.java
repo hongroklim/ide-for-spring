@@ -1,4 +1,4 @@
-package dev.rokong;
+package dev.rokong.main;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

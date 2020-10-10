@@ -1,4 +1,4 @@
-package dev.rokong;
+package dev.rokong.main;
 
 public interface MainService {
     public String currentDate();

@@ -1,4 +1,4 @@
-package dev.rokong;
+package dev.rokong.main;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
