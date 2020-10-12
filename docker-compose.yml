@@ -49,6 +49,7 @@ services:
     image: dpage/pgadmin4:latest
     volumes:
       - pga-data:/var/lib/pgadmin
+      - ./psql-schema:/var/lib/pgadmin/storage/hongrr123_gmail.com/psql-schema
     ports:
       - 127.0.0.1:5433:80
     networks:
