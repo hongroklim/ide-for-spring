@@ -3,3 +3,4 @@ cdr-data/*
 bean-cafe/target/*
 pga-data/*
 !pga-data/.gitkeep
+!pga-data/storage
