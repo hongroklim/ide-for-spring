@@ -5,18 +5,31 @@ from ROKAF CKIS *(Cyber Knowledge Information Space)*
 
 ## Envorinment Configuration
 
-### NGINX
-
-OS : Ubuntu
-
-#### 1. install and start nginx
+### git
 
 ```bash
-# install nginx
+# install git (Ubuntu)
+$ sudo apt-get update
+$ sudo apt-get install git
+
+# initial configuration (name, email)
+$ git config --global --edit
+```
+
+### Docker
+
+https://docs.docker.com/get-docker/
+
+### NGINX
+
+#### 1. install nginx
+
+```bash
+# install nginx (Ubuntu)
 $ sudo apt-get update
 $ sudo apt-get install nginx
 
-# start nginx
+# start nginx (Ubuntu)
 $ sudo service nginx start
 ```
 
@@ -62,26 +75,41 @@ server {
         proxy_pass http://127.0.0.1:8082/;
         proxy_redirect off;
     }
+}
 ```
 
 ```bash
 $ sudo service nginx restart
 ```
 
-### mount privilege
+### privileges
+
+#### 1. mount privilege
 
 ``` bash
 # pgadmin4
-$ sudo chgrp -R 5050 ~/bean-cafe-project/pga-data
+$ sudo chown -R hongrr123:5050 ~/bean-cafe-project/pga-data
 $ sudo chmod -R 775 ~/bean-cafe-project/pga-data
 
 # maven repository
 $ sudo chown -R hongrr123 /root/.m2/repository
 ```
 
-### volume privilege
+#### 2. volume privilege
 
 ```bash
 # wildfly deployment (in code-server)
 $ sudo chown coder ~/wildfly/standalone/deployments/*
 ```
+
+### Extensions and Shortcuts
+
+#### extensions
+
+- Java Extension Pack (vscjava)
+- XML (redhat)
+- Dracula Official (dracula-theme)
+
+#### Kebyoard Shortcuts
+
+- Trigger Suggest : "shift + space"
