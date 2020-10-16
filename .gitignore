@@ -1,6 +1,5 @@
 cdr-data/*
 !cdr-data/.gitkeep
 bean-cafe/target/*
-psql-data/*
-!psql-data/PG_VERSION
-!psql-data/postgresql.conf
+pga-data/*
+!pga-data/.gitkeep

@@ -48,8 +48,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "ghdfhr"
     image: dpage/pgadmin4:latest
     volumes:
-      - pga-data:/var/lib/pgadmin
-      - ./psql-schema:/var/lib/pgadmin/storage/hongrr123_gmail.com/psql-schema
+      - ./pga-data:/var/lib/pgadmin
     ports:
       - 127.0.0.1:5433:80
     networks:
@@ -91,4 +90,4 @@ volumes:
   deployments:
   logs:
   psql-data:
-  pga-data:
+  #pga-data:
