@@ -18,6 +18,7 @@ public class MainController {
     public String helloSpring(Model model){
         model.addAttribute("message", "hello spring! restart by code-server");
         model.addAttribute("currentDate", mainService.currentDate());
+
         return "/mainPage";
     }
 }
