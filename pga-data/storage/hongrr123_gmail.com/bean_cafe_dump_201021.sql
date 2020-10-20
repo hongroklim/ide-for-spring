@@ -5,7 +5,7 @@
 -- Dumped from database version 9.6.19
 -- Dumped by pg_dump version 12.4
 
--- Started on 2020-10-20 15:28:58 UTC
+-- Started on 2020-10-20 15:30:18 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -62,7 +62,7 @@ CREATE TABLE bean_cafe.category (
 ALTER TABLE bean_cafe.category OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2227 (class 0 OID 0)
+-- TOC entry 2242 (class 0 OID 0)
 -- Dependencies: 187
 -- Name: TABLE category; Type: COMMENT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
@@ -86,7 +86,7 @@ CREATE SEQUENCE bean_cafe.category_id_seq
 ALTER TABLE bean_cafe.category_id_seq OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2228 (class 0 OID 0)
+-- TOC entry 2243 (class 0 OID 0)
 -- Dependencies: 188
 -- Name: category_id_seq; Type: SEQUENCE OWNED BY; Schema: bean_cafe; Owner: bean_cafe_dev
 --
@@ -188,7 +188,7 @@ CREATE SEQUENCE bean_cafe.order_id_seq
 ALTER TABLE bean_cafe.order_id_seq OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2229 (class 0 OID 0)
+-- TOC entry 2244 (class 0 OID 0)
 -- Dependencies: 192
 -- Name: order_id_seq; Type: SEQUENCE OWNED BY; Schema: bean_cafe; Owner: bean_cafe_dev
 --
@@ -250,7 +250,7 @@ CREATE SEQUENCE bean_cafe.product_id_seq
 ALTER TABLE bean_cafe.product_id_seq OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2230 (class 0 OID 0)
+-- TOC entry 2245 (class 0 OID 0)
 -- Dependencies: 194
 -- Name: product_id_seq; Type: SEQUENCE OWNED BY; Schema: bean_cafe; Owner: bean_cafe_dev
 --
@@ -274,7 +274,7 @@ CREATE TABLE bean_cafe.product_option (
 ALTER TABLE bean_cafe.product_option OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2231 (class 0 OID 0)
+-- TOC entry 2246 (class 0 OID 0)
 -- Dependencies: 195
 -- Name: TABLE product_option; Type: COMMENT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
@@ -344,6 +344,202 @@ ALTER TABLE ONLY bean_cafe.order_main ALTER COLUMN id SET DEFAULT nextval('bean_
 --
 
 ALTER TABLE ONLY bean_cafe.product ALTER COLUMN id SET DEFAULT nextval('bean_cafe.product_id_seq'::regclass);
+
+
+--
+-- TOC entry 2222 (class 0 OID 16389)
+-- Dependencies: 186
+-- Data for Name: cart; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.cart (user_nm, product_id, option_cd, cnt, update_dt) FROM stdin;
+admin	2	010101	1	2020-10-13
+customer1	3	0201	1	2020-10-18
+customer1	2	010201	1	2020-10-18
+\.
+
+
+--
+-- TOC entry 2223 (class 0 OID 16393)
+-- Dependencies: 187
+-- Data for Name: category; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.category (id, name, up_id, "order") FROM stdin;
+1	bean	0	1
+2	blending	1	1
+3	africa	1	2
+4	south america	1	3
+5	accessory	0	2
+6	filter	5	1
+\.
+
+
+--
+-- TOC entry 2236 (class 0 OID 16530)
+-- Dependencies: 200
+-- Data for Name: delivery; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.delivery (order_id, seller_nm, price, delivery_price, status_cd) FROM stdin;
+1	admin	3000	2500	100
+1	seller1	7700	3000	100
+\.
+
+
+--
+-- TOC entry 2225 (class 0 OID 16398)
+-- Dependencies: 189
+-- Data for Name: option_detail; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.option_detail (product_id, option_cd, full_nm, price_change, stock_cnt, enabled) FROM stdin;
+2	010101	grind level : Whole Bean / roast level : Low / volume : 100g	-4000	10	t
+2	010201	grind level : Whole Bean / roast level : High / volume : 100g	-4000	12	t
+2	020202	grind level : French Press / roast level : High / volume : 220g	0	12	t
+3	0101	Volume : 250g / Package : no package	0	5	t
+3	0102	Volume : 500g / Package : no package	5000	2	t
+3	0201	Volume : 250g / Package : for gift	500	3	t
+3	0202	Volume : 500g / Package : for gift	5500	4	t
+\.
+
+
+--
+-- TOC entry 2226 (class 0 OID 16404)
+-- Dependencies: 190
+-- Data for Name: order_delivery; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.order_delivery (order_id, user_nm, sender_nm, recipient_nm, zip_cd, address1, address2, contact, method, method_detail, message) FROM stdin;
+1	customer1	발송자	수신자	32800	충청남도 계룡시 계룡대로 663	사서함 501-329	010-0000-1111	사서함	501-329	파손주의. 조심히 배송 부탁드립니다.
+\.
+
+
+--
+-- TOC entry 2227 (class 0 OID 16407)
+-- Dependencies: 191
+-- Data for Name: order_main; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.order_main (id, user_nm, price, delivery_price, pay_type, pay_detail, cash_receipt_type, cash_receipt_value, request_dt, status_cd, last_edit_dt, editor_nm) FROM stdin;
+1	customer1	10200	5500	TRANSFER	국민은행	\N	\N	2020-10-18	100	2020-10-18	customer1
+\.
+
+
+--
+-- TOC entry 2235 (class 0 OID 16518)
+-- Dependencies: 199
+-- Data for Name: order_product; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.order_product (order_id, product_id, option_cd, seller_nm, cnt, price, discount_price) FROM stdin;
+1	3	0201	customer1	1	8500	-800
+1	2	010201	customer1	1	3000	0
+\.
+
+
+--
+-- TOC entry 2229 (class 0 OID 16418)
+-- Dependencies: 193
+-- Data for Name: product; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.product (id, name, price, category_id, enabled, seller_nm, stock_cnt, delivery_price, discount_price) FROM stdin;
+2	Bean Cafe Main Blending	7000	2	t	admin	\N	2500	0
+3	Africa Special Beans	8000	3	t	seller1	\N	3000	-800
+\.
+
+
+--
+-- TOC entry 2231 (class 0 OID 16426)
+-- Dependencies: 195
+-- Data for Name: product_option; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.product_option (product_id, option_group, option_id, name) FROM stdin;
+2	1	01	Whole Bean
+2	1	02	French Press
+2	1	03	Drip&Coffee Maker
+2	1	04	Dutch&Moka Pot
+2	1	05	Espresso
+2	2	00	roast level
+2	2	01	Low
+2	2	02	High
+2	3	00	Volume
+2	3	01	100g
+2	3	02	220g
+2	3	03	500g
+2	1	00	grind level
+3	1	00	Volume
+3	1	01	250g
+3	1	02	500g
+3	2	00	Package
+3	2	01	no package
+3	2	02	for gift
+\.
+
+
+--
+-- TOC entry 2232 (class 0 OID 16430)
+-- Dependencies: 196
+-- Data for Name: product_tag; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.product_tag (product_id, name) FROM stdin;
+\.
+
+
+--
+-- TOC entry 2234 (class 0 OID 16437)
+-- Dependencies: 198
+-- Data for Name: user_auth; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.user_auth (user_nm, authority) FROM stdin;
+seller1	seller
+admin	admin
+\.
+
+
+--
+-- TOC entry 2233 (class 0 OID 16433)
+-- Dependencies: 197
+-- Data for Name: user_main; Type: TABLE DATA; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+COPY bean_cafe.user_main (user_nm, password, enabled) FROM stdin;
+admin	root	t
+customer1	customer1	t
+customer2	customer2	t
+seller1	seller1	t
+\.
+
+
+--
+-- TOC entry 2247 (class 0 OID 0)
+-- Dependencies: 188
+-- Name: category_id_seq; Type: SEQUENCE SET; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+SELECT pg_catalog.setval('bean_cafe.category_id_seq', 6, true);
+
+
+--
+-- TOC entry 2248 (class 0 OID 0)
+-- Dependencies: 192
+-- Name: order_id_seq; Type: SEQUENCE SET; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+SELECT pg_catalog.setval('bean_cafe.order_id_seq', 1, true);
+
+
+--
+-- TOC entry 2249 (class 0 OID 0)
+-- Dependencies: 194
+-- Name: product_id_seq; Type: SEQUENCE SET; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+SELECT pg_catalog.setval('bean_cafe.product_id_seq', 3, true);
 
 
 --
@@ -562,7 +758,7 @@ ALTER TABLE ONLY bean_cafe.product
     ADD CONSTRAINT fk_product_users FOREIGN KEY (seller_nm) REFERENCES bean_cafe.user_main(user_nm) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
--- Completed on 2020-10-20 15:28:58 UTC
+-- Completed on 2020-10-20 15:30:18 UTC
 
 --
 -- PostgreSQL database dump complete
