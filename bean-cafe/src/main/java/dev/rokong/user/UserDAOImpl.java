@@ -23,7 +23,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     public void insertUser(UserDTO user) {
-        sqlSession.insert(PREFIX+"selectUser", user);
+        sqlSession.insert(PREFIX+"insertUser", user);
     }
 
     public void updateUser(UserDTO user) {

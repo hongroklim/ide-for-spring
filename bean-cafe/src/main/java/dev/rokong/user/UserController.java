@@ -19,12 +19,12 @@ public class UserController {
     
     @Autowired UserService userService;
 
-    @RequestMapping(value="/", method=RequestMethod.GET)
+    @RequestMapping(value="", method=RequestMethod.GET)
     public List<UserDTO> getUsers(){
         return userService.getUsers();
     }
 
-    @RequestMapping(value="/", method=RequestMethod.POST)
+    @RequestMapping(value="", method=RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public UserDTO createUser(@ModelAttribute UserDTO user){
         return userService.createUser(user);

@@ -4,4 +4,21 @@
     <select id="selectCurrentDate" resultType="String">
         SELECT TO_CHAR(now(), 'YYYYMMDD')
     </select>
+
+    <select id="selectUserList" resultType="UserDTO">
+        SELECT user_nm, pwd, enabled
+          FROM user_main
+    </select>
+
+    <select id="selectUser" resultType="UserDTO" parameterType="String">
+        SELECT user_nm, pwd, enabled
+          FROM user_main
+         WHERE user_nm = #{userNm}
+    </select>
+
+    <insert id="insertUser" parameterType="UserDTO">
+        INSERT INTO user_main
+               (user_nm, pwd, enabled)
+        VALUES (#{userNm}, #{pwd}, #{enabled})
+    </insert>
 </mapper>
