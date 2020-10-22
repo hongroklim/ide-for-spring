@@ -26,7 +26,7 @@ public class UserController {
 
     @RequestMapping(value="", method=RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
-    public UserDTO createUser(@ModelAttribute UserDTO user){
+    public UserDTO createUser(@ModelAttribute UserDTO user) {
         return userService.createUser(user);
     }
 
