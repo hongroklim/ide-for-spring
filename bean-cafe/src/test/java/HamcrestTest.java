@@ -1,3 +1,6 @@
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
@@ -11,5 +14,6 @@ public class HamcrestTest {
         a += "0";
         System.out.println(a.length());
         assertThat(a.length(), greaterThan(50));
+        assertThat(a, is(not(nullValue())));
     }
 }
