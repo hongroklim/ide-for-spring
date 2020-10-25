@@ -1,12 +1,16 @@
 package dev.rokong.exception;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
 @SuppressWarnings("serial")
 public class BusinessException extends RuntimeException {
-    BusinessException(){
+    public BusinessException(){
         super();
     }
 
-    BusinessException(String message){
+    public BusinessException(String message){
         super(message);
     }
 

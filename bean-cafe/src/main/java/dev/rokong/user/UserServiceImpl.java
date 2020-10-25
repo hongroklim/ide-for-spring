@@ -44,11 +44,23 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDTO updateUser(UserDTO user) {
+        UserDTO getUser = this.getUser(user.getUserNm());
+        
+        if(getUser == null){
+            throw new BusinessException(user.getUserNm()+"is not exists");
+        }
+
         userDAO.updateUser(user);
         return this.getUser(user.getUserNm());
     }
     
     public void deleteUser(String userNm) {
+        UserDTO getUser = this.getUser(userNm);
+        
+        if(getUser == null){
+            throw new BusinessException(userNm+"is not exists");
+        }
+
         userDAO.deleteUser(userNm);
     }
 

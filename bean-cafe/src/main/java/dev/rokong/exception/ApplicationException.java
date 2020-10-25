@@ -1,12 +1,16 @@
 package dev.rokong.exception;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
 @SuppressWarnings("serial")
 public class ApplicationException extends RuntimeException {
-    ApplicationException(){
+    public ApplicationException(){
         super();
     }
 
-    ApplicationException(String message){
+    public ApplicationException(String message){
         super(message);
     }
 

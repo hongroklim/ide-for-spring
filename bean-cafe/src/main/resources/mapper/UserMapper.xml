@@ -21,4 +21,11 @@
                (user_nm, pwd, enabled)
         VALUES (#{userNm}, #{pwd}, #{enabled})
     </insert>
+
+    <update id="updateUser" parameterType="UserDTO">
+        UPDATE user_main
+           SET pwd = #{pwd},
+               enabled = #{enabled}
+         WHERE user_nm = #{userNm}
+    </update>
 </mapper>

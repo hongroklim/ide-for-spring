@@ -14,33 +14,31 @@ public class RestException extends RuntimeException {
     private LocalDateTime timestamp;
     private String message;
 
-    RestException() {
+    public RestException() {
         super();
         this.setTimestamp(LocalDateTime.now());
     }
 
-    RestException(BusinessException e){
+    public RestException(BusinessException e){
         this();
         this.setStatus(HttpStatus.BAD_REQUEST);
         this.setMessage(e.getMessage());
     }
 
-    RestException(RuntimeException e){
+    public RestException(RuntimeException e){
         this();
         this.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         this.setMessage(e.getMessage());
     }
 
-    RestException(HttpStatus status) {
-        this();
-        this.setStatus(status);
-        this.setMessage("Unexpected error");
-    }
-
-    RestException(HttpStatus status, String message) {
+    public RestException(HttpStatus status, String message) {
         this();
         this.setStatus(status);
         this.setMessage(message);
+    }
+
+    public RestException(HttpStatus status) {
+        this(status, "Unexpected error");
     }
 
 }

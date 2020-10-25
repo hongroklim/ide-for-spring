@@ -10,8 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"file:src/main/webapp/WEB-INF/context/root-context.xml"})
-@Transactional
-@Rollback
+@Transactional @Rollback
 public class SpringConfig {
     
     @Autowired protected ApplicationContext ac;
