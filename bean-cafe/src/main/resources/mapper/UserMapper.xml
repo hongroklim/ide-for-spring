@@ -22,10 +22,28 @@
         VALUES (#{userNm}, #{pwd}, #{enabled})
     </insert>
 
-    <update id="updateUser" parameterType="UserDTO">
+    <update id="updateUserPassword" parameterType="UserDTO">
         UPDATE user_main
-           SET pwd = #{pwd},
-               enabled = #{enabled}
+           SET pwd = #{pwd}
          WHERE user_nm = #{userNm}
     </update>
+
+    <update id="updateUserEnabled" parameterType="UserDTO">
+        UPDATE user_main
+           SET enabled = #{enabled}
+         WHERE user_nm = #{userNm}
+    </update>
+
+    <insert id="insertUserAuthorities" parameterType="UserDTO">
+        INSERT INTO user_auth
+        <foreach collection="authority" item="auth" separator="UNION ALL">
+            SELECT #{userNm} AS user_nm, #{auth} as authority
+        </foreach>
+    </insert>
+
+    <select id="selectUserAuthorities" resultType="String" parameterType="String">
+        SELECT authority
+          FROM user_auth
+         WHERE user_nm = #{userNm}
+    </select>
 </mapper>

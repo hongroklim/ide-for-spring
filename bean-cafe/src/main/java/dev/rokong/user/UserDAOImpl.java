@@ -26,12 +26,23 @@ public class UserDAOImpl implements UserDAO {
         sqlSession.insert(PREFIX+"insertUser", user);
     }
 
-    public void updateUser(UserDTO user) {
-        sqlSession.update(PREFIX+"updateUser", user);
+    public void updateUserPassword(UserDTO user) {
+        sqlSession.update(PREFIX+"updateUserPassword", user);
+    }
+
+    public void updateUserEnabled(UserDTO user) {
+        sqlSession.update(PREFIX+"updateUserEnabled", user);
     }
 
     public void deleteUser(String userNm) {
         sqlSession.delete(PREFIX+"deleteUser", userNm);
     }
+
+    public void insertUserAuthorities(UserDTO user){
+        sqlSession.insert(PREFIX+"insertUserAuthorities", user);
+    }
     
+    public List<String> selectUserAuthorities(String userNm){
+        return sqlSession.selectList(PREFIX+"selectUserAuthorities", userNm);
+    }
 }

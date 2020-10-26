@@ -1,9 +1,12 @@
 package user;
 
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -92,6 +95,30 @@ public class DaoTest extends SpringConfig {
         newUser.setEnabled(true);
 
         userDAO.insertUser(newUser);
+    }
+
+    @Test
+    public void insertUserAuth(){
+        List<UserDTO> userList = userDAO.selectUserList();
+
+        assertThat(userList, is(notNullValue()));
+        assertThat(userList.size(), is(greaterThan(1)));
+
+        UserDTO insertUser = userList.get(1);
+        List<String> authList = new ArrayList<>();
+        authList.add("seller");
+        authList.add("buyer");
+        insertUser.setAuthority(authList);
+
+        userDAO.insertUserAuthorities(insertUser);
+
+        UserDTO getUser = userDAO.selectUser(insertUser.getUserNm());
+        assertThat(getUser, is(notNullValue()));
+
+        List<String> getAuthList = userDAO.selectUserAuthorities(getUser.getUserNm());
+        assertThat(getAuthList, is(notNullValue()));
+        log.debug(getAuthList.toString());
+        assertThat(getAuthList, is(equalTo(authList)));
     }
 
 }

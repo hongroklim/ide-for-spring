@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,11 +30,15 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDTO createUser(UserDTO user) {
+        UserDTO getUser = userDAO.selectUser(user.getUserNm());
+        
+        if(getUser != null){
+            log.warn(user.getUserNm()+"already exists");
+            throw new BusinessException("");
+        }
+
         try{
             userDAO.insertUser(user);
-        }catch(DuplicateKeyException e){
-            log.warn(user.getUserNm()+"already exists");
-            throw new BusinessException("", e);
         }catch(DataAccessException e){
             log.error(e.getMessage());
             throw new ApplicationException("", e);
@@ -43,25 +47,64 @@ public class UserServiceImpl implements UserService {
         return this.getUser(user.getUserNm());
     }
 
-    public UserDTO updateUser(UserDTO user) {
+    public UserDTO updateUserPassword(UserDTO user) {
+        UserDTO getUser = this.getUserNotNull(user);
+        userDAO.updateUserPassword(user);
+        return this.getUser(getUser.getUserNm());
+    }
+    
+    public UserDTO updateUserEnabled(UserDTO user) {
+        UserDTO getUser = this.getUserNotNull(user);
+        userDAO.updateUserEnabled(user);
+        return this.getUser(getUser.getUserNm());
+    }
+
+    public void deleteUser(String userNm) {
+        UserDTO getUser = this.getUserNotNull(userNm);
+        userDAO.deleteUser(getUser.getUserNm());
+    }
+
+    public List<GrantedAuthority> addUserAuthorities(UserDTO user){
+        UserDTO getUser = this.getUserWithAuthorities(user);
+
+        //check authorities to be added whether already exists
+        List<GrantedAuthority> addAuthorities = user.getAuthorities();
+        for(GrantedAuthority auth : addAuthorities){
+            if(getUser.getAuthorities().contains(auth)){
+                //if the role already exists, remove it
+                addAuthorities.remove(auth);
+            }
+        }
+        user.setAuthorities(addAuthorities);
+
+        userDAO.insertUserAuthorities(user);
+        return this.getUserAuthorities(user);
+    }
+
+    private UserDTO getUserNotNull(String userNm){
+        UserDTO user = new UserDTO();
+        user.setUserNm(userNm);
+        return this.getUserNotNull(user);
+    }
+
+    private UserDTO getUserNotNull(UserDTO user){
         UserDTO getUser = this.getUser(user.getUserNm());
-        
         if(getUser == null){
             throw new BusinessException(user.getUserNm()+"is not exists");
         }
-
-        userDAO.updateUser(user);
-        return this.getUser(user.getUserNm());
+        return getUser;
     }
-    
-    public void deleteUser(String userNm) {
-        UserDTO getUser = this.getUser(userNm);
-        
-        if(getUser == null){
-            throw new BusinessException(userNm+"is not exists");
-        }
 
-        userDAO.deleteUser(userNm);
+    private UserDTO getUserWithAuthorities(UserDTO user){
+        UserDTO getUser = this.getUserNotNull(user);
+        getUser.setAuthorities(this.getUserAuthorities(user));
+        return getUser;
+    }
+
+    public List<GrantedAuthority> getUserAuthorities(UserDTO user){
+        List<String> authList = userDAO.selectUserAuthorities(user.getUserNm());
+        user.setAuthority(authList);
+        return user.getAuthorities();
     }
 
 }
