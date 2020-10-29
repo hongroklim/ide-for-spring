@@ -3,6 +3,8 @@ package dev.rokong.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties({"authorities"})
 @SuppressWarnings("serial")
 public class UserDTO implements UserDetails {
     private String userNm;
