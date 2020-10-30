@@ -45,4 +45,8 @@ public class UserDAOImpl implements UserDAO {
     public List<String> selectUserAuthorities(String userNm){
         return sqlSession.selectList(PREFIX+"selectUserAuthorities", userNm);
     }
+
+    public void deleteUserAuthorities(UserDTO user){
+        sqlSession.delete(PREFIX+"deleteUserAuthorities", user);
+    }
 }

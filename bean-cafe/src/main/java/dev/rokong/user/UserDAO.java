@@ -13,4 +13,5 @@ public interface UserDAO {
     public void deleteUser(String userNm);
     public void insertUserAuthorities(UserDTO user);
     public List<String> selectUserAuthorities(String userNm);
+    public void deleteUserAuthorities(UserDTO user);
 }

@@ -46,4 +46,20 @@
           FROM user_auth
          WHERE user_nm = #{userNm}
     </select>
+
+    <delete id="deleteUser" parameterType="String">
+        DELETE
+          FROM user_main
+        WHERE user_nm = #{userNm}
+    </delete>
+
+    <delete id="deleteUserAuthorities" parameterType="UserDTO">
+        DELETE
+          FROM user_auth
+         WHERE user_nm = #{userNm}
+           AND authority IN
+               <foreach collection="authority" item="auth" open="(" close=")" separator=",">
+                   #{auth}
+               </foreach>
+    </delete>
 </mapper>

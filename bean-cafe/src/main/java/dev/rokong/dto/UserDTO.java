@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import lombok.Data;
 
 @Data
-@JsonIgnoreProperties({"authorities"})
+@JsonIgnoreProperties({"authorities", "username", "password"})
 @SuppressWarnings("serial")
 public class UserDTO implements UserDetails {
     private String userNm;
@@ -34,16 +34,19 @@ public class UserDTO implements UserDetails {
     public List<GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        for(String role : authority){
-            authorities.add(new SimpleGrantedAuthority(role));
+        if(this.authority != null && this.authority.size() > 0){
+            for(String role : authority){
+                authorities.add(new SimpleGrantedAuthority(role));
+            }
         }
         
         return authorities;
     }
 
     public void setAuthorities(List<GrantedAuthority> authorities){
+        this.authority = new ArrayList<>();
         for(GrantedAuthority auth : authorities){
-            authority.add(auth.getAuthority());
+            this.authority.add(auth.getAuthority());
         }
     }
 

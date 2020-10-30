@@ -1,6 +1,5 @@
 package dev.rokong.user;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +13,7 @@ public interface UserService {
     public UserDTO updateUserPassword(UserDTO user);
     public UserDTO updateUserEnabled(UserDTO user);
     public void deleteUser(String userNm);
-    public Collection<? extends GrantedAuthority> getUserAuthorities(UserDTO user);
-    public Collection<? extends GrantedAuthority> addUserAuthorities(UserDTO user);
+    public List<GrantedAuthority> getUserAuthorities(UserDTO user);
+    public List<GrantedAuthority> addUserAuthorities(UserDTO user);
+    public void deleteUserAuthorities(UserDTO user);
 }

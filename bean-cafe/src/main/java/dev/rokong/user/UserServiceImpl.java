@@ -72,6 +72,7 @@ public class UserServiceImpl implements UserService {
         for(GrantedAuthority auth : addAuthorities){
             if(getUser.getAuthorities().contains(auth)){
                 //if the role already exists, remove it
+                log.debug(auth.getAuthority()+"is already exists.");
                 addAuthorities.remove(auth);
             }
         }
@@ -97,14 +98,32 @@ public class UserServiceImpl implements UserService {
 
     private UserDTO getUserWithAuthorities(UserDTO user){
         UserDTO getUser = this.getUserNotNull(user);
-        getUser.setAuthorities(this.getUserAuthorities(user));
+        List<GrantedAuthority> authorities = this.getUserAuthorities(user);
+        getUser.setAuthorities(authorities);
         return getUser;
     }
 
-    public List<GrantedAuthority> getUserAuthorities(UserDTO user){
+    public List<GrantedAuthority> getUserAuthorities(final UserDTO user){
         List<String> authList = userDAO.selectUserAuthorities(user.getUserNm());
-        user.setAuthority(authList);
-        return user.getAuthorities();
+        UserDTO tempUser = new UserDTO();
+        tempUser.setAuthority(authList);
+        return tempUser.getAuthorities();
     }
 
+    public void deleteUserAuthorities(UserDTO user){
+        UserDTO getUser = this.getUserWithAuthorities(user);
+
+        //check authorities to be deleted
+        List<GrantedAuthority> deleteAuthorities = user.getAuthorities();
+        for(GrantedAuthority auth : deleteAuthorities){
+            if(!getUser.getAuthorities().contains(auth)){
+                //if the role already exists, remove it
+                log.debug(auth.getAuthority()+"is not exists.");
+                deleteAuthorities.remove(auth);
+            }
+        }
+        user.setAuthorities(deleteAuthorities);
+
+        userDAO.deleteUserAuthorities(user);
+    }
 }

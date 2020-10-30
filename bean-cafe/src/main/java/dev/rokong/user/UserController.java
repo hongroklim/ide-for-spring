@@ -1,6 +1,6 @@
 package dev.rokong.user;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,12 +49,22 @@ public class UserController {
         return userService.updateUserEnabled(user);
     }
 
-    
-
     @RequestMapping(value="/{userNm}/authority", method=RequestMethod.PATCH)
     @ResponseStatus(HttpStatus.OK)
-    public Collection<? extends GrantedAuthority> addUserAuthority(@RequestBody UserDTO user){
-        return userService.addUserAuthorities(user);
+    public List<String> addUserAuthority(@RequestBody UserDTO user){
+        List<GrantedAuthority> authorities = userService.addUserAuthorities(user);
+        
+        List<String> result = new ArrayList<>();
+        for(GrantedAuthority a : authorities){
+            result.add(a.getAuthority());
+        }
+        return result;
+    }
+
+    @RequestMapping(value="/{userNm}/authority", method=RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUserAuthority(@RequestBody UserDTO user){
+        userService.deleteUserAuthorities(user);
     }
 
     @RequestMapping(value="/{userNm}", method=RequestMethod.DELETE)
