@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.rokong.CategoryMapper">
+    <select id="selectCategoryList" resultType="CategoryDTO">
+        WITH RECURSIVE rc_category
+             (id, name, up_id, ord, depth, path, sort, cycle)
+          AS (SELECT A.id, A.name, A.up_id, A.ord,
+                     1				    AS depth,
+                     ARRAY[id::text]    AS path,
+                     ARRAY[ord::text]	AS sort,
+                     false			AS cycle
+                FROM category A
+               WHERE up_id = 0
+               UNION ALL
+              SELECT A.id, A.name, A.up_id, A.ord,
+                     B.depth+1 							AS depth,
+                     ARRAY_APPEND(B.path, A.id::text)	AS path,
+                     ARRAY_APPEND(B.sort, A.ord::text)	AS sort,
+                     A.id::text = ANY(B.path)			AS cycle
+                FROM category A,
+                     rc_category B
+               WHERE A.up_id = B.id
+                 AND NOT CYCLE)
+      SELECT id, name, up_id, ord, depth, path, sort
+        FROM rc_category
+       ORDER BY sort
+    </select>
+
+    <insert id="insertCategory" parameterType="CategoryDTO">
+        INSERT INTO category
+               (name, up_id, ord)
+        VALUES (#{name}, #{upId}, #{ord})
+    </insert>
+
+    <delete id="deleteCategory" parameterType="int">
+        DELETE
+          FROM category
+         WHERE id = #{id}
+    </delete>
+
+    <select id="selectCategory" parameterType="int">
+        SELECT id, name, up_id, ord
+          FROM category
+         WHERE id = #{id}
+    </select>
+
+    <select id="selectCategoryChildren" parameterType="int">
+        SELECT id, name, up_id, ord
+          FROM category
+         WHERE up_id = #{upId}
+         ORDER BY ord
+    </select>
+</mapper>

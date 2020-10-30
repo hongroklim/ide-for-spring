@@ -22,6 +22,7 @@ public class UserController {
     @Autowired UserService userService;
 
     @RequestMapping(value="", method=RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
     public List<UserDTO> getUsers(){
         return userService.getUsers();
     }
