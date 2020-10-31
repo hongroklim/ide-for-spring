@@ -19,8 +19,9 @@ public class CategoryDAOImpl implements CategoryDAO {
         return sqlSession.selectList(PREFIX+"selectCategoryList");
     };
     
-    public void insertCategory(CategoryDTO category){
+    public int insertCategory(CategoryDTO category){
         sqlSession.insert(PREFIX+"insertCategory", category);
+        return category.getId();
     };
 
     public void deleteCategory(int id){
@@ -34,4 +35,8 @@ public class CategoryDAOImpl implements CategoryDAO {
     public List<CategoryDTO> selectCategoryChildren(int upId){
         return sqlSession.selectList(PREFIX+"selectCategoryChildren", upId);
     };
+
+    public void updateCategory(CategoryDTO category){
+        sqlSession.update(PREFIX+"updateCategory", category);
+    }
 }

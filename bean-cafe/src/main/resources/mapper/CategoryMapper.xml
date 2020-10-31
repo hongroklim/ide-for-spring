@@ -27,9 +27,12 @@
     </select>
 
     <insert id="insertCategory" parameterType="CategoryDTO">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            SELECT nextval('category_id_seq'::regclass)
+        </selectKey>
         INSERT INTO category
-               (name, up_id, ord)
-        VALUES (#{name}, #{upId}, #{ord})
+               (id, name, up_id, ord)
+        VALUES (#{id}, #{name}, #{upId}, #{ord})
     </insert>
 
     <delete id="deleteCategory" parameterType="int">
@@ -38,16 +41,24 @@
          WHERE id = #{id}
     </delete>
 
-    <select id="selectCategory" parameterType="int">
+    <select id="selectCategory" parameterType="int" resultType="CategoryDTO">
         SELECT id, name, up_id, ord
           FROM category
          WHERE id = #{id}
     </select>
 
-    <select id="selectCategoryChildren" parameterType="int">
+    <select id="selectCategoryChildren" parameterType="int" resultType="CategoryDTO">
         SELECT id, name, up_id, ord
           FROM category
          WHERE up_id = #{upId}
          ORDER BY ord
     </select>
+
+    <update id="updateCategory" parameterType="CategoryDTO">
+        UPDATE category
+           SET name = #{name},
+               up_id = #{upId},
+               ord = #{ord}
+         WHERE id = #{id}
+    </update>
 </mapper>

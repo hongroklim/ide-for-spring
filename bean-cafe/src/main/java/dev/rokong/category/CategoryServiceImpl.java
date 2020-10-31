@@ -41,6 +41,9 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         cDAO.insertCategory(category);
+
+        //TODO : how to know pk?
+
         return this.getCategoryNotNull(category);
     };
 
@@ -59,6 +62,7 @@ public class CategoryServiceImpl implements CategoryService {
         //if nothing to be changed, return asis DTO
         if(asisCategory.getName().equals(category.getName())){
             if(asisCategory.getUpId() == category.getUpId()){
+                log.debug("category's name and upId is equal to asis one");
                 return asisCategory;
             }
         }
@@ -72,7 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
         for(CategoryDTO c : siblings){
             if(c.getName().equals(category.getName())){
                 //avoid duplicate name
-                throw new BusinessException(c.getOrd()+" name under "+c.getUpId()+" already exists");
+                throw new BusinessException(c.getName()+" name under "+c.getUpId()+" already exists");
             }else if(c.getOrd() == category.getOrd()){
                 //avoid duplicate ord
                 log.info(c.getOrd()+"th ord under "+c.getUpId()+" already exists");
@@ -81,6 +85,13 @@ public class CategoryServiceImpl implements CategoryService {
                 log.info(category.getName()+"'s ord is changed to max(ord)+1");
             }
         }
+
+        if(category.getOrd() == 0){
+            //if ord is not initialized, set max(ord)+1 value
+            category.setOrd(this.maxOrdOfCategory(siblings)+1);
+        }
+
+        cDAO.updateCategory(category);
 
         return this.getCategoryNotNull(category);
     };
@@ -92,17 +103,24 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDTO updateCategoryOrder(CategoryDTO category){
         CategoryDTO asisCategory = this.getCategoryNotNull(category);
         if(asisCategory.getOrd() == category.getOrd()){
+            //return asisCategory if nothing to be changed
             return asisCategory;
         }
 
         List<CategoryDTO> siblings = this.getCategoryChildren(category.getUpId());
         for(CategoryDTO c : siblings){
             if(c.getOrd() == category.getOrd()){
+                //avoid duplicate ord in same level
                 throw new BusinessException(c.getOrd()+" name under "+c.getUpId()+" already exists");
             }
         }
 
-        return null;
+        //execute update
+        asisCategory.setOrd(category.getOrd());
+        category = asisCategory;
+        cDAO.updateCategory(category);
+
+        return this.getCategoryNotNull(category);
     };
     
     private CategoryDTO getCategoryNotNull(int id){
