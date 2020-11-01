@@ -11,4 +11,8 @@ public interface CategoryDAO {
     public CategoryDTO selectCategory(int id);
     public List<CategoryDTO> selectCategoryChildren(int upId);
     public void updateCategory(CategoryDTO category);
+    public void updateCategoryOrder(CategoryDTO category);
+    public void pushChildrenOrder(int upId, int startOrder);
+    public void arrangeChildrenOrder(int upId);
+    public boolean isParentAndChild(int parentId, int ChildId);
 }

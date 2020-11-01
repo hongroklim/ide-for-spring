@@ -8,7 +8,7 @@
                      1				    AS depth,
                      ARRAY[id::text]    AS path,
                      ARRAY[ord::text]	AS sort,
-                     false			AS cycle
+                     false			    AS cycle
                 FROM category A
                WHERE up_id = 0
                UNION ALL
@@ -57,8 +57,53 @@
     <update id="updateCategory" parameterType="CategoryDTO">
         UPDATE category
            SET name = #{name},
-               up_id = #{upId},
-               ord = #{ord}
+               up_id = #{upId}
          WHERE id = #{id}
     </update>
+
+    <update id="updateCategoryOrder" parameterType="CategoryDTO">
+        UPDATE category
+           SET ord = #{ord}
+         WHERE id = #{id}
+    </update>
+
+    <update id="pushChildrenOrder" parameterType="hashmap">
+        UPDATE category
+           SET ord = ord+1
+         WHERE up_id = #{upId}
+           AND ord >= #{startOrder}
+    </update>
+
+    <update id="arrangeChildrenOrder" parameterType="int">
+        UPDATE category U
+           SET ord = F.new_ord
+          FROM (SELECT id,
+                       ROW_NUMBER() OVER(PARTITION BY up_id
+                                             ORDER BY ord ASC) AS new_ord
+                  FROM category) F
+         WHERE U.id = F.id
+           AND U.up_id = #{upId}
+    </update>
+
+    <select id="isParentAndChild" parameterType="hashmap" resultType="boolean">
+        WITH RECURSIVE rc_category
+             (id, up_id, path, cycle)
+          AS (SELECT A.id, A.up_id,
+                     ARRAY[id::text]    AS path,
+                     false			    AS cycle
+                FROM category A
+               WHERE id = #{childId}
+               UNION ALL
+              SELECT A.id, A.up_id,
+                     ARRAY_APPEND(B.path, A.id::text)	AS path,
+                     A.id::text = ANY(B.path)			AS cycle
+                FROM category A,
+                     rc_category B
+               WHERE A.id = B.up_id
+                 AND NOT CYCLE)
+      SELECT true
+	    FROM rc_category
+	   WHERE id = #{parentId}
+	     AND id != #{childId}
+    </select>
 </mapper>

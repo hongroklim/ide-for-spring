@@ -40,15 +40,23 @@ public class CategoryServiceImpl implements CategoryService {
             }
         }
 
-        cDAO.insertCategory(category);
-
-        //TODO : how to know pk?
+        //insert new category and return id
+        int createdId = cDAO.insertCategory(category);
+        category.setId(createdId);
 
         return this.getCategoryNotNull(category);
     };
 
     public void deleteCategory(int id){
         CategoryDTO category = this.getCategoryNotNull(id);
+
+        List<CategoryDTO> subList = this.getCategoryChildren(category.getId());
+        if(subList != null && subList.size() > 0){
+            //if there are children to be deleted one,
+            //throw exception and return
+            throw new BusinessException(category.getId()+"'s children are exists");
+        }
+
         cDAO.deleteCategory(category.getId());
     };
     
@@ -70,7 +78,17 @@ public class CategoryServiceImpl implements CategoryService {
         if(category.getUpId() != 0){
             //check upId category exists
             this.getCategoryNotNull(category.getUpId());
+
+            //prevent nested hierarchy
+            if(asisCategory.getUpId() == category.getUpId()){
+                if(cDAO.isParentAndChild(asisCategory.getId(), category.getUpId())){
+                    log.debug("nested hierarchy between "+asisCategory.getId()+" and "+category.getUpId());
+                    throw new BusinessException(asisCategory.getId()+" can not be attached under "+category.getUpId());
+                }
+            }
         }
+
+        boolean isOrdDuplicated = false;
 
         List<CategoryDTO> siblings = this.getCategoryChildren(category.getUpId());
         for(CategoryDTO c : siblings){
@@ -78,20 +96,17 @@ public class CategoryServiceImpl implements CategoryService {
                 //avoid duplicate name
                 throw new BusinessException(c.getName()+" name under "+c.getUpId()+" already exists");
             }else if(c.getOrd() == category.getOrd()){
-                //avoid duplicate ord
-                log.info(c.getOrd()+"th ord under "+c.getUpId()+" already exists");
-                
-                category.setOrd(this.maxOrdOfCategory(siblings)+1);
-                log.info(category.getName()+"'s ord is changed to max(ord)+1");
+                //avoid duplicate order
+                isOrdDuplicated = true;
             }
         }
 
-        if(category.getOrd() == 0){
-            //if ord is not initialized, set max(ord)+1 value
-            category.setOrd(this.maxOrdOfCategory(siblings)+1);
-        }
-
         cDAO.updateCategory(category);
+
+        if(isOrdDuplicated){
+            //update order if duplicate order
+            this.appendLastCategoryOrder(category);
+        }
 
         return this.getCategoryNotNull(category);
     };
@@ -111,14 +126,14 @@ public class CategoryServiceImpl implements CategoryService {
         for(CategoryDTO c : siblings){
             if(c.getOrd() == category.getOrd()){
                 //avoid duplicate ord in same level
-                throw new BusinessException(c.getOrd()+" name under "+c.getUpId()+" already exists");
+                cDAO.pushChildrenOrder(asisCategory.getUpId(), category.getOrd());
+                break;
             }
         }
 
-        //execute update
-        asisCategory.setOrd(category.getOrd());
-        category = asisCategory;
-        cDAO.updateCategory(category);
+        //execute update only order
+        cDAO.updateCategoryOrder(category);
+        cDAO.arrangeChildrenOrder(asisCategory.getUpId());
 
         return this.getCategoryNotNull(category);
     };
@@ -151,5 +166,15 @@ public class CategoryServiceImpl implements CategoryService {
             }
         }
         return maxOrd;
+    }
+
+    private void appendLastCategoryOrder(CategoryDTO category){
+        CategoryDTO getCategory = this.getCategoryNotNull(category);
+        
+        //set order max(ord)+1 value
+        List<CategoryDTO> siblings = cDAO.selectCategoryChildren(getCategory.getUpId());
+        getCategory.setOrd(this.maxOrdOfCategory(siblings)+1);
+
+        cDAO.updateCategoryOrder(category);
     }
 }
