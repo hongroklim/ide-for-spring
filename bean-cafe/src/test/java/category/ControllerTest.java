@@ -1,12 +1,13 @@
 package category;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
@@ -15,13 +16,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -47,11 +45,9 @@ public class ControllerTest extends MvcUnitConfig {
     @Test
     public void getCategoryList() throws Exception {
         this.mvc.perform(get("/category")) // get category list
-                .andDo(log()).andExpect(status().isOk()).andExpect(jsonPath("$[0].upId", is(equalTo(0)))) // first
-                                                                                                          // category's
-                                                                                                          // upId is 0
-                                                                                                          // (means
-                                                                                                          // root)
+                .andDo(log())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].upId", is(equalTo(0)))) // first category's upId is 0 (means root)
                 .andExpect(jsonPath("$[0].ord", is(equalTo(1)))); // first item's order is also first
     }
 
@@ -223,7 +219,8 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(CategoryId, is(not(equalTo(0))));
 
         CategoryDTO category = cService.getCategory(CategoryId);
-        List<CategoryDTO> getList = this.reqAndResBody("/category/"+category.getId()+"/sub", RequestMethod.GET, null);
+        List<CategoryDTO> getList = this.reqAndResBody("/category/"+category.getId()+"/sub",
+            RequestMethod.GET, null);
 
         assertThat(getList, is(notNullValue()));
         assertThat(getList.size(), is(greaterThan(0)));
@@ -274,111 +271,4 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(getCategory1.getOrd(), is(not(equalTo(category1.getOrd()))));
     }
 
-    /**
-     * 
-     * @param url request URL
-     * @param method request method : GET, POST, PUT, PATCH, DELETE
-     * @return MockHttpServletRequestBuilder
-     * @throws IllegalArgumentException HEAD method passed
-     */
-    private MockHttpServletRequestBuilder initMockRequest(String url, RequestMethod method){
-        MockHttpServletRequestBuilder mockReqMethod = null;
-        
-        switch (method) {
-            case GET:
-                mockReqMethod = get(url);
-                break;
-            
-            case POST:
-                mockReqMethod = post(url);
-                break;
-            
-            case PUT:
-                mockReqMethod = put(url);
-                break;
-            
-            case PATCH:
-                mockReqMethod = patch(url);
-                break;
-
-            case DELETE:
-                mockReqMethod = delete(url);
-                break;
-            
-            default:
-                log.debug(method.name()+" method is not defined");
-        }
-
-        if(mockReqMethod != null){
-            return mockReqMethod;
-        }
-
-        throw new IllegalArgumentException(method.name()+" method is not defined");
-    }
-
-    /**
-     * perform MVC request and get responseBody
-     * 
-     * @param mockReqMethod MockHttpServletRequestBuilder
-     * @param reqObject request Object to be written in RequestBody
-     * @return response content as string
-     * @throws Exception from MockMvc.perform(...)
-     */
-    private String requestAndGetResponseBody(MockHttpServletRequestBuilder mockReqMethod,
-        Object reqObject) throws Exception {
-
-        MvcResult result = this.mvc.perform(mockReqMethod
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                                .content(this.objectMapper.writeValueAsString(reqObject)))
-                            .andDo(log())
-                            .andExpect(status().isOk())
-                            .andReturn();
-        
-        return result.getResponse().getContentAsString();
-    }
-
-    /**
-     * MockHttpRequestBody and ResponseBody template for Spring REST Test.
-     * <p/>
-     * For example:
-     * <pre>reqAndResBody("/user/"+user.getId(), RequestMethod.GET, user, UserDTO.class)</pre>
-     * 
-     * @param <T> ResponseBody type
-     * @param url request URL
-     * @param method request method : GET, POST, PUT, PATCH, DELETE
-     * @param reqObject requestBody Object
-     * @param resClass ResponseBody.Class
-     * @return ResponseBody Object
-     * @throws IllegalArgumentException HEAD passed into RequestMethod method parameter
-     * @throws Exception from MockMvc.perform(...)
-     */
-    private <T> T reqAndResBody(String url, RequestMethod method,
-        Object reqObject, Class<T> resClass) throws Exception {
-        
-        MockHttpServletRequestBuilder mockReqMethod = this.initMockRequest(url, method);
-        String content = requestAndGetResponseBody(mockReqMethod, reqObject);
-        return this.objectMapper.readValue(content, resClass);
-    }
-
-    /**
-     *  MockHttpRequestBody and ResponseBody template for Spring REST Test.
-     *  <p/>
-     *  This method return List of {@link #reqAndResBody(String, RequestMethod, Object, resClass)}
-     * 
-     * @param <T> ResponseBody type
-     * @param url request URL
-     * @param method request method : GET, POST, PUT, PATCH, DELETE
-     * @param reqObject requestBody Object
-     * @param resClass ResponseBody.Class
-     * @return ResponseBody Object
-     * @throws IllegalArgumentException HEAD passed into RequestMethod method parameter
-     * @throws Exception from MockMvc.perform(...)
-     */
-    private <T> List<T> reqAndResBody(String url, RequestMethod method,
-        Object reqObject) throws Exception {
-        
-        MockHttpServletRequestBuilder mockReqMethod = this.initMockRequest(url, method);
-        String content = requestAndGetResponseBody(mockReqMethod, reqObject);
-        return this.objectMapper.readValue(content, new TypeReference<List<T>>() {});
-    }
 }

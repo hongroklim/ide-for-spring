@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.rokong.ProductMapper">
+    <select id="selectProductList" resultType="ProductDTO">
+        SELECT id, name, price, category_id, enabled, seller_nm,
+               stock_cnt, delivery_price, discount_price
+          FROM product
+    </select>
+
+    <select id="selectProduct" parameterType="int" resultType="ProductDTO">
+        SELECT id, name, price, category_id, enabled, seller_nm,
+               stock_cnt, delivery_price, discount_price
+          FROM product
+         WHERE id = #{id}
+    </select>
+
+    <insert id="insertProduct" parameterType="ProductDTO">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            SELECT nextval('product_id_seq'::regclass)
+        </selectKey>
+        INSERT INTO product
+               (id, name, price, category_id, enabled,
+                seller_nm, stock_cnt, delivery_price, discount_price)
+        VALUES (#{id}, #{name}, #{price}, #{categoryId}, #{enabled},
+                #{sellerNm}, #{stockCnt}, #{deliveryPrice}, #{discountPrice})
+    </insert>
+
+    <delete id="deleteProduct" parameterType="int">
+        DELETE
+          FROM product
+         WHERE id = #{id}
+    </delete>
+
+    <update id="updateProduct" parameterType="ProductDTO">
+        UPDATE product
+           SET name = #{name},
+               category_id = #{categoryId},
+               seller_nm = #{sellerNm}
+               <if test="stockCnt != null">
+                   ,stock_cnt = #{stockCnt}
+               </if>
+               <if test="enabled != null">
+                   ,enabled = #{enabled}
+               </if>
+         WHERE id = #{id}
+    </update>
+
+    <update id="updateProductColumn" parameterType="hashmap">
+        UPDATE product
+           SET ${column} = #{value}
+         WHERE id = #{id}
+    </update>
+</mapper>

@@ -152,10 +152,10 @@ public class CategoryServiceImpl implements CategoryService {
         return this.getCategoryNotNull(category);
     };
     
-    private CategoryDTO getCategoryNotNull(int id){
+    public CategoryDTO getCategoryNotNull(int id){
         CategoryDTO category = cDAO.selectCategory(id);
         if(category == null){
-            throw new BusinessException(id+"is not exists");
+            throw new BusinessException(id+" category is not exists");
         }
         return category;
     };

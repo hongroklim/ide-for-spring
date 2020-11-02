@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
         return this.getUserAuthorities(user);
     }
 
-    private UserDTO getUserNotNull(String userNm){
+    public UserDTO getUserNotNull(String userNm){
         UserDTO user = new UserDTO();
         user.setUserNm(userNm);
         return this.getUserNotNull(user);
