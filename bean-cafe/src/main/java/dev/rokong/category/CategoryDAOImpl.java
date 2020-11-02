@@ -46,11 +46,20 @@ public class CategoryDAOImpl implements CategoryDAO {
         sqlSession.update(PREFIX+"updateCategoryOrder", category);
     }
 
-    public void pushChildrenOrder(int upId, int startOrder){
+    public void backwardChildrenOrder(int upId, int startOrder, int endOrder){
         Map<String, Integer> hm = new HashMap<String, Integer>();
         hm.put("upId", upId);
         hm.put("startOrder", startOrder);
-        sqlSession.update(PREFIX+"pushChildrenOrder", hm);
+        hm.put("endOrder", endOrder);
+        sqlSession.update(PREFIX+"backwardChildrenOrder", hm);
+    }
+
+    public void forwardChildrenOrder(int upId, int startOrder, int endOrder){
+        Map<String, Integer> hm = new HashMap<String, Integer>();
+        hm.put("upId", upId);
+        hm.put("startOrder", startOrder);
+        hm.put("endOrder", endOrder);
+        sqlSession.update(PREFIX+"forwardChildrenOrder", hm);
     }
 
     public void arrangeChildrenOrder(int upId){
@@ -62,5 +71,9 @@ public class CategoryDAOImpl implements CategoryDAO {
         hm.put("parentId", parentId);
         hm.put("ChildId", ChildId);
         return sqlSession.selectOne(PREFIX+"isParentAndChild", hm);
+    }
+
+    public int selectMaxCategoryOrder(int upId){
+        return sqlSession.selectOne(PREFIX+"selectMaxCategoryOrder", upId);
     }
 }

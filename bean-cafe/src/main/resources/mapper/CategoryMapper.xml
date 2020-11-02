@@ -5,18 +5,18 @@
         WITH RECURSIVE rc_category
              (id, name, up_id, ord, depth, path, sort, cycle)
           AS (SELECT A.id, A.name, A.up_id, A.ord,
-                     1				    AS depth,
-                     ARRAY[id::text]    AS path,
+                     1                AS depth,
+                     ARRAY[id::text]  AS path,
                      ARRAY[ord::text]	AS sort,
-                     false			    AS cycle
+                     false			      AS cycle
                 FROM category A
                WHERE up_id = 0
                UNION ALL
               SELECT A.id, A.name, A.up_id, A.ord,
-                     B.depth+1 							AS depth,
-                     ARRAY_APPEND(B.path, A.id::text)	AS path,
+                     B.depth+1 							            AS depth,
+                     ARRAY_APPEND(B.path, A.id::text)	  AS path,
                      ARRAY_APPEND(B.sort, A.ord::text)	AS sort,
-                     A.id::text = ANY(B.path)			AS cycle
+                     A.id::text = ANY(B.path)			      AS cycle
                 FROM category A,
                      rc_category B
                WHERE A.up_id = B.id
@@ -67,11 +67,20 @@
          WHERE id = #{id}
     </update>
 
-    <update id="pushChildrenOrder" parameterType="hashmap">
+    <update id="backwardChildrenOrder" parameterType="hashmap">
         UPDATE category
            SET ord = ord+1
          WHERE up_id = #{upId}
-           AND ord >= #{startOrder}
+           AND ord <![CDATA[ >= ]]> #{startOrder}
+           AND ord <![CDATA[ <= ]]> #{endOrder}
+    </update>
+
+    <update id="forwardChildrenOrder" parameterType="hashmap">
+        UPDATE category
+           SET ord = ord-1
+         WHERE up_id = #{upId}
+           AND ord <![CDATA[ >= ]]> #{startOrder}
+           AND ord <![CDATA[ <= ]]> #{endOrder}
     </update>
 
     <update id="arrangeChildrenOrder" parameterType="int">
@@ -105,5 +114,11 @@
 	    FROM rc_category
 	   WHERE id = #{parentId}
 	     AND id != #{childId}
+    </select>
+
+    <select id="selectMaxCategoryOrder" parameterType="int" resultType="int">
+        SELECT MAX(ord)
+          FROM category
+         WHERE up_id = #{upId}
     </select>
 </mapper>

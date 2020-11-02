@@ -12,7 +12,9 @@ public interface CategoryDAO {
     public List<CategoryDTO> selectCategoryChildren(int upId);
     public void updateCategory(CategoryDTO category);
     public void updateCategoryOrder(CategoryDTO category);
-    public void pushChildrenOrder(int upId, int startOrder);
+    public void backwardChildrenOrder(int upId, int startOrder, int endOrder);
+    public void forwardChildrenOrder(int upId, int startOrder, int endOrder);
     public void arrangeChildrenOrder(int upId);
     public boolean isParentAndChild(int parentId, int ChildId);
+    public int selectMaxCategoryOrder(int upId);
 }

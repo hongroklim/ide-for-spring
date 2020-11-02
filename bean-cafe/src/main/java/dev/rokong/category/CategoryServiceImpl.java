@@ -117,24 +117,38 @@ public class CategoryServiceImpl implements CategoryService {
     
     public CategoryDTO updateCategoryOrder(CategoryDTO category){
         CategoryDTO asisCategory = this.getCategoryNotNull(category);
-        if(asisCategory.getOrd() == category.getOrd()){
+        
+        int asisOrder = asisCategory.getOrd();
+        int tobeOrder = category.getOrd();
+
+        if(tobeOrder == asisOrder){
             //return asisCategory if nothing to be changed
             return asisCategory;
         }
 
-        List<CategoryDTO> siblings = this.getCategoryChildren(category.getUpId());
-        for(CategoryDTO c : siblings){
-            if(c.getOrd() == category.getOrd()){
-                //avoid duplicate ord in same level
-                cDAO.pushChildrenOrder(asisCategory.getUpId(), category.getOrd());
-                break;
+        //to check tobeOrder beyonds max(order)
+        int maxOrd = this.maxOrdOfCategory(category.getUpId());
+
+        //prevent unique constraint (upId, ord)
+        this.appendLastCategoryOrder(category);
+
+        if(tobeOrder <= maxOrd){
+            //if tobeOrder exists in max(order)
+
+            if(tobeOrder < asisOrder){                      //move forward order
+                //move backward between tobe and asis one
+                cDAO.backwardChildrenOrder(asisCategory.getUpId(),
+                    tobeOrder, asisOrder);
+            }else{                                          //move backward order
+                //move forward between asis and tobe one
+                cDAO.forwardChildrenOrder(asisCategory.getUpId(),
+                    asisOrder, tobeOrder);
             }
+
+            //execute update only order
+            cDAO.updateCategoryOrder(category);
         }
-
-        //execute update only order
-        cDAO.updateCategoryOrder(category);
-        cDAO.arrangeChildrenOrder(asisCategory.getUpId());
-
+        
         return this.getCategoryNotNull(category);
     };
     
@@ -168,13 +182,16 @@ public class CategoryServiceImpl implements CategoryService {
         return maxOrd;
     }
 
+    private int maxOrdOfCategory(int upId){
+        return cDAO.selectMaxCategoryOrder(upId);
+    }
+
     private void appendLastCategoryOrder(CategoryDTO category){
         CategoryDTO getCategory = this.getCategoryNotNull(category);
         
         //set order max(ord)+1 value
-        List<CategoryDTO> siblings = cDAO.selectCategoryChildren(getCategory.getUpId());
-        getCategory.setOrd(this.maxOrdOfCategory(siblings)+1);
+        getCategory.setOrd(this.maxOrdOfCategory(getCategory.getUpId())+1);
 
-        cDAO.updateCategoryOrder(category);
+        cDAO.updateCategoryOrder(getCategory);
     }
 }

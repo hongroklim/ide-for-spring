@@ -268,8 +268,6 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(getCategory.getId(), is(equalTo(category0.getId())));
         assertThat(getCategory.getOrd(), is(equalTo(category0.getOrd())));
 
-        //TODO 1, 2, 3 -> 2, 1, 3??
-
         //privious owner of order also changed consequently 
         CategoryDTO getCategory1 = cService.getCategory(category1.getId());
         assertThat(getCategory1, is(notNullValue()));
