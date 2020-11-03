@@ -22,4 +22,13 @@ public class ProductOptionDAOImpl implements ProductOptionDAO {
     public ProductOptionDTO selectProductOption(ProductOptionDTO pOption){
         return sqlSession.selectOne(PREFIX+"selectProductOption", pOption);
     }
+
+    public void insertProductOption(ProductOptionDTO pOption){
+        sqlSession.insert(PREFIX+"insertProductOption", pOption);
+    }
+
+    public void deleteProductOption(ProductOptionDTO pOption){
+        sqlSession.delete(PREFIX+"deleteProductOption", pOption);
+    }
+
 }

@@ -10,6 +10,7 @@ public interface ProductService {
     public ProductDTO createProduct(ProductDTO product);
     public ProductDTO getProduct(int id);
     public ProductDTO getProductNotNull(int id);
+    // TODO public boolean isProductExists(int id);
     public ProductDTO updateProduct(ProductDTO product);
     public void deleteProductStock(int id);
     public void deleteProduct(int id);

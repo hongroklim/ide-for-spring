@@ -8,4 +8,6 @@ public interface ProductOptionService {
     public List<ProductOptionDTO> getPOptionList(ProductOptionDTO pOption);
     public ProductOptionDTO getPOption(ProductOptionDTO pOption);
     public ProductOptionDTO getPOptionNotNull(ProductOptionDTO pOption);
+    public ProductOptionDTO createPOption(ProductOptionDTO pOption);
+    public void deletePOption(ProductOptionDTO pOption);
 }

@@ -45,6 +45,22 @@ public class ProductOptionController {
     @RequestMapping(value="", method=RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public ProductOptionDTO createProductOption(@RequestBody ProductOptionDTO pOption){
+        return pOptionService.createPOption(pOption);
+    }
+
+    @RequestMapping(value="/group/{groupId}/id/{optionId}", method=RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public ProductOptionDTO deleteProductOption(@PathVariable int pId, @PathVariable int groupId,
+            @PathVariable String optionId){
+        //ProductOptionDTO pOption = new ProductOptionDTO(pId, groupId, optionId);
+        return null;
+    }
+
+    @RequestMapping(value="/group/{groupId}/id/{optionId}", method=RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public ProductOptionDTO updateProductOption(@PathVariable int pId, @PathVariable int groupId,
+            @PathVariable String optionId, @RequestBody ProductOptionDTO pOption){
+        //ProductOptionDTO asisPOption = new ProductOptionDTO(pId, groupId, optionId);
         return null;
     }
 }

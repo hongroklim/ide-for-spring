@@ -13,4 +13,22 @@
          </if>
          ORDER BY product_id, option_group, option_id
     </select>
+
+    <insert id="insertProductOption" parameterType="ProductOptionDTO">
+        INSERT INTO product_option
+               (product_id, option_group, option_id, name)
+        VALUES (#{productId}, #{optionGroup}, #{optionId}, #{name})
+    </insert>
+
+    <delete id="deleteProductOption">
+        DELETE
+          FROM product_option
+         WHERE product_id = #{productId}
+        <if test="optionGroup != null">
+           AND option_group = #{optionGroup}    
+        </if>
+        <if test='optionId != null and !"".equals(optionId)'>
+           AND option_id = #{optionId}    
+        </if>
+    </delete>
 </mapper>
