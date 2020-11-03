@@ -1,4 +1,4 @@
-package dev.rokong.product;
+package dev.rokong.product.main;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +13,7 @@ import dev.rokong.dto.ProductDTO;
 @Repository
 public class ProductDAOImpl implements ProductDAO {
 
-    public static final String PREFIX = "dev.rokong.ProductMapper.";
+    public static final String PREFIX = "dev.rokong.product.";
 
     @Autowired SqlSessionTemplate sqlSession;
 

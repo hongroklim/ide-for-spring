@@ -1,40 +1,28 @@
 package dev.rokong.dto;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class ProductOptionDTO {
     private int productId;
-    private int optionGroup;
+    private Integer optionGroup;
     private String optionId;
     private String name;
 
-    public int getProductId() {
-        return productId;
+    public ProductOptionDTO(int pId){
+        this.productId = pId;
     }
 
-    public String getName() {
-        return name;
+    public ProductOptionDTO(int pId, int groupId){
+        this.productId = pId;
+        this.optionGroup = groupId;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getOptionGroup() {
-        return optionGroup;
-    }
-
-    public void setOptionGroup(int optionGroup) {
-        this.optionGroup = optionGroup;
-    }
-
-    public String getOptionId() {
-        return optionId;
-    }
-
-    public void setOptionId(String optionId) {
+    public ProductOptionDTO(int pId, int groupId, String optionId){
+        this.productId = pId;
+        this.optionGroup = groupId;
         this.optionId = optionId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
     }
 }

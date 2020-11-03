@@ -1,4 +1,4 @@
-package product;
+package product.main;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -20,8 +20,8 @@ import dev.rokong.category.CategoryService;
 import dev.rokong.dto.CategoryDTO;
 import dev.rokong.dto.ProductDTO;
 import dev.rokong.dto.UserDTO;
-import dev.rokong.product.ProductController;
-import dev.rokong.product.ProductService;
+import dev.rokong.product.main.ProductController;
+import dev.rokong.product.main.ProductService;
 import dev.rokong.user.UserService;
 
 public class ControllerTest extends MvcUnitConfig {

@@ -1,4 +1,4 @@
-package product;
+package product.main;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import config.SpringConfig;
 import dev.rokong.dto.ProductDTO;
-import dev.rokong.product.ProductDAO;
-import dev.rokong.product.ProductService;
+import dev.rokong.product.main.ProductDAO;
+import dev.rokong.product.main.ProductService;
 
 public class DaoTest extends SpringConfig {
     

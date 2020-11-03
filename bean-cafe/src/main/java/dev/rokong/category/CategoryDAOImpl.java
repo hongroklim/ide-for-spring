@@ -13,7 +13,7 @@ import dev.rokong.dto.CategoryDTO;
 @Repository
 public class CategoryDAOImpl implements CategoryDAO {
     
-    public static final String PREFIX = "dev.rokong.CategoryMapper.";
+    public static final String PREFIX = "dev.rokong.category.";
 
     @Autowired SqlSessionTemplate sqlSession;
 

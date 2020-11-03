@@ -10,7 +10,7 @@ import dev.rokong.dto.UserDTO;
 
 @Repository
 public class UserDAOImpl implements UserDAO {
-    public static final String PREFIX = "dev.rokong.UserMapper.";
+    public static final String PREFIX = "dev.rokong.user.";
 
     @Autowired SqlSessionTemplate sqlSession;
 

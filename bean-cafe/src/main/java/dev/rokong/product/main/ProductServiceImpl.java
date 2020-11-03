@@ -1,4 +1,4 @@
-package dev.rokong.product;
+package dev.rokong.product.main;
 
 import java.util.List;
 
