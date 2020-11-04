@@ -50,17 +50,25 @@ public class ProductOptionController {
 
     @RequestMapping(value="/group/{groupId}/id/{optionId}", method=RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    public ProductOptionDTO deleteProductOption(@PathVariable int pId, @PathVariable int groupId,
+    public void deleteProductOption(@PathVariable int pId, @PathVariable int groupId,
             @PathVariable String optionId){
-        //ProductOptionDTO pOption = new ProductOptionDTO(pId, groupId, optionId);
-        return null;
+        ProductOptionDTO pOption = new ProductOptionDTO(pId, groupId, optionId);
+        pOptionService.deletePOption(pOption);
     }
 
-    @RequestMapping(value="/group/{groupId}/id/{optionId}", method=RequestMethod.POST)
+    @RequestMapping(value="/group/{groupId}/id/{optionId}", method=RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public ProductOptionDTO updateProductOption(@PathVariable int pId, @PathVariable int groupId,
             @PathVariable String optionId, @RequestBody ProductOptionDTO pOption){
         //ProductOptionDTO asisPOption = new ProductOptionDTO(pId, groupId, optionId);
+        return null;
+    }
+
+    @RequestMapping(value="/group/{groupId}", method=RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public ProductOptionDTO updateProductOptionGroupOrder(@PathVariable int pId, @PathVariable int groupId,
+            @RequestBody ProductOptionDTO pOption){
+        //ProductOptionDTO asisPOption = new ProductOptionDTO(pId, groupId);
         return null;
     }
 }

@@ -31,4 +31,13 @@
            AND option_id = #{optionId}    
         </if>
     </delete>
+
+    <update id="updateProductOption" parameterType="hashmap">
+        UPDATE product_option
+           SET option_id = #{optionId},
+               name = #{name}
+         WHERE product_id = #{pOption.productId}
+           AND option_group = #{pOption.optionGroup}
+           AND option_id = #{pOption.optionId}
+    </update>
 </mapper>

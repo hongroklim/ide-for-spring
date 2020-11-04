@@ -9,4 +9,5 @@ public interface ProductOptionDAO {
     public ProductOptionDTO selectProductOption(ProductOptionDTO pOption);
     public void insertProductOption(ProductOptionDTO pOption);
     public void deleteProductOption(ProductOptionDTO pOption);
+    public void updateProductOption(ProductOptionDTO asisPOption, String optionId, String name);
 }

@@ -1,6 +1,8 @@
 package dev.rokong.product.option;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,15 @@ public class ProductOptionDAOImpl implements ProductOptionDAO {
 
     public void deleteProductOption(ProductOptionDTO pOption){
         sqlSession.delete(PREFIX+"deleteProductOption", pOption);
+    }
+
+    public void updateProductOption(ProductOptionDTO asisPOption, String optionId, String name){
+        Map<String, Object> hm = new HashMap<String, Object>();
+        hm.put("pOption", asisPOption);
+        hm.put("optionId", optionId);
+        hm.put("name", name);
+
+        sqlSession.update(PREFIX+"updateProductOption", hm);
     }
 
 }
