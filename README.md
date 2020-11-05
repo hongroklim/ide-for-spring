@@ -20,6 +20,20 @@ $ git config --global --edit
 
 https://docs.docker.com/get-docker/
 
+### Postgresql
+
+```bash
+# in host
+$ sudo docker exec -it bean-cafe-project_pgadmin4_1 /bin/sh
+
+# in pgadmin4 container
+$ psql --host=172.18.0.12 --port=5432 --dbname=bean_cafe_db \
+  --username=bean_cafe_dev --password \
+  --file=/var/lib/pgadmin/storage/hongrr123_gmail.com/bean_cafe_base_schema.sql
+# and execute more script
+
+```
+
 ### NGINX
 
 #### 1. install nginx
@@ -109,6 +123,13 @@ $ sudo chown coder ~/wildfly/standalone/deployments/*
 - Java Extension Pack (vscjava)
 - XML (redhat)
 - Dracula Official (dracula-theme)
+- lombok (Gabriel Basilio Brito)
+
+#### extensions for window
+
+- Remote-containers
+- Remote-WSL
+- Docker
 
 #### Kebyoard Shortcuts
 
