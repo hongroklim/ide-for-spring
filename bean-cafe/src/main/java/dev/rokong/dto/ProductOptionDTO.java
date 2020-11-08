@@ -25,4 +25,10 @@ public class ProductOptionDTO {
         this.optionGroup = groupId;
         this.optionId = optionId;
     }
+
+    public ProductOptionDTO(ProductOptionDTO pOption){
+        this.productId = pOption.getProductId();
+        this.optionGroup = pOption.getOptionGroup();
+        this.optionId = pOption.getOptionId();
+    }
 }

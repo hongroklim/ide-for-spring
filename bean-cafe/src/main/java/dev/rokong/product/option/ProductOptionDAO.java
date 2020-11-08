@@ -10,4 +10,6 @@ public interface ProductOptionDAO {
     public void insertProductOption(ProductOptionDTO pOption);
     public void deleteProductOption(ProductOptionDTO pOption);
     public void updateProductOption(ProductOptionDTO asisPOption, String optionId, String name);
+    public void backwardOptionOrder(ProductOptionDTO pOption, String startId, String endId);
+    public void forwardOptionOrder(ProductOptionDTO pOption, String startId, String endId);
 }

@@ -42,4 +42,19 @@ public class ProductOptionDAOImpl implements ProductOptionDAO {
         sqlSession.update(PREFIX+"updateProductOption", hm);
     }
 
+    public void backwardOptionOrder(ProductOptionDTO pOption, String startId, String endId){
+        Map<String, Object> hm = new HashMap<String, Object>();
+        hm.put("pOption", pOption);
+        hm.put("startId", startId);
+        hm.put("endId", endId);
+        sqlSession.update(PREFIX+"backwardOptionOrder", hm);
+    }
+
+    public void forwardOptionOrder(ProductOptionDTO pOption, String startId, String endId){
+        Map<String, Object> hm = new HashMap<String, Object>();
+        hm.put("pOption", pOption);
+        hm.put("startId", startId);
+        hm.put("endId", endId);
+        sqlSession.update(PREFIX+"forwardOptionOrder", hm);
+    }
 }

@@ -1,5 +1,10 @@
 package product.option;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertThat;
+
 import java.util.List;
 
 import org.junit.Test;
@@ -28,9 +33,23 @@ public class ControllerTest extends MvcUnitConfig {
         this.mvc = MockMvcBuilders.standaloneSetup(pOptionController).build();
     }
     
+    private int randomIdx(int size){
+        double d = Math.random();
+        int i = (int) d*100;
+
+        return i % size;
+    }
+
     private ProductDTO getAnyProduct(){
-        int id = 2;     //TODO get random id
-        return pService.getProductNotNull(id);
+        List<ProductDTO> pList = pService.getProductList();
+        assertThat(pList, is(notNullValue()));
+        assertThat(pList.size(), is(greaterThan(0)));
+
+        int index = this.randomIdx(pList.size());
+        ProductDTO result = pList.get(index);
+
+        assertThat(result, is(notNullValue()));
+        return result;
     }
 
     @Test
@@ -44,4 +63,30 @@ public class ControllerTest extends MvcUnitConfig {
         url = "/product/"+2+"/option/group/"+1+"/id/"+"01";
         ProductOptionDTO res2 = this.reqAndResBody(url, RequestMethod.GET, null, ProductOptionDTO.class);
     }
+
+    public void getPOptionsInProduct() throws Exception {
+
+    }
+
+    public void getPOptionsInGroup() throws Exception {
+        
+    }
+
+    public void getPOption() throws Exception {
+        
+    }
+
+    public void createProductOption() throws Exception {
+        
+    }
+
+    public void deleteProductOption() throws Exception {
+        
+    }
+
+    public void updateProductOption() throws Exception {
+        
+    }
+
+    
 }

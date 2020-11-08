@@ -117,8 +117,8 @@ public class ProductOptionServiceImpl implements ProductOptionService {
 
         //if pOption is option group's title
         if("00".equals(pOption.getOptionId())){
-            //get product option list in group
-            ProductOptionDTO param = new ProductOptionDTO(pOption.getProductId(), pOption.getOptionGroup()+1);
+            //get product option list in same group
+            ProductOptionDTO param = new ProductOptionDTO(pOption.getProductId(), pOption.getOptionGroup());
             List<ProductOptionDTO> optionsInGrp = pOptionDAO.selectProductOptionList(param);
 
             if(optionsInGrp != null && optionsInGrp.size() > 1){
@@ -127,17 +127,17 @@ public class ProductOptionServiceImpl implements ProductOptionService {
                 log.debug("the size of options in group : "+optionsInGrp.size()+" (this size should be 1)");
                 throw new BusinessException("other option in same group exists");
             }
-        }
 
-        //get product option list whose option group is pOption's option group +1
-        ProductOptionDTO param = new ProductOptionDTO(pOption.getProductId(), pOption.getOptionGroup()+1);
-        List<ProductOptionDTO> lowerOptions = pOptionDAO.selectProductOptionList(param);
-        
-        if(lowerOptions != null && lowerOptions.size() > 0){
-            //if lower group exists, throw exception
-            log.debug("product option paramerter : "+pOption.toString());
-            log.debug("lower option's option group : "+lowerOptions.get(0).getOptionGroup());
-            throw new BusinessException("lower options exist");
+            //get product option list whose option group is pOption's option group +1
+            param = new ProductOptionDTO(pOption.getProductId(), pOption.getOptionGroup()+1);
+            List<ProductOptionDTO> lowerOptions = pOptionDAO.selectProductOptionList(param);
+            
+            if(lowerOptions != null && lowerOptions.size() > 0){
+                //if lower group exists, throw exception
+                log.debug("product option paramerter : "+pOption.toString());
+                log.debug("lower option's option group : "+lowerOptions.get(0).getOptionGroup());
+                throw new BusinessException("lower option group exist");
+            }
         }
 
         log.debug("associated option cd in order product is set null");
@@ -155,10 +155,10 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         // update name or option_id
         ProductOptionDTO asis = this.getPOptionNotNull(asisPOption);
 
-        boolean updateName = !asis.getName().equals(tobePOption.getName());
-        boolean updateId = !asis.getOptionId().equals(tobePOption.getOptionId());
+        boolean isUpdateName = !asis.getName().equals(tobePOption.getName());
+        boolean isUpdateId = !asis.getOptionId().equals(tobePOption.getOptionId());
 
-        if(!updateName && !updateId){
+        if(!isUpdateName && !isUpdateId){
             //if nothing to be changed, return asis one
             return asis;
         }
@@ -170,12 +170,12 @@ public class ProductOptionServiceImpl implements ProductOptionService {
             throw new BusinessException("option id can not be changed to title's id (00)");
         }
 
-        if(updateId){
+        if(isUpdateId){
             //get option list in same group
             ProductOptionDTO param = new ProductOptionDTO(asis.getProductId(), asis.getOptionGroup());
             List<ProductOptionDTO> optionsInGrp = this.getPOptionList(param);
 
-            int availableRange = (optionsInGrp == null) ? 1 : optionsInGrp.size()-1; //except title(00)
+            int availableRange = (optionsInGrp==null) ? 1 : optionsInGrp.size()-1; //except title(00)
 
             if(Integer.parseInt(tobePOption.getOptionId()) > availableRange){
                 //if tobe option id exceed existing count of options, throw exception
@@ -186,15 +186,16 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         }
 
         //if option's name (except title) is going to be changed
-        if(updateName && !"00".equals(tobePOption.getOptionId())){
+        if(isUpdateName && !"00".equals(tobePOption.getOptionId())){
             //get option list in same group
             ProductOptionDTO param = new ProductOptionDTO(asis.getProductId(), asis.getOptionGroup());
             List<ProductOptionDTO> optionsInGrp = this.getPOptionList(param);
 
             for(ProductOptionDTO pOption : optionsInGrp){
                 if(!"00".equals(pOption.getOptionId()) &&
+                        !asisPOption.getOptionId().equals(pOption.getOptionId()) &&
                         pOption.getName().equals(tobePOption.getName())){
-                    //avoid duplicate option name (except option group's title)
+                    //avoid duplicate option name (except option group's title and itself)
                     log.debug("asis product option paramerter : "+asis.toString());
                     log.debug("tobe product option paramerter : "+tobePOption.toString());
                     throw new BusinessException("duplicate name in same option group");
@@ -214,10 +215,10 @@ public class ProductOptionServiceImpl implements ProductOptionService {
                 order product : set null option cd (asis ~ tobe)
                 cart : cascade
         */
-        if(updateId){
+        if(isUpdateId){
             //TODO if product detail exists(asis ~ tobe), throw exception
 
-            if(updateName){
+            if(isUpdateName){
                 //TODO product detail : update name
             }
 
@@ -225,24 +226,39 @@ public class ProductOptionServiceImpl implements ProductOptionService {
 
             //TODO cart : cascade
 
-        }else if(updateName){
+        }else if(isUpdateName){
             //TODO product detail : update name
 
             //TODO order_product : set null option cd (asis)
 
         }
 
-        if(updateId){
+        //now it is going to update
+        if(isUpdateId){
             this.rearrangeOptionIdOrder(asis, tobePOption.getOptionId());
             //after update id, set updated option id in asis
             asis.setOptionId(tobePOption.getOptionId());
         }
 
-        if(updateName){
+        if(isUpdateName){
             pOptionDAO.updateProductOption(asis, asis.getOptionId(), tobePOption.getName());
         }
 
         return this.getPOptionNotNull(asis);
+    }
+
+    public void updatePOptionGroupOrder(ProductOptionDTO asisPOption, int tobePOptionGroup){
+        //check asis product option group exists
+        ProductOptionDTO param = new ProductOptionDTO(asisPOption);
+        param.setOptionId("00");    //find title
+        this.getPOptionNotNull(param);
+
+        //TODO keep normalize other tables
+        /*
+            product detail : if exists(asis ~ tobe), throw exception
+            order product : set null option cd (asis ~ tobe)
+            cart : cascade
+        */
     }
 
     private void verifyPrimaryKeysDefined(ProductOptionDTO pOption){
@@ -261,6 +277,27 @@ public class ProductOptionServiceImpl implements ProductOptionService {
     }
 
     private void rearrangeOptionIdOrder(ProductOptionDTO asisPOption, String tobeOptionId){
-        //TODO push and pull, update last
+        //delete asis product option
+        this.deletePOption(asisPOption);
+
+        int asisOrder = Integer.parseInt(asisPOption.getOptionId());
+        int tobeOrder = Integer.parseInt(tobeOptionId);
+
+        //is forward or backward change?
+        if(tobeOrder < asisOrder){                      //move forward order
+            //move backward between tobe and asis one
+            pOptionDAO.backwardOptionOrder(asisPOption,
+                tobeOptionId, asisPOption.getOptionId());
+        }else{                                          //move backward order
+            //move forward between asis and tobe one
+            pOptionDAO.forwardOptionOrder(asisPOption,
+                asisPOption.getOptionId(), tobeOptionId);
+        }
+
+        //after move the others, insert tobe product option
+        ProductOptionDTO tobePOption = asisPOption;
+        tobePOption.setOptionId(tobeOptionId);
+        
+        this.createPOption(tobePOption);
     }
 }
