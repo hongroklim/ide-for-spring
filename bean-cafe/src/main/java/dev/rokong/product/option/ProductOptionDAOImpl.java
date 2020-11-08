@@ -33,28 +33,28 @@ public class ProductOptionDAOImpl implements ProductOptionDAO {
         sqlSession.delete(PREFIX+"deleteProductOption", pOption);
     }
 
-    public void updateProductOption(ProductOptionDTO asisPOption, String optionId, String name){
+    public void updateProductOption(ProductOptionDTO asisPOption, String name, int ord){
         Map<String, Object> hm = new HashMap<String, Object>();
         hm.put("pOption", asisPOption);
-        hm.put("optionId", optionId);
         hm.put("name", name);
+        hm.put("ord", ord);
 
         sqlSession.update(PREFIX+"updateProductOption", hm);
     }
 
-    public void backwardOptionOrder(ProductOptionDTO pOption, String startId, String endId){
+    public void backwardOptionOrder(ProductOptionDTO pOption, int startOrder, int endOrder){
         Map<String, Object> hm = new HashMap<String, Object>();
         hm.put("pOption", pOption);
-        hm.put("startId", startId);
-        hm.put("endId", endId);
+        hm.put("startOrder", startOrder);
+        hm.put("endOrder", endOrder);
         sqlSession.update(PREFIX+"backwardOptionOrder", hm);
     }
 
-    public void forwardOptionOrder(ProductOptionDTO pOption, String startId, String endId){
+    public void forwardOptionOrder(ProductOptionDTO pOption, int startOrder, int endOrder){
         Map<String, Object> hm = new HashMap<String, Object>();
         hm.put("pOption", pOption);
-        hm.put("startId", startId);
-        hm.put("endId", endId);
+        hm.put("startOrder", startOrder);
+        hm.put("endOrder", endOrder);
         sqlSession.update(PREFIX+"forwardOptionOrder", hm);
     }
 }

@@ -21,32 +21,16 @@ public class DaoTest extends SpringConfig {
     
     @Autowired ProductOptionService pOptionService;
     @Autowired ProductOptionDAO pOptionDAO;
-    
-    @Test
-    public void updateProductOption(){
-        //get any product option in any product
-        int anyProductId = 2;
-        ProductOptionDTO param = new ProductOptionDTO(anyProductId);
-        ProductOptionDTO asis = pOptionService.getPOptionList(param).get(0);
-        assertThat(asis.getProductId(), is(equalTo(anyProductId)));
-
-        //update
-        pOptionDAO.updateProductOption(asis, asis.getOptionId(), "new name");
-        
-        //then get product option
-        ProductOptionDTO getPOption = pOptionService.getPOptionNotNull(asis);
-        assertThat(getPOption.getName(), is(equalTo("new name")));
-    }
 
     @Test
     public void updateProductOptionOrder(){
         //asis Product option
-        ProductOptionDTO asisPOption = new ProductOptionDTO(2, 3, "01");
+        ProductOptionDTO asisPOption = new ProductOptionDTO(2, 1, "02");
         asisPOption = pOptionService.getPOptionNotNull(asisPOption);
 
         //tobe Product option
         ProductOptionDTO tobePOption = pOptionService.getPOptionNotNull(asisPOption);
-        tobePOption.setOptionId("03");
+        tobePOption.setOrd(4);
 
         //list before update
         ProductOptionDTO param = new ProductOptionDTO(asisPOption);
@@ -58,7 +42,7 @@ public class DaoTest extends SpringConfig {
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getName(), is(equalTo(asisPOption.getName())));
-        assertThat(result.getOptionId(), is(equalTo("03")));
+        assertThat(result.getOrd(), is(equalTo(4)));
 
         //liset after update
         list = pOptionService.getPOptionList(param);

@@ -10,6 +10,7 @@ import dev.rokong.annotation.PriceField;
 import dev.rokong.category.CategoryService;
 import dev.rokong.dto.ProductDTO;
 import dev.rokong.exception.BusinessException;
+import dev.rokong.product.option.ProductOptionService;
 import dev.rokong.user.UserService;
 
 @Service
@@ -18,6 +19,7 @@ public class ProductServiceImpl implements ProductService {
     
     @Autowired UserService uService;
     @Autowired CategoryService cService;
+    @Autowired ProductOptionService pOptionService;
 
     @Autowired ProductDAO pDAO;
 
@@ -66,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(int id){
         ProductDTO getProduct = this.getProductNotNull(id);
 
-        //TODO if there are options, throw exception
+        pOptionService.deletePOptionAll(id);
 
         pDAO.deleteProduct(getProduct.getId());
     };

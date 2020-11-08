@@ -42,7 +42,13 @@ public class ProductOptionController {
         return pOptionService.getPOption(param);
     }
 
-    @RequestMapping(value="", method=RequestMethod.POST)
+    @RequestMapping(value="/group", method=RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public ProductOptionDTO createProductOptionGroup(@RequestBody ProductOptionDTO pOption){
+        return pOptionService.createPOptionGroup(pOption);
+    }
+
+    @RequestMapping(value="/group/{groupId}", method=RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public ProductOptionDTO createProductOption(@RequestBody ProductOptionDTO pOption){
         return pOptionService.createPOption(pOption);
@@ -61,6 +67,13 @@ public class ProductOptionController {
     public ProductOptionDTO updateProductOption(@PathVariable int pId, @PathVariable int groupId,
             @PathVariable String optionId, @RequestBody ProductOptionDTO pOption){
         //ProductOptionDTO asisPOption = new ProductOptionDTO(pId, groupId, optionId);
+        return null;
+    }
+
+    @RequestMapping(value="/group", method=RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public ProductOptionDTO deleteProductOptionGroup(@PathVariable int pId){
+        ProductOptionDTO pOption = new ProductOptionDTO(pId);
         return null;
     }
 

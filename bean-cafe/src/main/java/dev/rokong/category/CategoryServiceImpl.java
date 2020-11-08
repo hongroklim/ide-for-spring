@@ -57,6 +57,8 @@ public class CategoryServiceImpl implements CategoryService {
             throw new BusinessException(category.getId()+"'s children are exists");
         }
 
+        //TODO set null in product
+
         cDAO.deleteCategory(category.getId());
     };
     
@@ -147,6 +149,8 @@ public class CategoryServiceImpl implements CategoryService {
 
             //execute update only order
             cDAO.updateCategoryOrder(category);
+        }else{
+            log.debug("tobe order exceed the max order. it will be appended last");
         }
         
         return this.getCategoryNotNull(category);
