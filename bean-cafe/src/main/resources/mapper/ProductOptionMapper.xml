@@ -51,11 +51,34 @@
     </update>
 
     <update id="forwardOptionOrder" parameterType="hashmap">
-      UPDATE product_option
-         SET ord = ord-1
-       WHERE product_id = #{pOption.productId}
-         AND option_group = #{pOption.optionGroup}
-         AND ord <![CDATA[ >= ]]> #{startOrder}
-         AND ord <![CDATA[ <= ]]> #{endOrder}
+        UPDATE product_option
+           SET ord = ord-1
+         WHERE product_id = #{pOption.productId}
+           AND option_group = #{pOption.optionGroup}
+           AND ord <![CDATA[ >= ]]> #{startOrder}
+           AND ord <![CDATA[ <= ]]> #{endOrder}
+    </update>
+
+    <update id="updateOptionGroup" parameterType="hashmap">
+        UPDATE product_option
+           SET option_group = #[tobeGroup}
+         WHERE product_id = #{pOption.productId}
+           AND option_group = #{pOption.optionGroup}
+    </update>
+
+    <update id="backwardOptionGroup" parameterType="hashmap">
+        UPDATE product_option
+           SET option_group = option_group+1
+         WHERE product_id = #{productId}
+           AND option_group <![CDATA[ >= ]]> #{startGroup}
+           AND option_group <![CDATA[ <= ]]> #{endGroup}
+    </update>
+  
+    <update id="forwardOptionGroup" parameterType="hashmap">
+        UPDATE product_option
+           SET option_group = option_group-1
+         WHERE product_id = #{productId}
+           AND option_group <![CDATA[ >= ]]> #{startGroup}
+           AND option_group <![CDATA[ <= ]]> #{endGroup}
     </update>
 </mapper>

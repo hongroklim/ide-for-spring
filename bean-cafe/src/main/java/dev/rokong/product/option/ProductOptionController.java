@@ -66,15 +66,15 @@ public class ProductOptionController {
     @ResponseStatus(HttpStatus.OK)
     public ProductOptionDTO updateProductOption(@PathVariable int pId, @PathVariable int groupId,
             @PathVariable String optionId, @RequestBody ProductOptionDTO pOption){
-        //ProductOptionDTO asisPOption = new ProductOptionDTO(pId, groupId, optionId);
-        return null;
+        ProductOptionDTO asisPOption = new ProductOptionDTO(pId, groupId, optionId);
+        return pOptionService.updatePOption(asisPOption, pOption);
     }
 
     @RequestMapping(value="/group", method=RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    public ProductOptionDTO deleteProductOptionGroup(@PathVariable int pId){
+    public void deleteProductOptionGroup(@PathVariable int pId){
         ProductOptionDTO pOption = new ProductOptionDTO(pId);
-        return null;
+        pOptionService.deletePOptionGroup(pOption);
     }
 
     @RequestMapping(value="/group/{groupId}", method=RequestMethod.PUT)

@@ -48,6 +48,8 @@ public class ProductOptionServiceImpl implements ProductOptionService {
     };
 
     public ProductOptionDTO createPOptionGroup(ProductOptionDTO pOption){
+        //product id and name must be defined
+
         //option group will be created automatically
 
         //is product option name is defined
@@ -62,6 +64,16 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         ProductOptionDTO param = new ProductOptionDTO(pOption.getProductId());
         List<ProductOptionDTO> resultList = this.getPOptionList(param);
         
+        //avoid duplicate product option group name
+        for(ProductOptionDTO p : resultList){
+            if("00".equals(p.getOptionId())
+                    && p.getName().equals(pOption.getName())){
+                log.debug("product option paramerter : "+pOption.toString());
+                log.debug("duplicate product option : "+p.toString());
+                throw new BusinessException("option group's name is duplicated");
+            }
+        }
+
         //calculate option group to be created
         int lastGroup = 0;
         if(resultList != null && resultList.size() != 0){
@@ -82,6 +94,8 @@ public class ProductOptionServiceImpl implements ProductOptionService {
     }
 
     public ProductOptionDTO createPOption(ProductOptionDTO pOption){
+        //product id, option group and name must be defined
+
         //pOption's option_id will be created automatically
 
         //is product option name is defined
@@ -200,6 +214,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         if(isNameChange){
             //TODO update product detail name
             pOptionDAO.updateProductOption(asisPOption, tobePOption.getName(), asisPOption.getOrd());
+            asisPOption.setName(tobePOption.getName());
         }
 
         if(isOrdChange){
@@ -227,18 +242,20 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         pOptionDAO.deleteProductOption(pOption);
     }
 
-    public void updatePOptionGroupOrder(ProductOptionDTO asisPOption, int tobePOptionGroup){
+    public void updatePOptionGroupOrder(ProductOptionDTO asisPOption, int tobeGroup){
         //check asis product option group exists
         ProductOptionDTO param = new ProductOptionDTO(asisPOption);
         param.setOptionId("00");    //find title
         this.getPOptionNotNull(param);
 
-        //TODO keep normalize other tables
-        /*
-            product detail : if exists(asis ~ tobe), throw exception
-            - order product : set null option cd (asis ~ tobe)
-            cart : cascade
-        */
+        //TODO select associated product details
+        //if exists, throw exception
+
+        //TODO set null option cd in order_product
+
+        //TODO cart : cascade
+
+        this.rearrangeOptionGroup(asisPOption, tobeGroup);
     }
 
     public void deletePOptionAll(int productId){
@@ -282,12 +299,10 @@ public class ProductOptionServiceImpl implements ProductOptionService {
 
             if(tobeOrder < asisOrder){                      //move forward order
                 //move backward between tobe and asis one
-                pOptionDAO.backwardOptionOrder(asisPOption,
-                    tobeOrder, asisOrder);
+                pOptionDAO.backwardOptionOrder(asisPOption, tobeOrder, asisOrder);
             }else{                                          //move backward order
                 //move forward between asis and tobe one
-                pOptionDAO.forwardOptionOrder(asisPOption,
-                    asisOrder, tobeOrder);
+                pOptionDAO.forwardOptionOrder(asisPOption, asisOrder, tobeOrder);
             }
 
             //execute update only order
@@ -297,32 +312,50 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         }
     }
 
-    /*
-    private void rearrangeOptionIdOrder(ProductOptionDTO asisPOption, String tobeOptionId){
-        //delete asis product option
-        this.deletePOption(asisPOption);
-
-        int asisOrder = Integer.parseInt(asisPOption.getOptionId());
-        int tobeOrder = Integer.parseInt(tobeOptionId);
-
-        //is forward or backward change?
-        if(tobeOrder < asisOrder){                      //move forward order
-            //move backward between tobe and asis one
-            pOptionDAO.backwardOptionOrder(asisPOption,
-                tobeOptionId, asisPOption.getOptionId());
-        }else{                                          //move backward order
-            //move forward between asis and tobe one
-            pOptionDAO.forwardOptionOrder(asisPOption,
-                asisPOption.getOptionId(), tobeOptionId);
+    private void rearrangeOptionGroup(ProductOptionDTO asisPOption, int tobeGroup){
+        if(tobeGroup == 0){
+            throw new BusinessException("tobe order must be greater than 0");
+        }else if(asisPOption.getOptionGroup() == tobeGroup){
+            return;
         }
 
-        //after move the others, insert tobe product option
-        ProductOptionDTO tobePOption = asisPOption;
-        tobePOption.setOptionId(tobeOptionId);
-        
-        this.createPOption(tobePOption);
+        int asisGroup = asisPOption.getOptionGroup();
+
+        //to check tobeGroup beyonds max(group)
+        int maxGroup = this.maxGroupInProduct(asisPOption.getProductId());
+
+        //prevent unique constraint (product_id, option_group, ord)
+        pOptionDAO.updateOptionGroup(asisPOption, maxGroup+1);
+        asisPOption.setOptionGroup(maxGroup+1);
+
+        if(tobeGroup <= maxGroup){
+            //if tobeOrder exists in max(order)
+
+            if(tobeGroup < asisGroup){                      //move forward group
+                //move backward between tobe and asis one
+                pOptionDAO.backwardOptionGroup(asisPOption.getProductId(), tobeGroup, asisGroup);
+            }else{                                          //move backward order
+                //move forward between asis and tobe one
+                pOptionDAO.forwardOptionGroup(asisPOption.getProductId(), asisGroup, tobeGroup);
+            }
+
+            //execute update only order
+            pOptionDAO.updateOptionGroup(asisPOption, tobeGroup);
+        }else{
+            log.debug("tobe group exceed the max group. it will be appended last");
+        }
     }
-    */
+
+    private int maxGroupInProduct(int productId){
+        List<ProductOptionDTO> list = this.getPOptionList(new ProductOptionDTO(productId));
+
+        int maxGroup = 1;
+        if(list != null && list.size() != 0){
+            maxGroup = list.get(list.size()-1).getOptionGroup();
+        }
+
+        return maxGroup;
+    }
 
     private Integer maxOrdInGroup(ProductOptionDTO pOption){
         ProductOptionDTO param = new ProductOptionDTO(pOption);

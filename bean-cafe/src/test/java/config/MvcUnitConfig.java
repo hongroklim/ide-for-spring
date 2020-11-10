@@ -150,7 +150,11 @@ public abstract class MvcUnitConfig {
         
         MockHttpServletRequestBuilder mockReqMethod = this.initMockRequest(url, method);
         String content = requestAndGetResponseBody(mockReqMethod, reqObject);
-        return this.objectMapper.readValue(content, resClass);
+        if(resClass != null){
+            return this.objectMapper.readValue(content, resClass);
+        }else{
+            return null;
+        }
     }
 
     /**
