@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.dto.ProductOptionDTO;
 
 public class HamcrestTest {
@@ -54,5 +55,13 @@ public class HamcrestTest {
 
         optionId = "zz";
         assertThat(ProductOptionDTO.nextId(optionId), is(equalTo("00")));
+    }
+
+    @Test
+    public void getIdOfGroup(){
+        ProductDetailDTO pDetail = new ProductDetailDTO(2, "010201");
+        assertThat(pDetail.idOfGroup(1), is(equalTo("01")));
+        assertThat(pDetail.idOfGroup(2), is(equalTo("02")));
+        assertThat(pDetail.idOfGroup(3), is(equalTo("01")));
     }
 }
