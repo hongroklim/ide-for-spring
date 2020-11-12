@@ -61,7 +61,7 @@
 
     <update id="updateOptionGroup" parameterType="hashmap">
         UPDATE product_option
-           SET option_group = #[tobeGroup}
+           SET option_group = #{tobeGroup}
          WHERE product_id = #{pOption.productId}
            AND option_group = #{pOption.optionGroup}
     </update>

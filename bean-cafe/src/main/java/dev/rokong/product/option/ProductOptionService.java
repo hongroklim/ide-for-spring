@@ -14,5 +14,5 @@ public interface ProductOptionService {
     public ProductOptionDTO updatePOption(ProductOptionDTO asisPOption, ProductOptionDTO tobePOption);
     public void deletePOptionGroup(ProductOptionDTO pOption);
     public void deletePOptionAll(int productId);
-    public void updatePOptionGroupOrder(ProductOptionDTO asisPOption, int tobeGroup);
+    public ProductOptionDTO updatePOptionGroupOrder(ProductOptionDTO asisPOption, int tobeGroup);
 }

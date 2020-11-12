@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class ControllerTest extends MvcUnitConfig {
         return i % size;
     }
 
+    @SuppressWarnings("unused")
     private ProductDTO getAnyProduct(){
         List<ProductDTO> pList = pService.getProductList();
         assertThat(pList, is(notNullValue()));
@@ -184,6 +186,8 @@ public class ControllerTest extends MvcUnitConfig {
             }
         }
         assertThat(isExists, is(equalTo(true)));
+
+        this.verifyOptionIdOrder(param.getProductId(), param.getOptionGroup());
     }
 
     @Test
@@ -203,6 +207,8 @@ public class ControllerTest extends MvcUnitConfig {
         int asisSize = list.size();
         list = pOptionService.getPOptionList(param);
         assertThat(list.size(), is(equalTo(asisSize-1)));
+
+        this.verifyOptionIdOrder(param.getProductId(), param.getOptionGroup());
     }
 
     @Test
@@ -226,17 +232,202 @@ public class ControllerTest extends MvcUnitConfig {
         String url = this.pOptionURL(pOption);
         ProductOptionDTO res = this.reqAndResBody(url, RequestMethod.PUT,
             pOption, ProductOptionDTO.class);
-        
+
         assertThat(res, is(notNullValue()));
         assertThat(res.getName(), is(equalTo("new option name")));
         assertThat(res.getOrd(), is(equalTo(tobeOrd)));
+
+        this.verifyOptionIdOrder(param.getProductId(), param.getOptionGroup());
     }
 
+    @Test
     public void deleteProductOptionGroup() throws Exception {
+        ProductOptionDTO param = new ProductOptionDTO(this.anyPOption.getProductId());
+        String url = this.pOptionURL(param);
+        url += "/group";
 
+        List<ProductOptionDTO> list = pOptionService.getPOptionList(param);
+        int maxGroupBefore = list.get(list.size()-1).getOptionGroup();
+
+        this.reqAndResBody(url, RequestMethod.DELETE, null, null);
+
+        list = pOptionService.getPOptionList(param);
+        int maxGroupAfter = (list == null || list.size() == 0)
+                ? 0 : list.get(list.size()-1).getOptionGroup();
+        
+        if(maxGroupAfter != 0){
+            this.verifyOptionGroupOrder(param.getProductId());
+        }
+
+        assertThat(maxGroupAfter, is(lessThan(maxGroupBefore)));
     }
 
+    @Test
     public void updateProductOptionGroupOrder() throws Exception {
+        ProductOptionDTO param = new ProductOptionDTO(
+            anyPOption.getProductId(), anyPOption.getOptionGroup()
+        );
 
+        List<ProductOptionDTO> list = pOptionService.getPOptionList(
+            new ProductOptionDTO(param.getProductId())
+        );
+        assertThat(list, is(notNullValue()));
+        assertThat(list.size(), is(greaterThan(1)));
+        int maxGroup = list.get(list.size()-1).getOptionGroup();
+
+        int asisGroup = param.getOptionGroup();
+        int tobeGroup = (param.getOptionGroup()==maxGroup) ? 1 : maxGroup;
+
+        ProductOptionDTO urlParam = new ProductOptionDTO(
+            param.getProductId(), asisGroup
+        );
+        String url = this.pOptionURL(urlParam);
+
+        param.setOptionGroup(tobeGroup);
+        
+        ProductOptionDTO res = this.reqAndResBody(url, RequestMethod.PUT,
+                param, ProductOptionDTO.class);
+        
+        this.verifyOptionGroupOrder(param.getProductId());
+
+        assertThat(res, is(notNullValue()));
+        assertThat(res.getProductId(), is(equalTo(param.getProductId())));
+        assertThat(res.getOptionGroup(), is(equalTo(tobeGroup)));
+        assertThat(res.getOptionId(), is(equalTo("00")));
+    }
+
+    /**
+     * verify Option Group's sequence (1, 2, 3 ...)<p/>
+     * if option group is empty, it will not throw any Exceptions.
+     * 
+     * @param productId
+     * @exception AssertionError if serialized option group doesn't match sequence
+     */
+    private void verifyOptionGroupOrder(int productId) {
+        ProductOptionDTO pOption = new ProductOptionDTO(productId);
+        List<ProductOptionDTO> list = pOptionService.getPOptionList(pOption);
+
+        if(list == null || list.size() == 0){
+            return;
+        }else{
+            assertThat(list, is(notNullValue()));
+            assertThat(list.size(), is(greaterThan(0)));
+        }
+
+        int seq = 0;
+
+        for(int i=0; i<list.size(); i++){
+            if("00".equals(list.get(i).getOptionId())){
+                assertThat(list.get(i).getOptionGroup(), is(equalTo(++seq)));
+            }
+        }
+    }
+
+    /**
+     * verify Option Ids following order<p/>
+     * if list of option id is empty, it will not throw any Exceptions.
+     * 
+     * @param productId
+     * @param optionGroup
+     * @exception IllegalArgumentException if invalid option id exists in list
+     * @exception AssertionError if serialized option id doesn't follow order
+     */
+    private void verifyOptionIdOrder(int productId, int optionGroup){
+        ProductOptionDTO pOption = new ProductOptionDTO(productId, optionGroup);
+        List<ProductOptionDTO> list = pOptionService.getPOptionList(pOption);
+
+        if(list == null || list.size() > 0){
+            return;
+        }else{
+            assertThat(list, is(notNullValue()));
+            assertThat(list.size(), is(greaterThan(1)));
+        }
+
+        String beforeId = list.get(0).getOptionId();
+        String afterId = null;
+        ProductOptionDTO.verifyId(beforeId);
+
+        for(int i=1; i<list.size(); i++){
+            afterId = list.get(i).getOptionId();
+            ProductOptionDTO.verifyId(afterId);
+            assertThat(this.secondIsLater(beforeId, afterId), is(equalTo(true)));
+            beforeId = afterId;
+        }
+    }
+
+    private boolean secondIsLater(String firstId, String secondId){
+        String firstPrefix = firstId.substring(0, 1);
+        String firstSuffix = firstId.substring(1, 2);
+
+        String secondPrefix = secondId.substring(0 ,1);
+        String secondSuffix = secondId.substring(1, 2);
+
+        if(firstPrefix.equals(secondPrefix)){
+            return secondCharIsLater(firstSuffix, secondSuffix);
+        }
+        
+        if(firstPrefix.matches("^[0-9]$")){
+            return (!secondPrefix.matches("^[0-9]$"))
+                    ? true : secondCharIsLater(firstPrefix, secondPrefix);
+
+        }else if(firstPrefix.matches("^[A-Z]$")){
+            return (secondPrefix.matches("^[0-9]$"))
+                    ? false : secondCharIsLater(firstPrefix, secondPrefix);
+
+        }else if(firstPrefix.matches("^[a-z]$")){
+            return (secondPrefix.matches("^[a-z]$"))
+                    ? secondCharIsLater(firstPrefix, secondPrefix) : true;
+            
+        }
+
+        //if no conditions are true, this method will throw Exception
+        ProductOptionDTO.verifyId(firstPrefix);
+
+        return false;
+    }
+
+    private boolean secondCharIsLater(String firstChar, String secondChar){
+        int firstAscii = (int) firstChar.charAt(0);
+        int secondAscii = (int) secondChar.charAt(0);
+        
+        if(firstChar.matches("^[0-9]$")){
+            return (!secondChar.matches("^[0-9]$"))
+                    ? true : firstAscii < secondAscii;
+
+        }else if(firstChar.matches("^[A-Z]$")){
+            return (secondChar.matches("^[0-9]$"))
+                    ? false : firstAscii < secondAscii;
+
+        }else if(firstChar.matches("^[a-z]$")){
+            return (secondChar.matches("^[a-z]$"))
+                    ? firstAscii < secondAscii : true;
+        }
+
+        //if no conditions are true, this method will throw Exception
+        ProductOptionDTO.verifyId(firstChar);
+
+        return false;
+    }
+
+    @Test
+    public void verifyCharTest(){
+        assertThat(this.secondCharIsLater("0", "9"), is(equalTo(true)));
+        assertThat(this.secondCharIsLater("9", "A"), is(equalTo(true)));
+        assertThat(this.secondCharIsLater("A", "Z"), is(equalTo(true)));
+        assertThat(this.secondCharIsLater("Z", "a"), is(equalTo(true)));
+        assertThat(this.secondCharIsLater("a", "z"), is(equalTo(true)));
+        assertThat(this.secondCharIsLater("0", "A"), is(equalTo(true)));
+        assertThat(this.secondCharIsLater("1", "z"), is(equalTo(true)));
+    }
+
+    @Test
+    public void verifyIdTest(){
+        assertThat(this.secondIsLater("01", "09"), is(equalTo(true)));
+        assertThat(this.secondIsLater("08", "0A"), is(equalTo(true)));
+        assertThat(this.secondIsLater("0A", "A0"), is(equalTo(true)));
+        assertThat(this.secondIsLater("0A", "0B"), is(equalTo(true)));
+        assertThat(this.secondIsLater("AZ", "Aa"), is(equalTo(true)));
+        assertThat(this.secondIsLater("A1", "z9"), is(equalTo(true)));
+        assertThat(this.secondIsLater("b1", "ba"), is(equalTo(true)));
     }
 }

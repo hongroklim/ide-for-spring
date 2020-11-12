@@ -81,7 +81,7 @@ public class ProductOptionController {
     @ResponseStatus(HttpStatus.OK)
     public ProductOptionDTO updateProductOptionGroupOrder(@PathVariable int pId, @PathVariable int groupId,
             @RequestBody ProductOptionDTO pOption){
-        //ProductOptionDTO asisPOption = new ProductOptionDTO(pId, groupId);
-        return null;
+        ProductOptionDTO asisPOption = new ProductOptionDTO(pId, groupId);
+        return pOptionService.updatePOptionGroupOrder(asisPOption, pOption.getOptionGroup());
     }
 }

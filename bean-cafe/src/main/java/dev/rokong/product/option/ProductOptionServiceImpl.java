@@ -242,7 +242,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         pOptionDAO.deleteProductOption(pOption);
     }
 
-    public void updatePOptionGroupOrder(ProductOptionDTO asisPOption, int tobeGroup){
+    public ProductOptionDTO updatePOptionGroupOrder(ProductOptionDTO asisPOption, int tobeGroup){
         //check asis product option group exists
         ProductOptionDTO param = new ProductOptionDTO(asisPOption);
         param.setOptionId("00");    //find title
@@ -256,6 +256,9 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         //TODO cart : cascade
 
         this.rearrangeOptionGroup(asisPOption, tobeGroup);
+
+        param.setOptionGroup(tobeGroup);
+        return this.getPOptionNotNull(param);
     }
 
     public void deletePOptionAll(int productId){

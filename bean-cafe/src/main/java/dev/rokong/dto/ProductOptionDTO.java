@@ -12,7 +12,14 @@ public class ProductOptionDTO {
     private String name;
     private Integer ord;
 
-    public static String nextId(String optionId){
+    /**
+     * verify whether paramter follows option id sequence like
+     * <p/> <code>00 ~ 09</code> -> <code>0A ~ 0Z</code>
+     * -> <code>0a ~ 0z</code> -> <code>10 ~ 19</code> ...
+     * @param optionId option id to verify
+     * @exception IllegalArgumentException invalid option id
+     */
+    public static void verifyId(String optionId){
         // 00 ~ 09 -> 0A ~ 0Z -> 0a ~ 0z -> 10 ~ 19 ...
         if(optionId == null || "".equals(optionId)){
             throw new IllegalArgumentException("optionId is empty");
@@ -24,6 +31,10 @@ public class ProductOptionDTO {
                 throw new IllegalArgumentException("invalid string in optionId : "+tmp);
             }
         }
+    }
+
+    public static String nextId(String optionId){
+        verifyId(optionId);
 
         if(optionId.endsWith("9")){
             return optionId.substring(0, 1)+"A";
