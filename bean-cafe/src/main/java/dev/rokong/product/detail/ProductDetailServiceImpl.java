@@ -54,21 +54,27 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             throw new BusinessException("product detail is already exists");
         }
 
+        this.verifyOptionCd(pDetail);
+
         String name = this.createFullName(pDetail);
+        pDetail.setFullNm(name);
 
-
-        return this.getDetail(pDetail);
+        return this.getDetailNotNull(pDetail);
     }
 
     public void deleteDetail(ProductDetailDTO pDetail){
         this.getDetailNotNull(pDetail);
-        //pDetailService.deleteDetail;
+        pDetailDAO.deleteDetail(pDetail);
     }
 
     public ProductDetailDTO updateDetail(ProductDetailDTO pDetail){
+        //update price change, stock cnt, enabled
+
         this.getDetailNotNull(pDetail);
-        //pDetailService.updateDetail(pDetail);
-        return null;
+
+        pDetailDAO.updateDetail(pDetail);
+
+        return this.getDetailNotNull(pDetail);
     }
 
     private void verifyOptionCd(ProductDetailDTO pDetail){
@@ -107,14 +113,15 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 }
 
             }else if("00".equals(o.getOptionId()) && i < o.getOptionGroup()){
-                //TODO logging and throw exceptions
-                throw new BusinessException("");
+                log.debug("product detail parameter : "+pDetail.toString());
+                throw new BusinessException("the "+i+"th option group not exists");
 
             }
         }
 
-        if(i <= maxGroupInDetail){
-
+        if(i == maxGroupInDetail){
+            log.debug("product detail parameter : "+pDetail.toString());
+            throw new BusinessException("the "+i+"th option group not exists");
         }
 
     }

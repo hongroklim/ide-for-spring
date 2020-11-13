@@ -15,7 +15,6 @@ import dev.rokong.dto.ProductDetailDTO;
 
 @RestController
 @RequestMapping("/product/{pId}/detail")
-@SuppressWarnings("unused")
 public class ProductDetailController {
     
     @Autowired ProductDetailService pDetailService;
@@ -55,7 +54,7 @@ public class ProductDetailController {
         pDetailService.deleteDetail(param);
     }
 
-    @RequestMapping(value="/option/{optionCd}", method=RequestMethod.POST)
+    @RequestMapping(value="/option/{optionCd}", method=RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public ProductDetailDTO updateDetail(@PathVariable int pId, @PathVariable String optionCd,
             @RequestBody ProductDetailDTO pDetail){

@@ -8,10 +8,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -166,7 +168,6 @@ public abstract class MvcUnitConfig {
      * @param url request URL
      * @param method request method : GET, POST, PUT, PATCH, DELETE
      * @param reqObject requestBody Object
-     * @param resClass ResponseBody.Class
      * @return ResponseBody Object
      * @throws IllegalArgumentException HEAD passed into RequestMethod method parameter
      * @throws Exception from MockMvc.perform(...)

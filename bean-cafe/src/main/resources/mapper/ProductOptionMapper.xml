@@ -9,7 +9,7 @@
            AND option_group = #{optionGroup}    
         </if>
         <if test='optionId != null and !"".equals(optionId)'>
-            AND option_id = #{optionId}    
+            AND option_id = #{optionId}
          </if>
          ORDER BY product_id, option_group, option_id
     </select>

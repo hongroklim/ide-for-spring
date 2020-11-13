@@ -11,6 +11,7 @@ import dev.rokong.product.detail.ProductDetailService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@SuppressWarnings("rawtypes")
 public class ServiceTest extends SpringConfig {
     
     @Autowired ProductDetailService pDetailService;
@@ -22,6 +23,26 @@ public class ServiceTest extends SpringConfig {
         m.setAccessible(true);
         Object result = m.invoke(pDetailService, new ProductDetailDTO(2, "010201"));
         log.info("create full name : "+result.toString());
+    }
+
+    @Test
+    public void verifyOptionCd() throws Exception {
+        ProductDetailDTO pDetail = new ProductDetailDTO(2, "010203");
+        
+        Class[] paramClass = new Class[]{ProductDetailDTO.class};
+        Method m = pDetailService.getClass().getDeclaredMethod("verifyOptionCd", paramClass);
+        m.setAccessible(true);
+        m.invoke(pDetailService, pDetail);
+    }
+
+    @Test(expected=Exception.class)
+    public void verifyOptionCdWithException() throws Exception {
+        ProductDetailDTO pDetail = new ProductDetailDTO(2, "010400");
+        
+        Class[] paramClass = new Class[]{ProductDetailDTO.class};
+        Method m = pDetailService.getClass().getDeclaredMethod("verifyOptionCd", paramClass);
+        m.setAccessible(true);
+        m.invoke(pDetailService, pDetail);
     }
 
 }
