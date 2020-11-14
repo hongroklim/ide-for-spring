@@ -77,12 +77,10 @@ public class ControllerTest extends MvcUnitConfig {
     public void getDetailListInProduct() throws Exception {
         ProductDetailDTO param = new ProductDetailDTO(anyDetail.getProductId());
 
-        List<ProductDetailDTO> res = this.reqAndResBody(
-            this.PDetailURL(param), RequestMethod.GET, null);
+        List<ProductDetailDTO> res = this.reqAndResBodyList(
+            this.PDetailURL(param), RequestMethod.GET, null, ProductDetailDTO.class);
 
         assertThat(ListUtil.isNotEmpty(res), is(equalTo(true)));
-
-        int i = res.get(0).getProductId();
 
         assertThat(res.get(0).getProductId(), is(equalTo(param.getProductId())));
     }
@@ -97,9 +95,8 @@ public class ControllerTest extends MvcUnitConfig {
         String url = "/product/"+param.getProductId()+"/detail";
         url += "/group/"+param.getOptionCd();
 
-        List<ProductDetailDTO> res = this.reqAndResBody(
-            url, RequestMethod.GET, null);
-        //TODO jackson deserialize issue
+        List<ProductDetailDTO> res = this.reqAndResBodyList(
+            url, RequestMethod.GET, null, ProductDetailDTO.class);
 
         assertThat(ListUtil.isNotEmpty(res), is(equalTo(true)));
         assertThat(res.get(0).getProductId(), is(equalTo(param.getProductId())));
@@ -133,7 +130,7 @@ public class ControllerTest extends MvcUnitConfig {
 
         ProductDetailDTO res = this.reqAndResBody(
             this.PDetailURL(new ProductDetailDTO(newDetail.getProductId())),
-            RequestMethod.GET, newDetail, ProductDetailDTO.class
+            RequestMethod.POST, newDetail, ProductDetailDTO.class
         );
 
         assertThat(res, is(notNullValue()));
@@ -168,7 +165,7 @@ public class ControllerTest extends MvcUnitConfig {
         tobe.setEnabled(!asis.getEnabled());
 
         ProductDetailDTO res = this.reqAndResBody(
-            this.PDetailURL(asis), RequestMethod.PUT, tobe, null
+            this.PDetailURL(asis), RequestMethod.PUT, tobe, ProductDetailDTO.class
         );
 
         assertThat(res, is(notNullValue()));

@@ -57,7 +57,8 @@
     <update id="updateCategory" parameterType="CategoryDTO">
         UPDATE category
            SET name = #{name},
-               up_id = #{upId}
+               up_id = #{upId},
+               ord = #{ord}
          WHERE id = #{id}
     </update>
 

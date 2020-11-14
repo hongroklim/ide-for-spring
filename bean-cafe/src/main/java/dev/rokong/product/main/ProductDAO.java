@@ -11,4 +11,5 @@ public interface ProductDAO {
     public void deleteProduct(int id);
     public void updateProduct(ProductDTO product);
     public void updateProductColumn(int id, String column, Object value);
+    public void updateProductCategory(int asisCategory, int tobeCategory);
 }

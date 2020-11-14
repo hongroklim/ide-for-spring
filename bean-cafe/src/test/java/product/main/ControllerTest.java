@@ -48,8 +48,8 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void getProductList() throws Exception {
-        List<ProductDTO> pList = this.reqAndResBody("/product",
-            RequestMethod.GET, null);
+        List<ProductDTO> pList = this.reqAndResBodyList("/product",
+            RequestMethod.GET, null, ProductDTO.class);
         
         assertThat(pList, is(notNullValue()));
         assertThat(pList.size(), is(greaterThan(0)));
@@ -138,12 +138,12 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(res.getName(), is(equalTo(newName)));
     }
 
-    @Test(expected=NestedServletException.class)
+    @Test
     public void deleteProduct() throws Exception {
         ProductDTO product = this.getAnyProduct();
 
         this.reqAndResBody("/product/"+product.getId(),
-            RequestMethod.DELETE, null);
+            RequestMethod.DELETE, null, null);
         //exception because of not deleted product options
 
         ProductDTO afterDelete = pService.getProduct(product.getId());

@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     private UserDTO getUserNotNull(UserDTO user){
         UserDTO getUser = this.getUser(user.getUserNm());
         if(getUser == null){
-            throw new BusinessException(user.getUserNm()+"is not exists");
+            throw new BusinessException(user.getUserNm()+" user is not exists");
         }
         return getUser;
     }

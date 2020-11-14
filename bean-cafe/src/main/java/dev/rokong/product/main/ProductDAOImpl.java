@@ -46,4 +46,12 @@ public class ProductDAOImpl implements ProductDAO {
 
         sqlSession.update(PREFIX+"updateProductColumn", hm);
     }
+
+    public void updateProductCategory(int asisCategory, int tobeCategory){
+        Map<String, Integer> hm = new HashMap<String, Integer>();
+        hm.put("asisCategory", asisCategory);
+        hm.put("tobeCategory", tobeCategory);
+
+        sqlSession.update(PREFIX+"updateProductCategory", hm);
+    }
 }

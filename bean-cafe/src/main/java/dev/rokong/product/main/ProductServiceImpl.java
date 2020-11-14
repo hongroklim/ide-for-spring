@@ -32,6 +32,11 @@ public class ProductServiceImpl implements ProductService {
         cService.getCategoryNotNull(product.getCategoryId());
         uService.getUserNotNull(product.getSellerNm());
 
+        //set default enabled
+        if(product.getEnabled() == null){
+            product.setEnabled(false);
+        }
+
         pDAO.insertProduct(product);
 
         return this.getProductNotNull(product);

@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -171,6 +170,7 @@ public abstract class MvcUnitConfig {
      * @return ResponseBody Object
      * @throws IllegalArgumentException HEAD passed into RequestMethod method parameter
      * @throws Exception from MockMvc.perform(...)
+     * @deprecated this function returns LinkedHashMap {@link #reqAndResBodyList(String, RequestMethod, Object, Class))}
      */
     protected <T> List<T> reqAndResBody(String url, RequestMethod method,
         Object reqObject) throws Exception {
@@ -178,5 +178,28 @@ public abstract class MvcUnitConfig {
         MockHttpServletRequestBuilder mockReqMethod = this.initMockRequest(url, method);
         String content = requestAndGetResponseBody(mockReqMethod, reqObject);
         return this.objectMapper.readValue(content, new TypeReference<List<T>>() {});
+    }
+
+    /**
+     * MockHttpRequestBody and ResponseBody template for Spring REST Test.
+     * <p/>
+     * This method return List of {@link #reqAndResBody(String, RequestMethod, Object, resClass)}
+     * 
+     * @param <T> ResponseBody type
+     * @param url request URL
+     * @param method request method : GET, POST, PUT, PATCH, DELETE
+     * @param reqObject requestBody Object
+     * @param resClass ResponseBody.Class
+     * @return ResponseBody Objects in List type
+     * @throws IllegalArgumentException HEAD passed into RequestMethod method parameter
+     * @throws Exception from MockMvc.perform(...)
+     */
+    protected <T> List<T> reqAndResBodyList(String url, RequestMethod method,
+        Object reqObject, Class<T> resClass) throws Exception {
+        
+        MockHttpServletRequestBuilder mockReqMethod = this.initMockRequest(url, method);
+        String content = requestAndGetResponseBody(mockReqMethod, reqObject);
+        CollectionType listType = this.objectMapper.getTypeFactory().constructCollectionType(List.class, resClass);
+        return this.objectMapper.readValue(content, listType);
     }
 }

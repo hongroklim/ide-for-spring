@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@SuppressWarnings("unused")
 public class ProductDetailServiceImpl implements ProductDetailService {
     
     @Autowired ProductDetailDAO pDetailDAO;
@@ -21,7 +20,13 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Autowired ProductOptionService pOptionService;
 
     public List<ProductDetailDTO> getDetails(ProductDetailDTO pDetail){
-        return pDetailDAO.selectDetailList(pDetail);
+        ProductDetailDTO param = new ProductDetailDTO(pDetail);
+        //set parameter option_cd %
+        String optionCd = param.getOptionCd();
+        if(optionCd != null && !"".equals(optionCd)){
+            param.setOptionCd(optionCd+"%");
+        }
+        return pDetailDAO.selectDetailList(param);
     }
 
     public ProductDetailDTO getDetail(ProductDetailDTO pDetail){
@@ -59,22 +64,57 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         String name = this.createFullName(pDetail);
         pDetail.setFullNm(name);
 
+        //TODO compare price change with original price
+
+        pDetailDAO.insertDetail(pDetail);
+
         return this.getDetailNotNull(pDetail);
     }
 
     public void deleteDetail(ProductDetailDTO pDetail){
         this.getDetailNotNull(pDetail);
+
+        //TODO delete order_product and delete cart
+
         pDetailDAO.deleteDetail(pDetail);
     }
 
     public ProductDetailDTO updateDetail(ProductDetailDTO pDetail){
         //update price change, stock cnt, enabled
-
         this.getDetailNotNull(pDetail);
 
-        pDetailDAO.updateDetail(pDetail);
+        //TODO compare price change with original price
 
+        //TODO update order product
+
+        pDetailDAO.updateDetail(pDetail);
         return this.getDetailNotNull(pDetail);
+    }
+
+    public List<ProductDetailDTO> getDetailsByOption(ProductOptionDTO pOption){
+        ProductDetailDTO pDetail = this.paramByOption(pOption);
+        return pDetailDAO.selectDetailList(pDetail);
+    }
+
+    public void deleteDetailByOption(ProductOptionDTO pOption){
+        ProductDetailDTO pDetail = this.paramByOption(pOption);
+
+        //TODO delete order_product and delete cart
+
+        pDetailDAO.deleteDetailList(pDetail);
+    }
+
+    public void updateNameByOption(ProductOptionDTO pOption){
+        ProductDetailDTO param = this.paramByOption(pOption);
+        //set null code in order product
+        //need to be changed name
+        List<ProductDetailDTO> list = pDetailDAO.selectDetailList(param);
+
+        for(ProductDetailDTO pDetail : list){
+            pDetail.setFullNm(this.createFullName(pDetail));
+            //update full name
+            this.updateDetail(pDetail);
+        }
     }
 
     private void verifyOptionCd(ProductDetailDTO pDetail){
@@ -112,7 +152,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                     break;
                 }
 
-            }else if("00".equals(o.getOptionId()) && i < o.getOptionGroup()){
+            }else if(ProductOptionDTO.TITLE_ID.equals(o.getOptionId()) && i < o.getOptionGroup()){
                 log.debug("product detail parameter : "+pDetail.toString());
                 throw new BusinessException("the "+i+"th option group not exists");
 
@@ -140,7 +180,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             if(pOption.getOptionGroup() > optionGroup){
                 continue;
 
-            }else if("00".equals(pOption.getOptionId())){
+            }else if(ProductOptionDTO.TITLE_ID.equals(pOption.getOptionId())){
                 sBuffer.append(pOption.getName()).append(" : ");
                 
             }else if(optionGroup == pOption.getOptionGroup()
@@ -156,5 +196,35 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         }
 
         return sBuffer.toString();
+    }
+
+    private ProductDetailDTO paramByOption(ProductOptionDTO pOption){
+        ProductDetailDTO pDetail = new ProductDetailDTO();
+        //set product id
+        pDetail.setProductId(pOption.getProductId());
+
+        Integer optionGroup = pOption.getOptionGroup();
+        
+
+        if(optionGroup!=null && optionGroup!=0){
+            //set option cd
+            StringBuffer sbuf = new StringBuffer();
+            for(int i=1; i<optionGroup; i++){
+                sbuf.append("__");
+            }
+
+            String optionId = pOption.getOptionId();
+            if(optionId == null || "".equals(optionId)){
+                //option id is empty -> return entire group
+                sbuf.append("__");
+            }else{
+                //is not -> return specific option id
+                sbuf.append(optionId);
+            }
+            
+            sbuf.append("%");
+            pDetail.setOptionCd(sbuf.toString());
+        }
+        return pDetail;
     }
 }

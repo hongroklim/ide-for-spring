@@ -26,7 +26,7 @@ public class HamcrestTest {
         String optionId = "9";
         int ascii = (int) optionId.charAt(0);
         String result = Character.toString((char) ++ascii);
-        assertThat(result, is(equalTo("A")));
+        assertThat(result, is(not(equalTo("A"))));
     }
 
     @Test

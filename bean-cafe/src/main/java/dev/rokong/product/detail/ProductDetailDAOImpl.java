@@ -30,6 +30,10 @@ public class ProductDetailDAOImpl implements ProductDetailDAO {
     public void deleteDetail(ProductDetailDTO pDetail){
         sqlSession.delete(PREFIX+"deleteDetail", pDetail);
     }
+
+    public void deleteDetailList(ProductDetailDTO pDetail){
+        sqlSession.delete(PREFIX+"deleteDetailList", pDetail);
+    }
     
     public void updateDetail(ProductDetailDTO pDetail){
         sqlSession.update(PREFIX+"updateDetail", pDetail);

@@ -6,7 +6,7 @@
           FROM product_detail
          WHERE product_id = #{productId}
           <if test='optionCd != null and !"".equals(optionCd)'>
-            AND option_cd like #{optionCd} || '%'
+            AND option_cd like #{optionCd}
           </if>
     </select>
     <select id="selectDetail" parameterType="ProductDetailDTO" resultType="ProductDetailDTO">
@@ -28,10 +28,18 @@
          WHERE product_id = #{productId}
             AND option_cd = #{optionCd}
     </delete>
+    <delete id="deleteDetailList" parameterType="ProductDetailDTO">
+        DELETE
+          FROM product_detail
+         WHERE product_id = #{productId}
+         <if test='optionCd != null and !"".equals(optionCd)'>
+           AND option_cd like #{optionCd}
+         </if>
+    </delete>
     <update id="updateDetail" parameterType="ProductDetailDTO">
         UPDATE product_detail
-           SET priceChange = #{priceChange},
-               stockCnt = #{stockCnt},
+           SET price_change = #{priceChange},
+               stock_cnt = #{stockCnt},
                enabled = #{enabled}
          WHERE product_id = #{productId}
            AND option_cd = #{optionCd}

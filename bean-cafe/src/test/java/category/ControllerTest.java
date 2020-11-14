@@ -219,8 +219,8 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(CategoryId, is(not(equalTo(0))));
 
         CategoryDTO category = cService.getCategory(CategoryId);
-        List<CategoryDTO> getList = this.reqAndResBody("/category/"+category.getId()+"/sub",
-            RequestMethod.GET, null);
+        List<CategoryDTO> getList = this.reqAndResBodyList("/category/"+category.getId()+"/sub",
+            RequestMethod.GET, null, CategoryDTO.class);
 
         assertThat(getList, is(notNullValue()));
         assertThat(getList.size(), is(greaterThan(0)));

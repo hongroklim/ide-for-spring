@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dev.rokong.dto.CategoryDTO;
 import dev.rokong.exception.BusinessException;
+import dev.rokong.product.main.ProductDAO;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CategoryServiceImpl implements CategoryService {
     
     @Autowired CategoryDAO cDAO;
+    @Autowired ProductDAO pDAO;
 
     public List<CategoryDTO> getCategoryList(){
         return cDAO.selectCategoryList();
@@ -57,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new BusinessException(category.getId()+"'s children are exists");
         }
 
-        //TODO set null in product
+        pDAO.updateProductCategory(id, CategoryDTO.ETC_ID);
 
         cDAO.deleteCategory(category.getId());
     };
@@ -68,6 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
     
     public CategoryDTO updateCategory(CategoryDTO category){
         CategoryDTO asisCategory = this.getCategoryNotNull(category);
+        CategoryDTO tobeCategory = new CategoryDTO(asisCategory.getId());
 
         //if nothing to be changed, return asis DTO
         if(asisCategory.getName().equals(category.getName())){
@@ -90,9 +93,12 @@ public class CategoryServiceImpl implements CategoryService {
             }
         }
 
-        boolean isOrdDuplicated = false;
+        //after validating, set up id
+        tobeCategory.setUpId(category.getUpId());
 
-        List<CategoryDTO> siblings = this.getCategoryChildren(category.getUpId());
+        //check order is duplicate
+        boolean isOrdDuplicated = false;
+        List<CategoryDTO> siblings = this.getCategoryChildren(tobeCategory.getUpId());
         for(CategoryDTO c : siblings){
             if(c.getName().equals(category.getName())){
                 //avoid duplicate name
@@ -103,14 +109,19 @@ public class CategoryServiceImpl implements CategoryService {
             }
         }
 
-        cDAO.updateCategory(category);
-
+        //set order
         if(isOrdDuplicated){
-            //update order if duplicate order
-            this.appendLastCategoryOrder(category);
+            tobeCategory.setOrd(this.maxOrdOfCategory(siblings)+1);
+        }else{
+            tobeCategory.setOrd(category.getOrd());
         }
+        
+        //set name
+        tobeCategory.setName(category.getName());
 
-        return this.getCategoryNotNull(category);
+        cDAO.updateCategory(tobeCategory);
+
+        return this.getCategoryNotNull(tobeCategory);
     };
     
     public List<CategoryDTO> getCategoryChildren(int upId){

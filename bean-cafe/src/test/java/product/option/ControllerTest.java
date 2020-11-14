@@ -17,12 +17,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import config.MvcUnitConfig;
+import dev.rokong.dto.CategoryDTO;
 import dev.rokong.dto.ProductDTO;
 import dev.rokong.dto.ProductOptionDTO;
+import dev.rokong.dto.UserDTO;
 import dev.rokong.product.main.ProductService;
 import dev.rokong.product.option.ProductOptionController;
 import dev.rokong.product.option.ProductOptionDAO;
 import dev.rokong.product.option.ProductOptionService;
+import dev.rokong.user.UserService;
+import dev.rokong.util.ListUtil;
 
 public class ControllerTest extends MvcUnitConfig {
 
@@ -31,6 +35,8 @@ public class ControllerTest extends MvcUnitConfig {
     @Autowired ProductOptionDAO pOptionDAO;
 
     @Autowired ProductService pService;
+
+    @Autowired UserService uService;
 
     @Override
     public void setMvc() {
@@ -91,12 +97,12 @@ public class ControllerTest extends MvcUnitConfig {
     @Test
     public void requestMapping() throws Exception {
         String url = "/product/"+anyPOption.getProductId()+"/option";
-        List<ProductOptionDTO> res = this.reqAndResBody(url, RequestMethod.GET, null);
+        List<ProductOptionDTO> res = this.reqAndResBodyList(url, RequestMethod.GET, null, ProductOptionDTO.class);
         assertThat(res, is(notNullValue()));
 
         url = "/product/"+anyPOption.getProductId()+"/option";
         url +="/group/"+anyPOption.getOptionGroup();
-        res = this.reqAndResBody(url, RequestMethod.GET, null);
+        res = this.reqAndResBodyList(url, RequestMethod.GET, null, ProductOptionDTO.class);
 
         url = "/product/"+anyPOption.getProductId()+"/option";
         url += "/group/"+anyPOption.getOptionGroup();
@@ -107,7 +113,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     private String pOptionURL(ProductOptionDTO pOption){
         assertThat(pOption.getProductId(), is(not(equalTo(0))));
-        String url = "/product/"+anyPOption.getProductId()+"/option";
+        String url = "/product/"+pOption.getProductId()+"/option";
         if(pOption.getOptionGroup() == null){
             return url;
         }
@@ -124,8 +130,9 @@ public class ControllerTest extends MvcUnitConfig {
     @Test
     public void getPOptionsInProduct() throws Exception {
         String url = this.pOptionURL(new ProductOptionDTO(anyPOption.getProductId()));
-        List<ProductOptionDTO> res = this.reqAndResBody(url, RequestMethod.GET, null);
+        List<ProductOptionDTO> res = this.reqAndResBodyList(url, RequestMethod.GET, null, ProductOptionDTO.class);
         assertThat(res, is(notNullValue()));
+        assertThat(res.get(0).getProductId(), is(equalTo(anyPOption.getProductId())));
     }
 
     @Test
@@ -133,7 +140,7 @@ public class ControllerTest extends MvcUnitConfig {
         String url = this.pOptionURL(new ProductOptionDTO(
             anyPOption.getProductId(), anyPOption.getOptionGroup()));
 
-        List<ProductOptionDTO> res = this.reqAndResBody(url, RequestMethod.GET, null);
+        List<ProductOptionDTO> res = this.reqAndResBodyList(url, RequestMethod.GET, null, ProductOptionDTO.class);
         assertThat(res, is(notNullValue()));
     }
 
@@ -155,7 +162,7 @@ public class ControllerTest extends MvcUnitConfig {
         ProductOptionDTO res = this.reqAndResBody(url, RequestMethod.POST, newGroup, ProductOptionDTO.class);
         assertThat(res, is(notNullValue()));
         assertThat(res.getProductId(), equalTo(newGroup.getProductId()));
-        assertThat(res.getOptionId(), equalTo("00"));
+        assertThat(res.getOptionId(), equalTo(ProductOptionDTO.TITLE_ID));
     }
 
     @Test
@@ -170,7 +177,7 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(res, is(notNullValue()));
         assertThat(res.getProductId(), equalTo(newOption.getProductId()));
         assertThat(res.getOptionGroup(), equalTo(newOption.getOptionGroup()));
-        assertThat(res.getOptionId(), is(not(equalTo("00"))));
+        assertThat(res.getOptionId(), is(not(equalTo(ProductOptionDTO.TITLE_ID))));
 
         //get list of group
         ProductOptionDTO param = new ProductOptionDTO(
@@ -262,17 +269,80 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(maxGroupAfter, is(lessThan(maxGroupBefore)));
     }
 
+    private UserDTO getAnyUser(){
+        return ListUtil.randomItem(uService.getUsers());
+    }
+
+    /**
+     * create sample data of product option.
+     * 
+     * @return new product's id
+     */
+    private int initializeProductOption() {
+        //create new product
+        ProductDTO product = new ProductDTO();
+        product.setCategoryId(CategoryDTO.ETC_ID);
+        product.setSellerNm(this.getAnyUser().getUserNm());
+        product.setName("new product test");
+        product.setPrice(1000);
+        product = pService.createProduct(product);
+        assertThat(product, is(notNullValue()));
+        assertThat(product.getId(), is(greaterThan(0)));
+
+        //create new product's option
+        ProductOptionDTO pOption = new ProductOptionDTO(product.getId());
+        pOption.setName("first group");
+        pOptionService.createPOptionGroup(pOption);
+
+        pOption.setName("second group");
+        pOptionService.createPOptionGroup(pOption);
+
+        pOption.setName("third group");
+        pOptionService.createPOptionGroup(pOption);
+        
+        List<ProductOptionDTO> optionList = pOptionService.getPOptionList(pOption);
+        assertThat(ListUtil.isNotEmpty(optionList), is(equalTo(true)));
+
+        //append option's detail
+        pOption.setOptionGroup(1);
+        pOption.setName("1-1 element");
+        pOptionService.createPOption(pOption);
+
+        pOption.setName("1-2 element");
+        pOptionService.createPOption(pOption);
+
+        pOption.setOptionGroup(2);
+        pOption.setName("2-1 element");
+        pOptionService.createPOption(pOption);
+
+        pOption.setOptionGroup(3);
+        pOption.setName("3-1 element");
+        pOptionService.createPOption(pOption);
+
+        pOption.setName("3-2 element");
+        pOptionService.createPOption(pOption);
+
+        pOption.setOptionGroup(null);
+        pOption.setOptionId(null);
+        optionList = pOptionService.getPOptionList(pOption);
+        assertThat(ListUtil.isNotEmpty(optionList), is(equalTo(true)));
+        assertThat(optionList.size(), is(equalTo(8)));
+
+        return product.getId();
+    }
+
     @Test
     public void updateProductOptionGroupOrder() throws Exception {
-        ProductOptionDTO param = new ProductOptionDTO(
-            anyPOption.getProductId(), anyPOption.getOptionGroup()
-        );
+        int productId = this.initializeProductOption();
 
         List<ProductOptionDTO> list = pOptionService.getPOptionList(
-            new ProductOptionDTO(param.getProductId())
+            new ProductOptionDTO(productId)
         );
         assertThat(list, is(notNullValue()));
         assertThat(list.size(), is(greaterThan(1)));
+        
+        ProductOptionDTO param = ListUtil.randomItem(list);
+
         int maxGroup = list.get(list.size()-1).getOptionGroup();
 
         int asisGroup = param.getOptionGroup();
@@ -293,7 +363,7 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(res, is(notNullValue()));
         assertThat(res.getProductId(), is(equalTo(param.getProductId())));
         assertThat(res.getOptionGroup(), is(equalTo(tobeGroup)));
-        assertThat(res.getOptionId(), is(equalTo("00")));
+        assertThat(res.getOptionId(), is(equalTo(ProductOptionDTO.TITLE_ID)));
     }
 
     /**
@@ -317,7 +387,7 @@ public class ControllerTest extends MvcUnitConfig {
         int seq = 0;
 
         for(int i=0; i<list.size(); i++){
-            if("00".equals(list.get(i).getOptionId())){
+            if(ProductOptionDTO.TITLE_ID.equals(list.get(i).getOptionId())){
                 assertThat(list.get(i).getOptionGroup(), is(equalTo(++seq)));
             }
         }

@@ -12,6 +12,8 @@ public class ProductOptionDTO {
     private String name;
     private Integer ord;
 
+    public static final String TITLE_ID = "00";
+
     /**
      * verify whether paramter follows option id sequence like
      * <p/> <code>00 ~ 09</code> -> <code>0A ~ 0Z</code>

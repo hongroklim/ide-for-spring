@@ -8,7 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dev.rokong.dto.ProductOptionDTO;
 import dev.rokong.exception.BusinessException;
+import dev.rokong.product.detail.ProductDetailService;
 import dev.rokong.product.main.ProductService;
+import dev.rokong.util.ListUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -19,6 +21,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
     @Autowired ProductOptionDAO pOptionDAO;
 
     @Autowired ProductService pService;
+    @Autowired ProductDetailService pDetailService;
 
     public List<ProductOptionDTO> getPOptionList(ProductOptionDTO pOption){
         if(pOption.getProductId() == 0){
@@ -66,7 +69,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         
         //avoid duplicate product option group name
         for(ProductOptionDTO p : resultList){
-            if("00".equals(p.getOptionId())
+            if(ProductOptionDTO.TITLE_ID.equals(p.getOptionId())
                     && p.getName().equals(pOption.getName())){
                 log.debug("product option paramerter : "+pOption.toString());
                 log.debug("duplicate product option : "+p.toString());
@@ -85,7 +88,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         }
 
         pOption.setOptionGroup(lastGroup+1);
-        pOption.setOptionId("00");
+        pOption.setOptionId(ProductOptionDTO.TITLE_ID);
         pOption.setOrd(0);
 
         pOptionDAO.insertProductOption(pOption);
@@ -116,7 +119,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         String lastId = optionList.get(optionList.size()-1).getOptionId();
         String tobeId = ProductOptionDTO.nextId(lastId);
 
-        if("00".equals(tobeId)){
+        if(ProductOptionDTO.TITLE_ID.equals(tobeId)){
             log.debug("product option paramerter : "+pOption.toString());
             throw new BusinessException("option Id exceed the limit");
         }
@@ -134,7 +137,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         this.getPOptionNotNull(pOption);
 
         //if pOption is option group's title
-        if("00".equals(pOption.getOptionId())){
+        if(ProductOptionDTO.TITLE_ID.equals(pOption.getOptionId())){
             //get product option list in same group
             ProductOptionDTO param = new ProductOptionDTO(pOption.getProductId(), pOption.getOptionGroup());
             List<ProductOptionDTO> optionsInGrp = pOptionDAO.selectProductOptionList(param);
@@ -165,10 +168,9 @@ public class ProductOptionServiceImpl implements ProductOptionService {
                 cart : cascade
         */
 
-        log.debug("associated option cd in order product is set null");
-
+        //log.debug("associated option cd in order product is set null");
         log.debug("associated product details are deleted");
-        //TODO delete product detail associated with product option
+        pDetailService.deleteDetailByOption(pOption);
 
         log.debug("associated option cd in cart is deleted");
         //TODO delete cart associated with product option
@@ -193,14 +195,14 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         }
 
         //if option's name (except title) is going to be changed
-        if(isNameChange && !"00".equals(asisPOption.getOptionId())){
+        if(isNameChange && !ProductOptionDTO.TITLE_ID.equals(asisPOption.getOptionId())){
             //get option list in same group
             ProductOptionDTO param = new ProductOptionDTO(
                 asisPOption.getProductId(), asisPOption.getOptionGroup());
             List<ProductOptionDTO> optionsInGrp = this.getPOptionList(param);
 
             for(ProductOptionDTO o : optionsInGrp){
-                if(!"00".equals(o.getOptionId())
+                if(!ProductOptionDTO.TITLE_ID.equals(o.getOptionId())
                         && !asisPOption.getOptionId().equals(o.getOptionId())
                         && o.getName().equals(tobePOption.getName())){
                     //avoid duplicate option name (except option group's title and itself)
@@ -212,8 +214,9 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         }
 
         if(isNameChange){
-            //TODO update product detail name
             pOptionDAO.updateProductOption(asisPOption, tobePOption.getName(), asisPOption.getOrd());
+            //update associated details' name
+            pDetailService.updateNameByOption(asisPOption);
             asisPOption.setName(tobePOption.getName());
         }
 
@@ -237,7 +240,9 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         int lastGroup = list.get(list.size()-1).getOptionGroup();
         pOption.setOptionGroup(lastGroup);
 
-        //TODO delete associated product details
+        //delete associated details with option group
+        pOption.setOptionId(null);
+        pDetailService.deleteDetailByOption(pOption);
 
         pOptionDAO.deleteProductOption(pOption);
     }
@@ -245,11 +250,24 @@ public class ProductOptionServiceImpl implements ProductOptionService {
     public ProductOptionDTO updatePOptionGroupOrder(ProductOptionDTO asisPOption, int tobeGroup){
         //check asis product option group exists
         ProductOptionDTO param = new ProductOptionDTO(asisPOption);
-        param.setOptionId("00");    //find title
+        param.setOptionId(ProductOptionDTO.TITLE_ID);    //find title
         this.getPOptionNotNull(param);
 
-        //TODO select associated product details
-        //if exists, throw exception
+        //find associated product details between asis and tobe
+        int minGroup = Math.min(asisPOption.getOptionGroup(), tobeGroup);
+        int maxGroup = Math.max(asisPOption.getOptionGroup(), tobeGroup);
+
+        ProductOptionDTO detailParam = new ProductOptionDTO(param.getProductId());
+        for(int i=minGroup; i<=maxGroup; i++){
+            detailParam.setOptionGroup(i);
+            if(ListUtil.isNotEmpty(pDetailService.getDetailsByOption(param))){
+                //if some detail of group exists, throw exception
+                log.debug("asis product option parameter : "+asisPOption.toString());
+                log.debug("tobe group : "+tobeGroup);
+                log.debug("exist detail group : "+i);
+                throw new BusinessException("associated detail with group is exists");
+            }
+        }
 
         //TODO set null option cd in order_product
 
@@ -257,14 +275,15 @@ public class ProductOptionServiceImpl implements ProductOptionService {
 
         this.rearrangeOptionGroup(asisPOption, tobeGroup);
 
+        //return tobe option's title
         param.setOptionGroup(tobeGroup);
         return this.getPOptionNotNull(param);
     }
 
     public void deletePOptionAll(int productId){
-        //TODO delete associated product details
-
-        pOptionDAO.deleteProductOption(new ProductOptionDTO(productId));
+        ProductOptionDTO param = new ProductOptionDTO(productId);
+        pDetailService.deleteDetailByOption(param);
+        pOptionDAO.deleteProductOption(param);
     }
 
     private void verifyPrimaryKeysDefined(ProductOptionDTO pOption){

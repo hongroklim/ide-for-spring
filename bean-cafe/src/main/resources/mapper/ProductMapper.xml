@@ -50,4 +50,10 @@
            SET ${column} = #{value}
          WHERE id = #{id}
     </update>
+
+    <update id="updateProductCategory" parameterType="hashmap">
+        UPDATE product_main
+           SET category_id = #{tobeCategory}
+         WHERE category_id = #{asisCategory}
+    </update>
 </mapper>
