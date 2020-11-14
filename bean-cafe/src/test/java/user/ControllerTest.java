@@ -44,12 +44,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ControllerTest extends MvcUnitConfig {
 
-    @Autowired
-    UserController userController;
-    @Autowired
-    UserService userService;
-    @Autowired
-    UserDAO userDAO;
+    @Autowired UserController userController;
+    @Autowired UserService userService;
+    @Autowired UserDAO userDAO;
 
     @Override
     public void setMvc() {
@@ -72,11 +69,15 @@ public class ControllerTest extends MvcUnitConfig {
     }
 
     @Test
+    public void MockObjectsTest(){
+        mockObj.randomString();
+        mockObj.randomString();
+        mockObj.user.anyUser();
+    }
+
+    @Test
     public void createUser() throws Exception {
-        UserDTO newUser = new UserDTO();
-        newUser.setUserNm("newUser");
-        newUser.setPwd("pwd");
-        newUser.setEnabled(true);
+        UserDTO newUser = mockObj.user.tempUser();
 
         log.debug(this.objectMapper.writeValueAsString(newUser));
 
@@ -114,16 +115,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateUserPwd() throws Exception {
-        // get user list by mvc.perform and parse into userList
-        MvcResult result = this.mvc.perform(get("/user")).andReturn();
-        String content = result.getResponse().getContentAsString();
-        List<UserDTO> userList = this.objectMapper.readValue(content, new TypeReference<List<UserDTO>>() {
-        });
-
-        assertThat(userList, is(notNullValue()));
-        assertThat(userList.size(), is(greaterThan(0)));
-
-        UserDTO asisUser = userList.get(0);
+        UserDTO asisUser = mockObj.user.anyUser();
 
         UserDTO updateUser = new UserDTO(); // set new password
         updateUser.setUserNm(asisUser.getUserNm());
@@ -137,11 +129,8 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateUserEnabled() throws Exception {
-        // get a user from userList
-        List<UserDTO> userList = userService.getUsers();
-        assertThat(userList, is(notNullValue()));
-        assertThat(userList.size(), is(greaterThan(1)));
-        UserDTO asisUser = userList.get(1);
+        // create any user
+        UserDTO asisUser = mockObj.user.anyUser();
 
         // make new user whose enabled is opposite compared to asis
         UserDTO tobeUser = new UserDTO();
@@ -157,11 +146,7 @@ public class ControllerTest extends MvcUnitConfig {
     @Test
     public void addUserAuthority() throws Exception {
         // create new user
-        UserDTO newUser = new UserDTO();
-        newUser.setUserNm("test01");
-        newUser.setPwd("test01");
-        newUser.setEnabled(true);
-        userService.createUser(newUser);
+        UserDTO newUser = mockObj.user.anyUser();
 
         // authority list to be added
         List<String> authList = new ArrayList<>();
@@ -183,11 +168,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void deleteUser() throws Exception {
-        UserDTO newUser = new UserDTO();
-        newUser.setUserNm("test01");
-        newUser.setPwd("test01");
-        newUser.setEnabled(true);
-        userService.createUser(newUser);
+        UserDTO newUser = mockObj.user.anyUser();
 
         //authority list to be added
         List<String> authList = new ArrayList<>();

@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.util.NestedServletException;
 
 import config.MvcUnitConfig;
 import dev.rokong.category.CategoryService;

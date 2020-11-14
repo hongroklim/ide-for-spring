@@ -1,6 +1,7 @@
 cdr-data/*
 !cdr-data/.gitkeep
 bean-cafe/target/*
+bean-cafe/.*
 pga-data/*
 !pga-data/.gitkeep
 !pga-data/storage

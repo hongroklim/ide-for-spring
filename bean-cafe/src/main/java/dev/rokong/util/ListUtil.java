@@ -15,7 +15,7 @@ public class ListUtil {
      */
     public static int randomIndex(int size){
         double d = Math.random();
-        int i = (int) d*100;
+        int i = (int) d*10000;
 
         return i % size;
     }

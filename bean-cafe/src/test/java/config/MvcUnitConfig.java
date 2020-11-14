@@ -30,10 +30,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import dev.rokong.mock.MockObjects;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 (locations={"file:src/main/webapp/WEB-INF/context/root-context.xml",
-	"file:src/main/webapp/WEB-INF/context/app-context.xml"})
+    "file:src/main/webapp/WEB-INF/context/app-context.xml"})
 @WebAppConfiguration
 @Transactional @Rollback
 public abstract class MvcUnitConfig {
@@ -50,6 +52,8 @@ public abstract class MvcUnitConfig {
         this.objectMapper = messageConverter.getObjectMapper();
     }
     
+    @Autowired @Qualifier("MockObjects")
+    protected MockObjects mockObj;
     
     /**
      * inject Controller into MockMvc. This method always execute
