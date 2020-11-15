@@ -68,7 +68,7 @@ public class MockProductDetail extends MockObjects {
         }
     }
 
-    public List<ProductDetailDTO> anyPOptionList(int count){
+    public List<ProductDetailDTO> anyPDetailList(int count){
         this.validatingList();
         this.appendPDetailListUntil(count);
         return this.pDetailList.subList(0, count);

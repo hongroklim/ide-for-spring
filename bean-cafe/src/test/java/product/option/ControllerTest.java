@@ -26,7 +26,7 @@ import dev.rokong.product.option.ProductOptionController;
 import dev.rokong.product.option.ProductOptionDAO;
 import dev.rokong.product.option.ProductOptionService;
 import dev.rokong.user.UserService;
-import dev.rokong.util.ListUtil;
+import dev.rokong.util.ObjUtil;
 
 public class ControllerTest extends MvcUnitConfig {
 
@@ -226,7 +226,7 @@ public class ControllerTest extends MvcUnitConfig {
     }
 
     private UserDTO getAnyUser(){
-        return ListUtil.randomItem(uService.getUsers());
+        return ObjUtil.randomItem(uService.getUsers());
     }
 
     /**
@@ -257,7 +257,7 @@ public class ControllerTest extends MvcUnitConfig {
         pOptionService.createPOptionGroup(pOption);
         
         List<ProductOptionDTO> optionList = pOptionService.getPOptionList(pOption);
-        assertThat(ListUtil.isNotEmpty(optionList), is(equalTo(true)));
+        assertThat(ObjUtil.isNotEmpty(optionList), is(equalTo(true)));
 
         //append option's detail
         pOption.setOptionGroup(1);
@@ -281,7 +281,7 @@ public class ControllerTest extends MvcUnitConfig {
         pOption.setOptionGroup(null);
         pOption.setOptionId(null);
         optionList = pOptionService.getPOptionList(pOption);
-        assertThat(ListUtil.isNotEmpty(optionList), is(equalTo(true)));
+        assertThat(ObjUtil.isNotEmpty(optionList), is(equalTo(true)));
         assertThat(optionList.size(), is(equalTo(8)));
 
         return product.getId();
@@ -297,7 +297,7 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(list, is(notNullValue()));
         assertThat(list.size(), is(greaterThan(1)));
         
-        ProductOptionDTO param = ListUtil.randomItem(list);
+        ProductOptionDTO param = ObjUtil.randomItem(list);
 
         int maxGroup = list.get(list.size()-1).getOptionGroup();
 

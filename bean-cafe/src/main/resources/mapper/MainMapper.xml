@@ -4,7 +4,7 @@
     <select id="selectCurrentDate" resultType="String">
         SELECT TO_CHAR(now(), 'YYYYMMDD')
     </select>
-    <select id="resetSerial">
+    <select id="resetSerial" resultType="hashmap">
         SELECT reset_serial()
     </select>
 </mapper>

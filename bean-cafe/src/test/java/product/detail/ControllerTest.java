@@ -21,7 +21,7 @@ import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.product.detail.ProductDetailController;
 import dev.rokong.product.detail.ProductDetailService;
 import dev.rokong.product.main.ProductService;
-import dev.rokong.util.ListUtil;
+import dev.rokong.util.ObjUtil;
 
 public class ControllerTest extends MvcUnitConfig {
 
@@ -63,8 +63,8 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void MockProductDetail(){
-        List<ProductDetailDTO> list = mockObj.pDetail.anyPOptionList(3);
-        assertThat(ListUtil.isNotEmpty(list), is(equalTo(true)));
+        List<ProductDetailDTO> list = mockObj.pDetail.anyPDetailList(3);
+        assertThat(ObjUtil.isNotEmpty(list), is(equalTo(true)));
         assertThat(list.size(), is(equalTo(3)));
     }
 
@@ -75,7 +75,7 @@ public class ControllerTest extends MvcUnitConfig {
         List<ProductDetailDTO> res = this.reqAndResBodyList(
             this.PDetailURL(param), RequestMethod.GET, null, ProductDetailDTO.class);
 
-        assertThat(ListUtil.isNotEmpty(res), is(equalTo(true)));
+        assertThat(ObjUtil.isNotEmpty(res), is(equalTo(true)));
 
         assertThat(res.get(0).getProductId(), is(equalTo(param.getProductId())));
     }
@@ -90,7 +90,7 @@ public class ControllerTest extends MvcUnitConfig {
         List<ProductDetailDTO> res = this.reqAndResBodyList(
             url, RequestMethod.GET, null, ProductDetailDTO.class);
 
-        assertThat(ListUtil.isNotEmpty(res), is(equalTo(true)));
+        assertThat(ObjUtil.isNotEmpty(res), is(equalTo(true)));
         assertThat(res.get(0).getProductId(), is(equalTo(param.getProductId())));
         assertThat(res.get(0).getOptionCd().indexOf(param.getOptionCd()),
                     is(greaterThanOrEqualTo(0)));

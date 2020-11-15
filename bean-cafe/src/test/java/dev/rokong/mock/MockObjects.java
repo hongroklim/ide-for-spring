@@ -13,6 +13,7 @@ public class MockObjects {
     @Autowired public MockProduct product;
     @Autowired public MockProductOption pOption;
     @Autowired public MockProductDetail pDetail;
+    @Autowired public MockCart cart;
 
     public String randomString(int length){
         UUID u = UUID.randomUUID();

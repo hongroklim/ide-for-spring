@@ -13,6 +13,8 @@ public interface ProductDetailService {
     public void deleteDetail(ProductDetailDTO pDetail);
     public ProductDetailDTO updateDetail(ProductDetailDTO pDetail);
     
+    public ProductDetailDTO getDetailNotNull(int productId, String optionCd);
+
     public List<ProductDetailDTO> getDetailsByOption(ProductOptionDTO pOption);
     public void deleteDetailByOption(ProductOptionDTO pOption);
     public void updateNameByOption(ProductOptionDTO pOption);

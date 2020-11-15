@@ -10,7 +10,7 @@ import dev.rokong.dto.ProductOptionDTO;
 import dev.rokong.exception.BusinessException;
 import dev.rokong.product.detail.ProductDetailService;
 import dev.rokong.product.main.ProductService;
-import dev.rokong.util.ListUtil;
+import dev.rokong.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -260,7 +260,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         ProductOptionDTO detailParam = new ProductOptionDTO(param.getProductId());
         for(int i=minGroup; i<=maxGroup; i++){
             detailParam.setOptionGroup(i);
-            if(ListUtil.isNotEmpty(pDetailService.getDetailsByOption(param))){
+            if(ObjUtil.isNotEmpty(pDetailService.getDetailsByOption(param))){
                 //if some detail of group exists, throw exception
                 log.debug("asis product option parameter : "+asisPOption.toString());
                 log.debug("tobe group : "+tobeGroup);

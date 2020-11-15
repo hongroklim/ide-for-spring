@@ -54,6 +54,11 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         return result;
     }
 
+    public ProductDetailDTO getDetailNotNull(int productId, String optionCd){
+        ProductDetailDTO param = new ProductDetailDTO(productId, optionCd);
+        return this.getDetailNotNull(param);
+    }
+
     public ProductDetailDTO createDetail(ProductDetailDTO pDetail){
         ProductDetailDTO exists = this.getDetail(pDetail);
         if(exists != null){
@@ -133,7 +138,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
         if(optionList == null || optionList.size() <= 1){
             log.debug("product detail parameter : "+pDetail.toString());
-            throw new BusinessException("option list is empty");
+            throw new BusinessException("available option list is empty");
         }
 
         int maxGroupInList = optionList.get(optionList.size()-1).getOptionGroup();
