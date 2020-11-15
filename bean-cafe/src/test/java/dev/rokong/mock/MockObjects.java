@@ -8,7 +8,11 @@ import org.springframework.stereotype.Component;
 @Component("MockObjects")
 public class MockObjects {
     
-    public @Autowired MockUser user;
+    @Autowired public MockUser user;
+    @Autowired public MockCategory category;
+    @Autowired public MockProduct product;
+    @Autowired public MockProductOption pOption;
+    @Autowired public MockProductDetail pDetail;
 
     public String randomString(int length){
         UUID u = UUID.randomUUID();
@@ -36,7 +40,4 @@ public class MockObjects {
     public int randomInt(){
         return this.randomInt(4);
     }
-
-    
-
 }

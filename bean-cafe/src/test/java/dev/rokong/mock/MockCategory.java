@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import dev.rokong.category.CategoryService;
 import dev.rokong.dto.CategoryDTO;
 
+@Component("MockCategory")
 public class MockCategory extends MockObjects {
     
     private List<CategoryDTO> categoryList = new ArrayList<CategoryDTO>();
@@ -26,14 +28,31 @@ public class MockCategory extends MockObjects {
         return cService.createCategory(category);
     }
 
-    public CategoryDTO anyCategory() {
+    private boolean isValidList(){
         if(this.categoryList.size() == 0){
-            categoryList.add(this.createCategory());
+            return true;
+        }else{
+            return cService.getCategory(this.categoryList.get(0).getId()) != null;
         }
-        return categoryList.get(0);
+    }
+
+    public CategoryDTO anyCategory() {
+        if(!this.isValidList()){
+            this.categoryList.clear();
+        }
+
+        if(this.categoryList.size() == 0){
+            this.categoryList.add(this.createCategory());
+        }
+
+        return this.categoryList.get(0);
     }
 
     public List<CategoryDTO> anyCategoryList(int count){
+        if(!this.isValidList()){
+            this.categoryList.clear();
+        }
+        
         while(this.categoryList.size() < count){
             this.categoryList.add(this.createCategory());
         }

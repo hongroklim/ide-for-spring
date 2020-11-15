@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import config.MvcUnitConfig;
 import dev.rokong.category.CategoryService;
-import dev.rokong.dto.CategoryDTO;
 import dev.rokong.dto.ProductDTO;
-import dev.rokong.dto.UserDTO;
 import dev.rokong.product.main.ProductController;
 import dev.rokong.product.main.ProductService;
 import dev.rokong.user.UserService;
@@ -54,30 +52,9 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(pList.size(), is(greaterThan(0)));
     }
 
-    private void setAnyCategoryAndSeller(ProductDTO product){
-        //category
-        List<CategoryDTO> cList = cService.getCategoryList();
-        assertThat(cList, is(notNullValue()));
-        assertThat(cList.size(), is(greaterThan(0)));
-        product.setCategoryId(cList.get(0).getId());
-
-        //seller
-        List<UserDTO> uList = uService.getUsers();
-        assertThat(uList, is(notNullValue()));
-        assertThat(uList.size(), is(greaterThan(0)));
-        product.setSellerNm(uList.get(0).getUserNm());
-    }
-
     @Test
     public void createProduct() throws Exception {
-        ProductDTO product = new ProductDTO();
-        product.setName("test");
-        product.setPrice(1234);
-        product.setEnabled(true);
-        product.setStockCnt(123);
-        product.setDeliveryPrice(5678);
-        product.setDiscountPrice(-123);
-        this.setAnyCategoryAndSeller(product);
+        ProductDTO product = mockObj.product.tempProduct();
 
         ProductDTO getProduct = this.reqAndResBody("/product",
             RequestMethod.POST, product, ProductDTO.class);
@@ -89,11 +66,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void getProduct() throws Exception {
-        List<ProductDTO> pList = pService.getProductList();
-        assertThat(pList, is(notNullValue()));
-        assertThat(pList.size(), is(greaterThan(0)));
-
-        ProductDTO req = pList.get(0);
+        ProductDTO req = mockObj.product.anyProduct();
         
         ProductDTO res = this.reqAndResBody("/product/"+req.getId(),
             RequestMethod.GET, null, ProductDTO.class);
@@ -102,28 +75,9 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(res.getId(), is(equalTo(req.getId())));
     }
 
-    private int randomIdx(int size){
-        double d = Math.random();
-        int i = (int) d*100;
-
-        return i % size;
-    }
-
-    private ProductDTO getAnyProduct(){
-        List<ProductDTO> pList = pService.getProductList();
-        assertThat(pList, is(notNullValue()));
-        assertThat(pList.size(), is(greaterThan(0)));
-
-        int index = this.randomIdx(pList.size());
-        ProductDTO result = pList.get(index);
-
-        assertThat(result, is(notNullValue()));
-        return result;
-    }
-
     @Test
     public void updateProductName() throws Exception {
-        ProductDTO asisProduct = this.getAnyProduct();
+        ProductDTO asisProduct = mockObj.product.anyProduct();
         String newName = "new Name TEST";
 
         ProductDTO product = asisProduct;
@@ -139,7 +93,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void deleteProduct() throws Exception {
-        ProductDTO product = this.getAnyProduct();
+        ProductDTO product = mockObj.product.anyProduct();
 
         this.reqAndResBody("/product/"+product.getId(),
             RequestMethod.DELETE, null, null);
@@ -151,7 +105,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateProductStock() throws Exception {
-        ProductDTO product = this.getAnyProduct();
+        ProductDTO product = mockObj.product.anyProduct();
         int tobeCnt = product.getStockCntInt() + 10;
         product.setStockCnt(tobeCnt);
 
@@ -171,7 +125,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateProductStockNull() throws Exception {
-        ProductDTO product = this.getAnyProduct();
+        ProductDTO product = mockObj.product.anyProduct();
         Integer tobeCnt = null;
         product.setStockCnt(tobeCnt);
 

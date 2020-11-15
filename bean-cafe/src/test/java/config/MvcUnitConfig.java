@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import dev.rokong.main.MainDAO;
 import dev.rokong.mock.MockObjects;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -46,15 +48,12 @@ public abstract class MvcUnitConfig {
     protected MappingJackson2HttpMessageConverter messageConverter;
 
     protected ObjectMapper objectMapper;
-
-    @Before
-    public void initObjectMapper(){
-        this.objectMapper = messageConverter.getObjectMapper();
-    }
     
     @Autowired @Qualifier("MockObjects")
     protected MockObjects mockObj;
-    
+
+    private @Autowired MainDAO mDAO;
+
     /**
      * inject Controller into MockMvc. This method always execute
      * ahead test because of <code>@Before</code> annotation
@@ -70,6 +69,22 @@ public abstract class MvcUnitConfig {
      */
     @Before
     public abstract void setMvc();
+
+    @Before
+    public void initObjectMapper(){
+        this.objectMapper = messageConverter.getObjectMapper();
+    }
+
+    /**
+     * set auto increment sequences
+     * to max values of each table
+     * <p>it will perform stored function
+     * <code>SELECT reset_serial();</code>
+     */
+    @After
+    public void resetSerial(){
+        mDAO.resetSerial();
+    }
 
     /**
      * 

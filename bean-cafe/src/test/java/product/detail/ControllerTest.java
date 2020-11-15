@@ -2,7 +2,8 @@ package product.detail;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertThat;
@@ -16,7 +17,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import config.MvcUnitConfig;
-import dev.rokong.dto.ProductDTO;
 import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.product.detail.ProductDetailController;
 import dev.rokong.product.detail.ProductDetailService;
@@ -58,19 +58,14 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Before
     public void initAnyDetail() throws Exception {
-        List<ProductDTO> pList = pSerivce.getProductList();
-        List<ProductDetailDTO> list = null;
-        for(ProductDTO product : pList){
-            list = pDetailService.getDetails(new ProductDetailDTO(product.getId()));
-            if(list != null && list.size() > 0){
-                this.anyDetail = ListUtil.randomItem(list);
-            }else{
-                continue;
-            }
-            return;
-        }
-        
-        throw new IllegalArgumentException("no any product detail exists");
+        this.anyDetail = mockObj.pDetail.anyPDetail();
+    }
+
+    @Test
+    public void MockProductDetail(){
+        List<ProductDetailDTO> list = mockObj.pDetail.anyPOptionList(3);
+        assertThat(ListUtil.isNotEmpty(list), is(equalTo(true)));
+        assertThat(list.size(), is(equalTo(3)));
     }
 
     @Test
@@ -88,9 +83,6 @@ public class ControllerTest extends MvcUnitConfig {
     @Test
     public void getDetailListInGroup() throws Exception {
         ProductDetailDTO param = new ProductDetailDTO(anyDetail);
-
-        String optionCd = param.getOptionCd();
-        param.setOptionCd(optionCd.substring(0, optionCd.length()-2));
 
         String url = "/product/"+param.getProductId()+"/detail";
         url += "/group/"+param.getOptionCd();

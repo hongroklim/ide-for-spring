@@ -42,56 +42,12 @@ public class ControllerTest extends MvcUnitConfig {
     public void setMvc() {
         this.mvc = MockMvcBuilders.standaloneSetup(pOptionController).build();
     }
-    
-    private int randomIdx(int size){
-        double d = Math.random();
-        int i = (int) d*100;
-
-        return i % size;
-    }
-
-    @SuppressWarnings("unused")
-    private ProductDTO getAnyProduct(){
-        List<ProductDTO> pList = pService.getProductList();
-        assertThat(pList, is(notNullValue()));
-        assertThat(pList.size(), is(greaterThan(0)));
-
-        int index = this.randomIdx(pList.size());
-        ProductDTO result = pList.get(index);
-
-        assertThat(result, is(notNullValue()));
-        return result;
-    }
-
-    private ProductOptionDTO getAnyProductOption(){
-        List<ProductDTO> pList = pService.getProductList();
-        List<ProductOptionDTO> list = null;
-        ProductOptionDTO param = null;
-        ProductOptionDTO result = null;
-
-        for(ProductDTO p : pList){
-            param = new ProductOptionDTO(p.getId());
-            list = pOptionService.getPOptionList(param);
-            if(list != null && list.size() > 0){
-                result = list.get(this.randomIdx(list.size()));
-                break;
-            }
-        }
-
-        if(result == null){
-            throw new NullPointerException("there are no product option");
-        }
-
-        return result;
-    }
 
     private ProductOptionDTO anyPOption;
 
     @Before
     public void initAnyProductOption(){
-        anyPOption = this.getAnyProductOption();
-        assertThat(this.anyPOption, is(notNullValue()));
-        assertThat(this.anyPOption.getProductId(), is(not(equalTo(0))));
+        this.anyPOption = mockObj.pOption.anyPOption();
     }
 
     @Test

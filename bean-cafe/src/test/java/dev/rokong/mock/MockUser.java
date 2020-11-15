@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import dev.rokong.dto.UserDTO;
 import dev.rokong.user.UserService;
 
-@Component
+@Component("MockUser")
 public class MockUser extends MockObjects {
 
-    private List<UserDTO> anyUserList = new ArrayList<UserDTO>();
+    private List<UserDTO> userList = new ArrayList<UserDTO>();
 
     @Autowired UserService uService;
 
@@ -28,17 +28,35 @@ public class MockUser extends MockObjects {
         return uService.createUser(this.tempUser());
     }
 
-    public UserDTO anyUser(){
-        if(this.anyUserList.size() == 0){
-            this.anyUserList.add(this.createUser());
+    private boolean isValidList(){
+        if(this.userList.size() == 0){
+            return true;
+        }else{
+            return uService.getUser(this.userList.get(0).getUserNm()) != null;
         }
-        return this.anyUserList.get(0);
+    }
+
+    private void validatingList(){
+        if(!this.isValidList()){
+            this.userList.clear();
+        }
+    }
+
+    public UserDTO anyUser(){
+        this.validatingList();
+
+        if(this.userList.size() == 0){
+            this.userList.add(this.createUser());
+        }
+        return this.userList.get(0);
     }
 
     public List<UserDTO> anyUserList(int count){
-        while(this.anyUserList.size() < count){
-            this.anyUserList.add(this.createUser());
+        this.validatingList();
+
+        while(this.userList.size() < count){
+            this.userList.add(this.createUser());
         }
-        return this.anyUserList.subList(0, count);
+        return this.userList.subList(0, count);
     }
 }
