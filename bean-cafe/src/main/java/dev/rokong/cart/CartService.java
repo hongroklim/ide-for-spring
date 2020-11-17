@@ -10,6 +10,7 @@ public interface CartService {
     public CartDTO getCartNotNull(CartDTO cart);
     public CartDTO createCart(CartDTO cart);
     public void deleteCarts(CartDTO cart);
+    public void deleteCarts(int productId, String optionCd);
     public void deleteCart(CartDTO cart);
     public CartDTO updateCartCnt(CartDTO cart);
 }

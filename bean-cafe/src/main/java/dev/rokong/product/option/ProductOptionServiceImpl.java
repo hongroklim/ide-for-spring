@@ -168,12 +168,10 @@ public class ProductOptionServiceImpl implements ProductOptionService {
                 cart : cascade
         */
 
-        //log.debug("associated option cd in order product is set null");
+        //TODO set null order_product
+
         log.debug("associated product details are deleted");
         pDetailService.deleteDetailByOption(pOption);
-
-        log.debug("associated option cd in cart is deleted");
-        //TODO delete cart associated with product option
 
         pOptionDAO.deleteProductOption(pOption);
     }
@@ -268,10 +266,6 @@ public class ProductOptionServiceImpl implements ProductOptionService {
                 throw new BusinessException("associated detail with group is exists");
             }
         }
-
-        //TODO set null option cd in order_product
-
-        //TODO cart : cascade
 
         this.rearrangeOptionGroup(asisPOption, tobeGroup);
 

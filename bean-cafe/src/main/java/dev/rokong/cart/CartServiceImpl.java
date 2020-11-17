@@ -77,6 +77,11 @@ public class CartServiceImpl implements CartService {
         cartDAO.deleteCart(cart);
     }
 
+    public void deleteCarts(int productId, String optionCd){
+        CartDTO cart = new CartDTO(null, productId, optionCd);
+        this.deleteCarts(cart);
+    }
+
     public void deleteCart(CartDTO cart){
         this.getCartNotNull(cart);
         cartDAO.deleteCart(cart);

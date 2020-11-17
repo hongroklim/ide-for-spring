@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import dev.rokong.cart.CartService;
+import dev.rokong.dto.ProductDTO;
 import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.dto.ProductOptionDTO;
 import dev.rokong.exception.BusinessException;
@@ -20,6 +22,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     
     @Autowired ProductService pService;
     @Autowired ProductOptionService pOptionService;
+    @Autowired CartService cartService;
 
     public List<ProductDetailDTO> getDetails(ProductDetailDTO pDetail){
         ProductDetailDTO param = new ProductDetailDTO(pDetail);
@@ -66,13 +69,20 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             throw new BusinessException("product detail is already exists");
         }
 
-        pService.getProductNotNull(pDetail.getProductId());
+        //is product exists
+        ProductDTO product = pService.getProductNotNull(pDetail.getProductId());
+        
+        //compare price with original product
+        if(product.getPrice() + pDetail.getPriceChange() < 0){
+            log.debug("product : "+product.toString());
+            log.debug("product detail parameter : "+pDetail.toString());
+            throw new BusinessException("final price can not be under 0");
+        }
+
         this.verifyOptionCd(pDetail);
 
         String name = this.createFullName(pDetail);
         pDetail.setFullNm(name);
-
-        //TODO compare price change with original price
 
         pDetailDAO.insertDetail(pDetail);
 
@@ -82,7 +92,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     public void deleteDetail(ProductDetailDTO pDetail){
         this.getDetailNotNull(pDetail);
 
-        //TODO delete order_product and delete cart
+        //TODO delete order_product
+
+        //delete cart
+        cartService.deleteCarts(pDetail.getProductId(), pDetail.getOptionCd());
 
         pDetailDAO.deleteDetail(pDetail);
     }
@@ -91,7 +104,13 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         //update price change, stock cnt, enabled
         this.getDetailNotNull(pDetail);
 
-        //TODO compare price change with original price
+        //compare price with original product
+        ProductDTO product = pService.getProductNotNull(pDetail.getProductId());
+        if(product.getPrice() + pDetail.getPriceChange() < 0){
+            log.debug("product : "+product.toString());
+            log.debug("product detail parameter : "+pDetail.toString());
+            throw new BusinessException("final price can not be under 0");
+        }
 
         //TODO update order product
 
@@ -107,7 +126,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     public void deleteDetailByOption(ProductOptionDTO pOption){
         ProductDetailDTO pDetail = this.paramByOption(pOption);
 
-        //TODO delete order_product and delete cart
+        //TODO delete order_product
+
+        //delete cart
+        cartService.deleteCarts(pDetail.getProductId(), pDetail.getOptionCd());
 
         pDetailDAO.deleteDetailList(pDetail);
     }

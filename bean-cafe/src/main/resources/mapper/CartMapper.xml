@@ -23,7 +23,12 @@
     <delete id="deleteCart" parameterType="CartDTO">
         DELETE
           FROM cart
+        <if test='userNm != null and !"".equals(userNm)'>
          WHERE user_nm = #{userNm}
+        </if>
+        <if test='userNm == null or "".equals(userNm)'>
+         WHERE true = true
+        </if>
         <if test='productId != null and productId != 0'>
            AND product_id = #{productId}
         </if>
