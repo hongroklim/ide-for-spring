@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.19
+-- Dumped from database version 9.6.20
 -- Dumped by pg_dump version 12.4
 
--- Started on 2020-11-05 05:51:15 UTC
+-- Started on 2020-11-15 10:21:11 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,7 +19,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 5 (class 2615 OID 16532)
+-- TOC entry 4 (class 2615 OID 25014)
 -- Name: bean_cafe; Type: SCHEMA; Schema: -; Owner: bean_cafe_dev
 --
 
@@ -28,10 +28,47 @@ CREATE SCHEMA bean_cafe;
 
 ALTER SCHEMA bean_cafe OWNER TO bean_cafe_dev;
 
+--
+-- TOC entry 213 (class 1255 OID 25159)
+-- Name: reset_serial(); Type: FUNCTION; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+CREATE FUNCTION bean_cafe.reset_serial() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    param RECORD;
+BEGIN
+
+	FOR param IN
+		-- get tobe sequence value
+		SELECT A.SEQ, A.VAL
+		  FROM (SELECT 'bean_cafe.category_id_seq' AS SEQ,
+					   MAX(id) AS VAL
+				  FROM category
+				 UNION ALL
+				SELECT 'bean_cafe.order_id_seq',
+					   MAX(id)
+				  FROM order_main
+				 UNION ALL
+				SELECT 'bean_cafe.product_id_seq',
+					   MAX(id)
+				  FROM product_main) A
+	LOOP
+		-- update current value
+		PERFORM setval(param.seq, param.val, true);
+	END LOOP;
+	
+END;
+$$;
+
+
+ALTER FUNCTION bean_cafe.reset_serial() OWNER TO bean_cafe_dev;
+
 SET default_tablespace = '';
 
 --
--- TOC entry 186 (class 1259 OID 16533)
+-- TOC entry 186 (class 1259 OID 25015)
 -- Name: cart; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -47,7 +84,7 @@ CREATE TABLE bean_cafe.cart (
 ALTER TABLE bean_cafe.cart OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 187 (class 1259 OID 16538)
+-- TOC entry 187 (class 1259 OID 25020)
 -- Name: category; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -62,7 +99,7 @@ CREATE TABLE bean_cafe.category (
 ALTER TABLE bean_cafe.category OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2228 (class 0 OID 0)
+-- TOC entry 2231 (class 0 OID 0)
 -- Dependencies: 187
 -- Name: TABLE category; Type: COMMENT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
@@ -71,7 +108,7 @@ COMMENT ON TABLE bean_cafe.category IS 'categories of products';
 
 
 --
--- TOC entry 188 (class 1259 OID 16541)
+-- TOC entry 188 (class 1259 OID 25023)
 -- Name: category_id_seq; Type: SEQUENCE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -86,7 +123,7 @@ CREATE SEQUENCE bean_cafe.category_id_seq
 ALTER TABLE bean_cafe.category_id_seq OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2229 (class 0 OID 0)
+-- TOC entry 2232 (class 0 OID 0)
 -- Dependencies: 188
 -- Name: category_id_seq; Type: SEQUENCE OWNED BY; Schema: bean_cafe; Owner: bean_cafe_dev
 --
@@ -95,7 +132,7 @@ ALTER SEQUENCE bean_cafe.category_id_seq OWNED BY bean_cafe.category.id;
 
 
 --
--- TOC entry 189 (class 1259 OID 16543)
+-- TOC entry 189 (class 1259 OID 25025)
 -- Name: delivery; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -111,7 +148,7 @@ CREATE TABLE bean_cafe.delivery (
 ALTER TABLE bean_cafe.delivery OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 191 (class 1259 OID 16553)
+-- TOC entry 190 (class 1259 OID 25029)
 -- Name: order_delivery; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -133,7 +170,7 @@ CREATE TABLE bean_cafe.order_delivery (
 ALTER TABLE bean_cafe.order_delivery OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 192 (class 1259 OID 16556)
+-- TOC entry 191 (class 1259 OID 25032)
 -- Name: order_main; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -156,7 +193,7 @@ CREATE TABLE bean_cafe.order_main (
 ALTER TABLE bean_cafe.order_main OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 193 (class 1259 OID 16561)
+-- TOC entry 192 (class 1259 OID 25037)
 -- Name: order_id_seq; Type: SEQUENCE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -171,8 +208,8 @@ CREATE SEQUENCE bean_cafe.order_id_seq
 ALTER TABLE bean_cafe.order_id_seq OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2230 (class 0 OID 0)
--- Dependencies: 193
+-- TOC entry 2233 (class 0 OID 0)
+-- Dependencies: 192
 -- Name: order_id_seq; Type: SEQUENCE OWNED BY; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -180,7 +217,7 @@ ALTER SEQUENCE bean_cafe.order_id_seq OWNED BY bean_cafe.order_main.id;
 
 
 --
--- TOC entry 194 (class 1259 OID 16563)
+-- TOC entry 193 (class 1259 OID 25039)
 -- Name: order_product; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -200,7 +237,7 @@ CREATE TABLE bean_cafe.order_product (
 ALTER TABLE bean_cafe.order_product OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 190 (class 1259 OID 16547)
+-- TOC entry 194 (class 1259 OID 25044)
 -- Name: product_detail; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -217,7 +254,7 @@ CREATE TABLE bean_cafe.product_detail (
 ALTER TABLE bean_cafe.product_detail OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 195 (class 1259 OID 16568)
+-- TOC entry 195 (class 1259 OID 25050)
 -- Name: product_main; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -237,7 +274,7 @@ CREATE TABLE bean_cafe.product_main (
 ALTER TABLE bean_cafe.product_main OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 196 (class 1259 OID 16574)
+-- TOC entry 196 (class 1259 OID 25056)
 -- Name: product_id_seq; Type: SEQUENCE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -252,7 +289,7 @@ CREATE SEQUENCE bean_cafe.product_id_seq
 ALTER TABLE bean_cafe.product_id_seq OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2231 (class 0 OID 0)
+-- TOC entry 2234 (class 0 OID 0)
 -- Dependencies: 196
 -- Name: product_id_seq; Type: SEQUENCE OWNED BY; Schema: bean_cafe; Owner: bean_cafe_dev
 --
@@ -261,7 +298,7 @@ ALTER SEQUENCE bean_cafe.product_id_seq OWNED BY bean_cafe.product_main.id;
 
 
 --
--- TOC entry 197 (class 1259 OID 16576)
+-- TOC entry 197 (class 1259 OID 25058)
 -- Name: product_option; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -269,14 +306,16 @@ CREATE TABLE bean_cafe.product_option (
     product_id integer NOT NULL,
     option_group smallint NOT NULL,
     option_id character(2) DEFAULT '00'::bpchar NOT NULL,
-    name character varying(20) NOT NULL
+    name character varying(20) NOT NULL,
+    ord smallint DEFAULT 0 NOT NULL,
+    CONSTRAINT option_id_length CHECK ((length(option_id) = 2))
 );
 
 
 ALTER TABLE bean_cafe.product_option OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2232 (class 0 OID 0)
+-- TOC entry 2235 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: TABLE product_option; Type: COMMENT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
@@ -285,7 +324,7 @@ COMMENT ON TABLE bean_cafe.product_option IS 'base data of option_cd';
 
 
 --
--- TOC entry 198 (class 1259 OID 16580)
+-- TOC entry 198 (class 1259 OID 25062)
 -- Name: product_tag; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -298,7 +337,7 @@ CREATE TABLE bean_cafe.product_tag (
 ALTER TABLE bean_cafe.product_tag OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 199 (class 1259 OID 16583)
+-- TOC entry 199 (class 1259 OID 25065)
 -- Name: user_auth; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -311,7 +350,7 @@ CREATE TABLE bean_cafe.user_auth (
 ALTER TABLE bean_cafe.user_auth OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 200 (class 1259 OID 16586)
+-- TOC entry 200 (class 1259 OID 25068)
 -- Name: user_main; Type: TABLE; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -325,7 +364,7 @@ CREATE TABLE bean_cafe.user_main (
 ALTER TABLE bean_cafe.user_main OWNER TO bean_cafe_dev;
 
 --
--- TOC entry 2053 (class 2604 OID 16590)
+-- TOC entry 2054 (class 2604 OID 25072)
 -- Name: category id; Type: DEFAULT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -333,7 +372,7 @@ ALTER TABLE ONLY bean_cafe.category ALTER COLUMN id SET DEFAULT nextval('bean_ca
 
 
 --
--- TOC entry 2061 (class 2604 OID 16591)
+-- TOC entry 2056 (class 2604 OID 25073)
 -- Name: order_main id; Type: DEFAULT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -341,7 +380,7 @@ ALTER TABLE ONLY bean_cafe.order_main ALTER COLUMN id SET DEFAULT nextval('bean_
 
 
 --
--- TOC entry 2067 (class 2604 OID 16592)
+-- TOC entry 2065 (class 2604 OID 25074)
 -- Name: product_main id; Type: DEFAULT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -349,7 +388,7 @@ ALTER TABLE ONLY bean_cafe.product_main ALTER COLUMN id SET DEFAULT nextval('bea
 
 
 --
--- TOC entry 2072 (class 2606 OID 16594)
+-- TOC entry 2074 (class 2606 OID 25076)
 -- Name: cart cart_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -358,7 +397,7 @@ ALTER TABLE ONLY bean_cafe.cart
 
 
 --
--- TOC entry 2075 (class 2606 OID 16596)
+-- TOC entry 2077 (class 2606 OID 25078)
 -- Name: category category_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -367,7 +406,7 @@ ALTER TABLE ONLY bean_cafe.category
 
 
 --
--- TOC entry 2077 (class 2606 OID 16598)
+-- TOC entry 2079 (class 2606 OID 25080)
 -- Name: delivery delivery_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -376,7 +415,7 @@ ALTER TABLE ONLY bean_cafe.delivery
 
 
 --
--- TOC entry 2058 (class 2606 OID 16599)
+-- TOC entry 2064 (class 2606 OID 25081)
 -- Name: product_detail option_cd_length; Type: CHECK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -385,7 +424,7 @@ ALTER TABLE bean_cafe.product_detail
 
 
 --
--- TOC entry 2079 (class 2606 OID 16601)
+-- TOC entry 2087 (class 2606 OID 25083)
 -- Name: product_detail option_detail_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -394,16 +433,7 @@ ALTER TABLE ONLY bean_cafe.product_detail
 
 
 --
--- TOC entry 2069 (class 2606 OID 16602)
--- Name: product_option option_id_length; Type: CHECK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
---
-
-ALTER TABLE bean_cafe.product_option
-    ADD CONSTRAINT option_id_length CHECK ((length(option_id) = 2)) NOT VALID;
-
-
---
--- TOC entry 2081 (class 2606 OID 16604)
+-- TOC entry 2081 (class 2606 OID 25086)
 -- Name: order_delivery order_deliver_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -412,7 +442,7 @@ ALTER TABLE ONLY bean_cafe.order_delivery
 
 
 --
--- TOC entry 2083 (class 2606 OID 16606)
+-- TOC entry 2083 (class 2606 OID 25088)
 -- Name: order_main order_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -421,7 +451,7 @@ ALTER TABLE ONLY bean_cafe.order_main
 
 
 --
--- TOC entry 2085 (class 2606 OID 16608)
+-- TOC entry 2085 (class 2606 OID 25090)
 -- Name: order_product order_product_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -430,7 +460,7 @@ ALTER TABLE ONLY bean_cafe.order_product
 
 
 --
--- TOC entry 2089 (class 2606 OID 16610)
+-- TOC entry 2092 (class 2606 OID 25092)
 -- Name: product_option product_option_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -439,7 +469,7 @@ ALTER TABLE ONLY bean_cafe.product_option
 
 
 --
--- TOC entry 2087 (class 2606 OID 16612)
+-- TOC entry 2089 (class 2606 OID 25094)
 -- Name: product_main product_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -448,7 +478,7 @@ ALTER TABLE ONLY bean_cafe.product_main
 
 
 --
--- TOC entry 2091 (class 2606 OID 16614)
+-- TOC entry 2094 (class 2606 OID 25096)
 -- Name: product_tag product_tag_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -457,7 +487,7 @@ ALTER TABLE ONLY bean_cafe.product_tag
 
 
 --
--- TOC entry 2093 (class 2606 OID 16616)
+-- TOC entry 2096 (class 2606 OID 25098)
 -- Name: user_auth user_auth_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -466,7 +496,7 @@ ALTER TABLE ONLY bean_cafe.user_auth
 
 
 --
--- TOC entry 2095 (class 2606 OID 16618)
+-- TOC entry 2098 (class 2606 OID 25100)
 -- Name: user_main user_pkey; Type: CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -475,7 +505,7 @@ ALTER TABLE ONLY bean_cafe.user_main
 
 
 --
--- TOC entry 2073 (class 1259 OID 16673)
+-- TOC entry 2075 (class 1259 OID 25101)
 -- Name: category_idx_uk; Type: INDEX; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -483,7 +513,15 @@ CREATE UNIQUE INDEX category_idx_uk ON bean_cafe.category USING btree (up_id, or
 
 
 --
--- TOC entry 2105 (class 2606 OID 16619)
+-- TOC entry 2090 (class 1259 OID 25153)
+-- Name: product_option_idx_uk; Type: INDEX; Schema: bean_cafe; Owner: bean_cafe_dev
+--
+
+CREATE UNIQUE INDEX product_option_idx_uk ON bean_cafe.product_option USING btree (product_id, option_group, ord);
+
+
+--
+-- TOC entry 2108 (class 2606 OID 25102)
 -- Name: user_auth fk_authorities_users; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -492,7 +530,7 @@ ALTER TABLE ONLY bean_cafe.user_auth
 
 
 --
--- TOC entry 2097 (class 2606 OID 16674)
+-- TOC entry 2099 (class 2606 OID 25107)
 -- Name: cart fk_cart_product; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -501,7 +539,7 @@ ALTER TABLE ONLY bean_cafe.cart
 
 
 --
--- TOC entry 2096 (class 2606 OID 16629)
+-- TOC entry 2100 (class 2606 OID 25112)
 -- Name: cart fk_cart_user; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -510,7 +548,7 @@ ALTER TABLE ONLY bean_cafe.cart
 
 
 --
--- TOC entry 2098 (class 2606 OID 16634)
+-- TOC entry 2104 (class 2606 OID 25117)
 -- Name: product_detail fk_option_detail_product; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -519,16 +557,16 @@ ALTER TABLE ONLY bean_cafe.product_detail
 
 
 --
--- TOC entry 2104 (class 2606 OID 16639)
+-- TOC entry 2107 (class 2606 OID 25122)
 -- Name: product_option fk_option_product; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
 ALTER TABLE ONLY bean_cafe.product_option
-    ADD CONSTRAINT fk_option_product FOREIGN KEY (product_id) REFERENCES bean_cafe.product_main(id) ON UPDATE CASCADE NOT VALID;
+    ADD CONSTRAINT fk_option_product FOREIGN KEY (product_id) REFERENCES bean_cafe.product_main(id) ON UPDATE CASCADE;
 
 
 --
--- TOC entry 2099 (class 2606 OID 16644)
+-- TOC entry 2101 (class 2606 OID 25127)
 -- Name: order_delivery fk_order_deliver_main; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -537,7 +575,7 @@ ALTER TABLE ONLY bean_cafe.order_delivery
 
 
 --
--- TOC entry 2101 (class 2606 OID 16649)
+-- TOC entry 2103 (class 2606 OID 25132)
 -- Name: order_product fk_order_product_main; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -546,7 +584,7 @@ ALTER TABLE ONLY bean_cafe.order_product
 
 
 --
--- TOC entry 2100 (class 2606 OID 16654)
+-- TOC entry 2102 (class 2606 OID 25137)
 -- Name: order_main fk_order_user; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -555,7 +593,7 @@ ALTER TABLE ONLY bean_cafe.order_main
 
 
 --
--- TOC entry 2102 (class 2606 OID 16659)
+-- TOC entry 2105 (class 2606 OID 25142)
 -- Name: product_main fk_product_category; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -564,7 +602,7 @@ ALTER TABLE ONLY bean_cafe.product_main
 
 
 --
--- TOC entry 2103 (class 2606 OID 16664)
+-- TOC entry 2106 (class 2606 OID 25147)
 -- Name: product_main fk_product_users; Type: FK CONSTRAINT; Schema: bean_cafe; Owner: bean_cafe_dev
 --
 
@@ -572,7 +610,7 @@ ALTER TABLE ONLY bean_cafe.product_main
     ADD CONSTRAINT fk_product_users FOREIGN KEY (seller_nm) REFERENCES bean_cafe.user_main(user_nm) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
--- Completed on 2020-11-05 05:51:16 UTC
+-- Completed on 2020-11-15 10:21:12 UTC
 
 --
 -- PostgreSQL database dump complete
