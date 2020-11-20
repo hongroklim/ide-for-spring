@@ -61,7 +61,11 @@ public enum OrderStatus {
             throw new IllegalArgumentException("only normal process parameter supported");
         }
 
-        return this.getCode() < orderStatus.getCode();
+        if(this == orderStatus){
+            return false;
+        }else{
+            return this.getCode() < orderStatus.getCode();
+        }
     }
 
     /**
@@ -73,7 +77,17 @@ public enum OrderStatus {
      * @see {@link #isFormerThan(OrderStatus)}
      */
     public boolean isLatterThan(OrderStatus orderStatus){
-        return !this.isFormerThan(orderStatus);
+        if(!this.isProcess()){
+            throw new UnsupportedOperationException("only normal process supported");
+        }else if(!orderStatus.isProcess()){
+            throw new IllegalArgumentException("only normal process parameter supported");
+        }
+        
+        if(this == orderStatus){
+            return false;
+        }else{
+            return !this.isFormerThan(orderStatus);
+        }
     }
 
     /**
@@ -131,10 +145,11 @@ public enum OrderStatus {
             throw new UnsupportedOperationException("only canceled status supported");
         }
 
-        OrderStatus o = this.causeProcess();
+        int code = this.getCode();
+        code /= 100;
+        code *= 100;
 
-        if(o.isLatterThan(OrderStatus.WRITING)
-                && o.isFormerThan(OrderStatus.PRODUCT_READY)){
+        if(OrderStatus.CUSTOMER_CANCEL.getCode() == code){
             return true;
         }else{
             return false;

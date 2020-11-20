@@ -50,19 +50,17 @@ public class EnumTest {
 
     @Test
     public void getCauseSubject(){
-        //TODO fix bug
         assertThat(OrderStatus.CANCELED_WRITE.isCustomerCancel(), is(equalTo(true)));
         assertThat(OrderStatus.CALCELED_PAYMENT.isCustomerCancel(), is(equalTo(true)));
 
-        assertThat(OrderStatus.CANCEL_DELIVER.isSellerCancel(), is(equalTo(false)));
+        assertThat(OrderStatus.CANCEL_DELIVER.isSellerCancel(), is(equalTo(true)));
         assertThat(OrderStatus.CANCEL_CHECK.isSellerCancel(), is(equalTo(true)));
     }
 
     @Test
     public void checkCancelAvailable(){
-        //TODO fix bug
         assertThat(OrderStatus.PRODUCT_READY.isCustomerCanCancel(), is(equalTo(true)));
-        assertThat(OrderStatus.PRODUCT_READY.isSellerCanCancel(), is(equalTo(false)));
+        assertThat(OrderStatus.PAYMENT_READY.isSellerCanCancel(), is(equalTo(false)));
     }
 
 }
