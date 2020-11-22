@@ -3,8 +3,11 @@ package dev.rokong.order.main;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDTO;
 import dev.rokong.exception.BusinessException;
+import dev.rokong.pay.type.PayTypeService;
+import dev.rokong.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -13,8 +16,11 @@ public class OrderServiceImpl implements OrderService {
     
     @Autowired OrderDAO orderDAO;
 
+    @Autowired UserService userService;
+    @Autowired PayTypeService pTypeService;
+
     public OrderDTO getOrder(int id){
-        return null;    //select order
+        return orderDAO.selectOrder(id);
     }
 
     public OrderDTO getOrderNotNull(int id){
@@ -30,30 +36,73 @@ public class OrderServiceImpl implements OrderService {
         return this.getOrderNotNull(order.getId());
     }
 
-    public OrderDTO createOrder(OrderDTO order){
-        this.getOrderNotNull(order);
+    public OrderDTO initOrder(OrderDTO order){
+        //initialize order
 
         /*
-
         order process
         1. init order : create primary key
         2. add products
         3. add others info in order
         4. add delivery
         5. order complete
-
         */
-        
-        return this.getOrderNotNull(order);
+
+        //userNm is required
+        userService.getUserNotNull(order.getUserNm());
+
+        //set status
+        order.setOrderStatus(OrderStatus.WRITING);
+
+        //insert
+        int id = orderDAO.insertOrder(order);
+
+        //if payId exists, update it
+        if(order.getPayId() != null){
+            order.setId(id);
+            this.updateOrderPay(order);
+        }
+
+        return this.getOrderNotNull(id);
     }
 
-    public OrderDTO updateOrder(OrderDTO order){
+    public void updateOrderPrice(OrderDTO order){
+        //used by order.product
+        this.getOrderNotNull(order);
+    }
+
+    public void updateOrderPay(OrderDTO order){
+        //order id and pay id required
         this.getOrderNotNull(order);
 
+        //get pay name
+        String payNm = pTypeService.getPayTypeFullNm(order.getPayId());
+        order.setPayNm(payNm);
+
+        orderDAO.updateOrderPay(order);
+    }
+
+    public OrderDTO updateOrderStatus(OrderDTO order){
         return this.getOrderNotNull(order);
     }
 
-    public void deleteOrder(int id){
-        this.getOrderNotNull(id);
+    public void cancelOrder(int id, String user){
+        OrderDTO order = this.getOrderNotNull(id);
+
+        OrderStatus tobeStatus;
+
+        if(order.getUserNm().equals(user)){
+            //if editor is user
+            tobeStatus = order.getOrderStatus().getCustomerCancel();
+        }else{
+            //if editor is seller
+            tobeStatus = order.getOrderStatus().getSellerCancel();
+        }
+
+        //set status
+        order.setOrderStatus(tobeStatus);
+        order.setEditorNm(user);
+
+        orderDAO.updateOrderStatus(order);
     }
 }

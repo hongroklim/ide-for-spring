@@ -213,4 +213,56 @@ public enum OrderStatus {
 
         return false;
     }
+
+    /**
+     * get cancel status of normal process caused by customer
+     * 
+     * @return cancel status
+     * @throws UnsupportedOperationException customer can not cancel in this process
+     * @see {@link #getSellerCancel()}
+     */
+    public OrderStatus getCustomerCancel(){
+        if(!this.isCustomerCanCancel()){
+            throw new UnsupportedOperationException("only process when customer can cancel supported");
+        }
+
+        int causeCode = this.getCode();
+        causeCode /= 10;
+        causeCode *= -1;
+        causeCode -= OrderStatus.CUSTOMER_CANCEL.getCode();
+
+        for(OrderStatus o : OrderStatus.values()){
+            if(causeCode == o.getCode()){
+                return o;
+            }
+        }
+
+        throw new IllegalArgumentException("can not find cancel status");
+    }
+
+    /**
+     * get cancel status of normal process caused by seller
+     * 
+     * @return cancel status
+     * @throws UnsupportedOperationException seller can not cancel in this process
+     * @see {@link #getCustomerCancel()}
+     */
+    public OrderStatus getSellerCancel(){
+        if(!this.isSellerCanCancel()){
+            throw new UnsupportedOperationException("only process when seller can cancel supported");
+        }
+
+        int causeCode = this.getCode();
+        causeCode /= 10;
+        causeCode *= -1;
+        causeCode -= OrderStatus.SELLER_CANCEL.getCode();
+
+        for(OrderStatus o : OrderStatus.values()){
+            if(causeCode == o.getCode()){
+                return o;
+            }
+        }
+
+        throw new IllegalArgumentException("can not find cancel status");
+    }
 }

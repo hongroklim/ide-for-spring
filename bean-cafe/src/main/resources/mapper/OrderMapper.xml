@@ -1,4 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dev.rokong.order">
+    <select id="selectOrder" parameterType="int">
+        SELECT id, user_nm, price, delivery_price, pay_id, pay_nm,
+               request_dt, status_cd, last_edit_dt, editor_nm
+          FROM order_main
+         WHERE id = #{id}
+    </select>
+
+    <insert id="insertOrder" parameterType="OrderDTO">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            SELECT nextval('order_main_id_seq'::regclass)
+        </selectKey>
+        INSERT INTO order_main
+               (id, user_nm, status_cd, last_edit_dt, editor_nm)
+        VALUES (#{id}, #{userNm}, #{statusCd}, now(), #{userNm})
+    </insert>
+
+    <update id="updateOrderPay" parameterType="OrderDTO">
+        UPDATE order_main
+           SET pay_id = #{payId},
+               pay_nm = #{payNm}
+         WHERE id = #{id}
+    </update>
+
+    <update id="updateOrderStatus" parameterType="OrderDTO">
+        UPDATE order_main
+           SET status_cd = #{statusCd},
+               last_edit_dt = now(),
+               editor_nm = #{editor}
+         WHERE id = #{id}
+    </update>
 </mapper>

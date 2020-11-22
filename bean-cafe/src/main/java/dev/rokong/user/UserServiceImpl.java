@@ -83,17 +83,15 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDTO getUserNotNull(String userNm){
-        UserDTO user = new UserDTO();
-        user.setUserNm(userNm);
-        return this.getUserNotNull(user);
+        UserDTO user = this.getUser(userNm);
+        if(user == null){
+            throw new BusinessException(userNm+" user is not exists");
+        }
+        return user;
     }
 
     private UserDTO getUserNotNull(UserDTO user){
-        UserDTO getUser = this.getUser(user.getUserNm());
-        if(getUser == null){
-            throw new BusinessException(user.getUserNm()+" user is not exists");
-        }
-        return getUser;
+        return this.getUser(user.getUserNm());
     }
 
     private UserDTO getUserWithAuthorities(UserDTO user){
