@@ -69,6 +69,8 @@ public class OrderServiceImpl implements OrderService {
     public void updateOrderPrice(OrderDTO order){
         //used by order.product
         this.getOrderNotNull(order);
+
+        //TODO calculate from order_product
     }
 
     public void updateOrderPay(OrderDTO order){
