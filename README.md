@@ -32,6 +32,7 @@ $ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 #### firewall settings
 ```bash
 $ sudo firewall-cmd --permanent --zone=trusted --add-interface=docker0
+$ sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
 $ sudo firewall-cmd --reload
 ```
 
@@ -110,6 +111,13 @@ server {
 
 ```bash
 $ sudo service nginx restart
+```
+
+##### 2.1 if permisson denied
+
+```bash
+$ sudo cat /var/log/audit/audit.log | grep nginx | grep denied | audit2allow -M swnginx
+$ sudo semodule -i swnginx.pp
 ```
 
 ### privileges
