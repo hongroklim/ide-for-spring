@@ -55,8 +55,9 @@ $ sudo vim /etc/nginx/conf.d/default.d
 
 ```
 server {
-    listen 172.25.10.99:80;
-    server_name 172.25.10.99;
+    listen 172.25.10.99:80;	# listen 80;
+				# listen [::]:80;
+    server_name 172.25.10.99;	# server_name _;
 
     # pgadmin4
     location /pgadmin4/ {
