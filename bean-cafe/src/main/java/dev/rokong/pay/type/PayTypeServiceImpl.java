@@ -1,11 +1,13 @@
 package dev.rokong.pay.type;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import dev.rokong.annotation.PayType;
 import dev.rokong.dto.PayTypeDTO;
 import dev.rokong.exception.BusinessException;
 
+@Service
 public class PayTypeServiceImpl implements PayTypeService {
     
     @Autowired PayTypeDAO pTypeDAO;

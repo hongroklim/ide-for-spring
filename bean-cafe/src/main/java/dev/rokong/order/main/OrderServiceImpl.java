@@ -66,11 +66,11 @@ public class OrderServiceImpl implements OrderService {
         return this.getOrderNotNull(id);
     }
 
-    public void updateOrderPrice(OrderDTO order){
+    public void updateOrderPrice(int id, int price){
         //used by order.product
-        this.getOrderNotNull(order);
+        this.getOrderNotNull(id);
 
-        //TODO calculate from order_product
+        //TODO update price
     }
 
     public void updateOrderPay(OrderDTO order){

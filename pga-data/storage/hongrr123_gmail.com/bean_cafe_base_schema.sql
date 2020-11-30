@@ -6,21 +6,22 @@ bean_cafe_base_schema
 
 -- 0.1 Create Tablespace directory in psql
 /*
-# docker exec -it bean-cafe-project_psql_1 /bin/sh
-# mkdir -p /var/lib/postgresql/data/bean_cafe
-# chown postgres /var/lib/postgresql/data/bean_cafe
-# chmod 700 /var/lib/postgresql/data/bean_cafe
+$ docker exec -it bean-cafe-project_psql_1 /bin/sh
+
+$ mkdir -p /var/lib/postgresql/data/bean_cafe \
+  && chown postgres /var/lib/postgresql/data/bean_cafe \
+  && chmod 700 /var/lib/postgresql/data/bean_cafe
 */
 
 -- 0.2 Execute script in pgadmin4
 /*
-# docker exec -it bean-cafe-project_psql_1 /bin/sh
+$ sudo docker exec -it bean-cafe-project_pgadmin4_1 /bin/sh
 
 build base script:
-# psql --host=172.18.0.12 --port=5432 --username=postgres --dbname=postgres --password --file=/var/lib/pgadmin/storage/hongrr123_gmail.com/bean_cafe_base_schema.sql
+$ psql --host=172.18.0.12 --port=5432 --username=postgres --dbname=postgres --password --file=/var/lib/pgadmin/storage/hongrr123_gmail.com/bean_cafe_base_schema.sql
 
 build other script:
-# psql --host=172.18.0.12 --port=5432 --username=postgres --dbname=postgres --password --file=/var/lib/pgadmin/storage/hongrr123_gmail.com/bean_cafe_dump.sql
+$ psql --host=172.18.0.12 --port=5432 --username=postgres --dbname=bean_cafe_db --password --file=/var/lib/pgadmin/storage/hongrr123_gmail.com/bean_cafe_dump.sql
 
 */
 

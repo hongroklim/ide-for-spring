@@ -2,18 +2,43 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dev.rokong.orderProduct">
     <select id="selectOProduct" parameterType="OrderProductDTO" resultType="OrderProductDTO">
-        
+        SELECT order_id, product_id, option_cd, seller_nm, cnt,
+               price, discount_price, product_nm, option_nm
+          FROM order_product
+         WHERE order_id = #{orderId}
+        <if test='productId != null and productId != 0'>
+            AND product_id = #{productId}
+            <if test='optionCd != null and !"".equals(optionCd)'>
+                AND option_cd LIKE #{optionCd}
+            </if>
+        </if>
     </select>
 
     <insert id="insertOProduct" parameterType="OrderProductDTO">
-
+        INSERT INTO order_product
+               (order_id, product_id, option_cd, seller_nm, cnt,
+                price, discount_price, product_nm, option_nm)
+        VALUES (#{orderId}, #{productId}, #{optionCd}, #{sellerNm}, #{cnt},
+                #{price}, #{discountPrice}, #{productNm}, #{optionNm})
     </insert>
 
     <delete id="deleteOProduct" parameterType="OrderProductDTO">
-
+        DELETE
+          FROM order_product
+         WHERE order_id = #{orderId}
+        <if test='productId != null and productId != 0'>
+            AND product_id = #{productId}
+            <if test='optionCd != null and !"".equals(optionCd)'>
+                AND option_cd LIKE #{optionCd}
+            </if>
+        </if>
     </delete>
 
     <update id="updateOProduct" parameterType="OrderProductDTO">
-
+        UPDATE order_product
+           SET cnt = #{cnt}
+         WHERE order_id = #{orderId}
+           AND product_id = #{productId}
+           AND option_cd = #{optionCd}
     </update>
 </mapper>

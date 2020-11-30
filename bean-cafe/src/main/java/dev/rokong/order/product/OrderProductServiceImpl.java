@@ -47,13 +47,17 @@ public class OrderProductServiceImpl implements OrderProductService {
         this.verifyPrimaryParameter(oProduct);
 
         //is cnt defined
-        if(ObjUtil.isNotDefined(oProduct.getCnt())){
-            log.debug("order product parameter : "+oProduct.toString());
-            throw new BusinessException("cnt is not exists");
-        }
+        this.verifyCnt(oProduct.getCnt());
 
         //is order exists
         orderService.getOrderNotNull(oProduct.getOrderId());
+
+        //is order product already exists
+        OrderProductDTO getOProduct = this.getOProduct(oProduct);
+        if(getOProduct != null){
+            log.debug("order product in table : "+getOProduct.toString());
+            throw new BusinessException("order porduct already exists");
+        }
 
         //is product exists
         ProductDTO product = pService.getProductNotNull(oProduct.getProductId());
@@ -69,6 +73,7 @@ public class OrderProductServiceImpl implements OrderProductService {
             //is product detail exists
             ProductDetailDTO pDetail = new ProductDetailDTO(oProduct.getProductId(), oProduct.getOptionCd());
             pDetail = pDetailService.getDetailNotNull(pDetail);
+            
             //set option name
             oProduct.setOptionNm(pDetail.getFullNm());
 
@@ -79,18 +84,49 @@ public class OrderProductServiceImpl implements OrderProductService {
         //insert
         oProductDAO.insertOProduct(oProduct);
 
+        //update order main price
+        this.updateOrderPrice(oProduct.getOrderId());
+
         return this.getOProductNotNull(oProduct);
     }
     
     public OrderProductDTO updateOProduct(OrderProductDTO oProduct){
+        //update cnt
         this.getOProductNotNull(oProduct);
-        //TODO
+        
+        //verify cnt
+        this.verifyCnt(oProduct.getCnt());
+
+        //update
+        oProductDAO.updateOProduct(oProduct);
+        
+        //update order main price
+        this.updateOrderPrice(oProduct.getOrderId());
+
         return this.getOProductNotNull(oProduct);
     }
     
     public void deleteOProduct(OrderProductDTO oProduct){
         this.getOProductNotNull(oProduct);
-        //TODO
+        
+        oProductDAO.deleteOProduct(oProduct);
+
+        //update order main price
+        this.updateOrderPrice(oProduct.getOrderId());
+    }
+
+    private void updateOrderPrice(int orderId){
+        List<OrderProductDTO> oProductList
+            = oProductDAO.selectOProductList(new OrderProductDTO(orderId));
+        
+        int price = 0;
+
+        //sum product's price
+        for(OrderProductDTO oProduct : oProductList){
+            price += oProduct.getPrice() + oProduct.getDiscountPrice();
+        }
+
+        orderService.updateOrderPrice(orderId, price);
     }
 
     private void verifyPrimaryParameter(OrderProductDTO oProduct){
@@ -101,6 +137,13 @@ public class OrderProductServiceImpl implements OrderProductService {
         }else if(ObjUtil.isNotDefined(oProduct.getProductId())){
             log.debug("order product parameter : "+oProduct.toString());
             throw new BusinessException("product id is not defined");
+        }
+    }
+
+    private void verifyCnt(Integer cnt){
+        if(ObjUtil.isNotDefined(cnt) || cnt == 0){
+            log.debug("cnt : "+cnt);
+            throw new BusinessException("cnt is not exists");
         }
     }
 }
