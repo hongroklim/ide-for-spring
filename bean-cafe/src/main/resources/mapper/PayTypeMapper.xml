@@ -4,6 +4,9 @@
     <select id="selectPayType" parameterType="int">
         SELECT id, type, option1, option2, enabled
           FROM pay_type
-         WHERE id = #{id}
+         WHERE true = true
+        <if test='id != null and id != 0'>
+            AND id = #{id}
+        </if>
     </select>
 </mapper>

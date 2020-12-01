@@ -7,4 +7,5 @@ public interface OrderDAO {
     public int insertOrder(OrderDTO order);
     public void updateOrderPay(OrderDTO order);
     public void updateOrderStatus(OrderDTO order);
+    public void updateOrderPrice(OrderDTO order);
 }

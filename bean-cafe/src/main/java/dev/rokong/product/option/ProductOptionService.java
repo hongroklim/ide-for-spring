@@ -13,6 +13,6 @@ public interface ProductOptionService {
     public void deletePOption(ProductOptionDTO pOption);
     public ProductOptionDTO updatePOption(ProductOptionDTO asisPOption, ProductOptionDTO tobePOption);
     public void deletePOptionGroup(ProductOptionDTO pOption);
-    public void deletePOptionAll(int productId);
+    public void deletePOptionByProduct(int productId);
     public ProductOptionDTO updatePOptionGroupOrder(ProductOptionDTO asisPOption, int tobeGroup);
 }

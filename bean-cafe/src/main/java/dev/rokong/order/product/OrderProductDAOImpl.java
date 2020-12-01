@@ -34,5 +34,8 @@ public class OrderProductDAOImpl implements OrderProductDAO {
     public void updateOProduct(OrderProductDTO oProduct){
         sqlSession.update(PREFIX+"updateOProduct", oProduct);
     }
-    
+
+    public void updateOProductToNull(OrderProductDTO oProduct){
+        sqlSession.update(PREFIX+"updateOProductToNull", oProduct);
+    }
 }

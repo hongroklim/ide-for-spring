@@ -41,4 +41,16 @@
            AND product_id = #{productId}
            AND option_cd = #{optionCd}
     </update>
+
+    <update id="updateOProductToNull" parameterType="OrderProductDTO">
+        UPDATE order_product
+           SET option_cd = null
+               <if test='optionCd == null || "".equals(optionCd)'>
+                   , product_id = null
+               </if>
+         WHERE product_id = #{productId}
+        <if test='optionCd != null and !"".equals(optionCd)'>
+            AND option_cd like #{optionCd}
+        </if>
+    </update>
 </mapper>

@@ -115,20 +115,30 @@ public class OrderProductServiceImpl implements OrderProductService {
         this.updateOrderPrice(oProduct.getOrderId());
     }
 
+    public void updateOProductToNull(int productId, String optionCd){
+        OrderProductDTO oProduct = new OrderProductDTO();
+        oProduct.setProductId(productId);
+        oProduct.setOptionCd(optionCd);
+
+        oProductDAO.updateOProductToNull(oProduct);
+    }
+
     private void updateOrderPrice(int orderId){
         List<OrderProductDTO> oProductList
             = oProductDAO.selectOProductList(new OrderProductDTO(orderId));
         
-        int price = 0;
+        int totalPrice = 0;
+        int itemPrice = 0;
 
         //sum product's price
         for(OrderProductDTO oProduct : oProductList){
-            price += oProduct.getPrice() + oProduct.getDiscountPrice();
+            itemPrice = oProduct.getPrice() + oProduct.getDiscountPrice();
+            totalPrice += oProduct.getCnt() * itemPrice;
         }
 
-        orderService.updateOrderPrice(orderId, price);
+        orderService.updateOrderPrice(orderId, totalPrice);
     }
-
+    
     private void verifyPrimaryParameter(OrderProductDTO oProduct){
         if(ObjUtil.isNotDefined(oProduct.getOrderId())){
             log.debug("order product parameter : "+oProduct.toString());
@@ -141,7 +151,7 @@ public class OrderProductServiceImpl implements OrderProductService {
     }
 
     private void verifyCnt(Integer cnt){
-        if(ObjUtil.isNotDefined(cnt) || cnt == 0){
+        if(ObjUtil.isNotDefined(cnt) || cnt <= 0){
             log.debug("cnt : "+cnt);
             throw new BusinessException("cnt is not exists");
         }

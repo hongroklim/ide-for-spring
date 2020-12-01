@@ -1,5 +1,7 @@
 package dev.rokong.pay.type;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,10 @@ import dev.rokong.exception.BusinessException;
 public class PayTypeServiceImpl implements PayTypeService {
     
     @Autowired PayTypeDAO pTypeDAO;
+
+    public List<PayTypeDTO> getPayTypes(){
+        return pTypeDAO.selectPayTypeList();
+    }
 
     public PayTypeDTO getPayType(int id){
         return pTypeDAO.selectPayType(id);

@@ -31,4 +31,11 @@
                editor_nm = #{editor}
          WHERE id = #{id}
     </update>
+
+    <update id="updateOrderPrice" parameterType="OrderDTO">
+        UPDATE order_main
+           SET price = #{price},
+               delivery_price = #{deliveryPrice}
+         WHERE id = #{id}
+    </update>
 </mapper>

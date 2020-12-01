@@ -167,9 +167,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
                 order product : set null option cd (asis ~ tobe)
                 cart : cascade
         */
-
-        //TODO set null order_product
-
+        
         log.debug("associated product details are deleted");
         pDetailService.deleteDetailByOption(pOption);
 
@@ -274,7 +272,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         return this.getPOptionNotNull(param);
     }
 
-    public void deletePOptionAll(int productId){
+    public void deletePOptionByProduct(int productId){
         ProductOptionDTO param = new ProductOptionDTO(productId);
         pDetailService.deleteDetailByOption(param);
         pOptionDAO.deleteProductOption(param);

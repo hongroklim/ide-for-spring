@@ -73,7 +73,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(int id){
         ProductDTO getProduct = this.getProductNotNull(id);
 
-        pOptionService.deletePOptionAll(id);
+        pOptionService.deletePOptionByProduct(id);
 
         pDAO.deleteProduct(getProduct.getId());
     };

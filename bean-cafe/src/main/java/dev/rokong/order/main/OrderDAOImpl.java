@@ -29,4 +29,8 @@ public class OrderDAOImpl implements OrderDAO {
     public void updateOrderStatus(OrderDTO order){
         sqlSession.update(PREFIX+"updateOrderStatus", order);
     }
+
+    public void updateOrderPrice(OrderDTO order){
+        sqlSession.update(PREFIX+"updateOrderPrice", order);
+    }
 }

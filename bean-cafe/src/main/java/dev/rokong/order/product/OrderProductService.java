@@ -11,4 +11,5 @@ public interface OrderProductService {
     public OrderProductDTO addOProduct(OrderProductDTO oProduct);
     public OrderProductDTO updateOProduct(OrderProductDTO oProduct);
     public void deleteOProduct(OrderProductDTO oProduct);
+    public void updateOProductToNull(int productId, String optionCd);
 }

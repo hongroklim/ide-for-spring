@@ -39,4 +39,8 @@ public class OrderDTO {
             return this.orderStatus.getCode();
         }
     }
+
+    public OrderDTO(int id){
+        this.id = id;
+    }
 }

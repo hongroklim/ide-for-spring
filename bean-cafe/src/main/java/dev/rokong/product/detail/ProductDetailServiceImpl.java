@@ -10,6 +10,7 @@ import dev.rokong.dto.ProductDTO;
 import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.dto.ProductOptionDTO;
 import dev.rokong.exception.BusinessException;
+import dev.rokong.order.product.OrderProductService;
 import dev.rokong.product.main.ProductService;
 import dev.rokong.product.option.ProductOptionService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Autowired ProductService pService;
     @Autowired ProductOptionService pOptionService;
     @Autowired CartService cartService;
+    @Autowired OrderProductService oProductService;
 
     public List<ProductDetailDTO> getDetails(ProductDetailDTO pDetail){
         ProductDetailDTO param = new ProductDetailDTO(pDetail);
@@ -92,7 +94,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     public void deleteDetail(ProductDetailDTO pDetail){
         this.getDetailNotNull(pDetail);
 
-        //TODO delete order_product
+        //set null option cd in order product
+        oProductService.updateOProductToNull(pDetail.getProductId(), pDetail.getOptionCd());
 
         //delete cart
         cartService.deleteCarts(pDetail.getProductId(), pDetail.getOptionCd());
@@ -112,7 +115,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             throw new BusinessException("final price can not be under 0");
         }
 
-        //TODO update order product
+        //set null option cd in order product
+        oProductService.updateOProductToNull(pDetail.getProductId(), pDetail.getOptionCd());
 
         pDetailDAO.updateDetail(pDetail);
         return this.getDetailNotNull(pDetail);
@@ -126,7 +130,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     public void deleteDetailByOption(ProductOptionDTO pOption){
         ProductDetailDTO pDetail = this.paramByOption(pOption);
 
-        //TODO delete order_product
+        //set null option cd in order product
+        oProductService.updateOProductToNull(pDetail.getProductId(), pDetail.getOptionCd());
 
         //delete cart
         cartService.deleteCarts(pDetail.getProductId(), pDetail.getOptionCd());
@@ -235,7 +240,6 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
         Integer optionGroup = pOption.getOptionGroup();
         
-
         if(optionGroup!=null && optionGroup!=0){
             //set option cd
             StringBuffer sbuf = new StringBuffer();
