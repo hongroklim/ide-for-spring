@@ -8,9 +8,10 @@ import org.springframework.stereotype.Component;
 
 import dev.rokong.dto.ProductDTO;
 import dev.rokong.product.main.ProductService;
+import dev.rokong.util.RandomUtil;
 
 @Component("MockProduct")
-public class MockProduct extends MockObjects {
+public class MockProduct {
     
     private List<ProductDTO> productList = new ArrayList<ProductDTO>();
 
@@ -21,13 +22,13 @@ public class MockProduct extends MockObjects {
 
     public ProductDTO tempProduct(){
         ProductDTO product = new ProductDTO();
-        product.setName("product-"+this.randomString(5));
-        product.setPrice(this.randomInt(5));
+        product.setName("product-"+RandomUtil.randomString(5));
+        product.setPrice(RandomUtil.randomInt(5));
         product.setCategoryId(category.anyCategory().getId());
         product.setEnabled(true);
         product.setSellerNm(user.anyUser().getUserNm());
         product.setStockCnt(null);
-        product.setDeliveryPrice(this.randomInt(5));
+        product.setDeliveryPrice(RandomUtil.randomInt(5));
         product.setDiscountPrice(0);
         return product;
     }

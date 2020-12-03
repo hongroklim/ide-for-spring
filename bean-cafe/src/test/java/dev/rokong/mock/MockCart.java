@@ -9,9 +9,10 @@ import org.springframework.stereotype.Component;
 import dev.rokong.cart.CartService;
 import dev.rokong.dto.CartDTO;
 import dev.rokong.dto.ProductDetailDTO;
+import dev.rokong.util.RandomUtil;
 
 @Component("MockCart")
-public class MockCart extends MockObjects {
+public class MockCart {
     
     private List<CartDTO> cartList = new ArrayList<CartDTO>();
 
@@ -25,7 +26,7 @@ public class MockCart extends MockObjects {
         temp.setUserNm(user.anyUser().getUserNm());
         temp.setProductId(pDetail.anyPDetail().getProductId());
         temp.setOptionCd(pDetail.anyPDetail().getOptionCd());
-        temp.setCnt(this.randomInt(1));
+        temp.setCnt(RandomUtil.randomInt(1));
         return temp;
     }
 

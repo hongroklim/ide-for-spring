@@ -7,41 +7,6 @@ import java.util.List;
  * @see java.util.List
  */
 public class ObjUtil {
-    /**
-     * return random index of list
-     * 
-     * @param size list.size()
-     * @return random index
-     */
-    public static int randomIndex(int size){
-        double d = Math.random();
-        int i = (int) d*10000;
-
-        return i % size;
-    }
-
-    /**
-     * return random index of list
-     * 
-     * @param list search target
-     * @return {@link #randomIndex(int)}
-     */
-    public static int randomIndex(List<?> list){
-        return randomIndex(list.size());
-    }
-
-    /**
-     * return random item in list
-     * 
-     * @param <T> type of list items
-     * @param list search list
-     * @return random item
-     * 
-     * @see {@link #randomIndex(List)}
-     */
-    public static <T> T randomItem(List<T> list) {
-        return (T) list.get(randomIndex(list.size()));
-    }
 
     /**
      * check List<?> is empty
@@ -60,6 +25,29 @@ public class ObjUtil {
      */
     public static boolean isNotEmpty(List<?> list){
         return !isEmpty(list);
+    }
+
+    /**
+     * check T[] array is empty
+     * 
+     * @param <T> array element's class
+     * @param array to be verifed array
+     * @return return true if array is empty
+     */
+    public static <T> boolean isEmpty(T[] array){
+        return (array == null || array.length == 0) ? true : false;
+    }
+
+    /**
+     * check T[] array is not empty
+     * 
+     * @param <T> array element's class
+     * @param array to be verifed array
+     * @return return true if array is not empty
+     * @see {@link #isEmpty(Object[])}
+     */
+    public static <T> boolean isNotEmpty(T[] array){
+        return !isNotEmpty(array);
     }
 
     /**

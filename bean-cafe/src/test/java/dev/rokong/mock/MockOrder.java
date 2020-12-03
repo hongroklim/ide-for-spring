@@ -12,7 +12,7 @@ import dev.rokong.dto.UserDTO;
 import dev.rokong.order.main.OrderService;
 
 @Component("MockOrder")
-public class MockOrder extends MockObjects {
+public class MockOrder {
     
     private List<OrderDTO> orderList = new ArrayList<OrderDTO>();
 

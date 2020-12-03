@@ -8,9 +8,10 @@ import org.springframework.stereotype.Component;
 
 import dev.rokong.dto.UserDTO;
 import dev.rokong.user.UserService;
+import dev.rokong.util.RandomUtil;
 
 @Component("MockUser")
-public class MockUser extends MockObjects {
+public class MockUser {
 
     private List<UserDTO> userList = new ArrayList<UserDTO>();
 
@@ -18,8 +19,8 @@ public class MockUser extends MockObjects {
 
     public UserDTO tempUser(){
         UserDTO user = new UserDTO();
-        user.setUserNm("user"+this.randomString(4));
-        user.setPwd("pwd"+this.randomString(10));
+        user.setUserNm("user"+RandomUtil.randomString(4));
+        user.setPwd("pwd"+RandomUtil.randomString(10));
         user.setEnabled(true);
         return user;
     }

@@ -27,6 +27,7 @@ import dev.rokong.product.option.ProductOptionDAO;
 import dev.rokong.product.option.ProductOptionService;
 import dev.rokong.user.UserService;
 import dev.rokong.util.ObjUtil;
+import dev.rokong.util.RandomUtil;
 
 public class ControllerTest extends MvcUnitConfig {
 
@@ -226,7 +227,7 @@ public class ControllerTest extends MvcUnitConfig {
     }
 
     private UserDTO getAnyUser(){
-        return ObjUtil.randomItem(uService.getUsers());
+        return RandomUtil.randomItem(uService.getUsers());
     }
 
     /**
@@ -297,7 +298,7 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(list, is(notNullValue()));
         assertThat(list.size(), is(greaterThan(1)));
         
-        ProductOptionDTO param = ObjUtil.randomItem(list);
+        ProductOptionDTO param = RandomUtil.randomItem(list);
 
         int maxGroup = list.get(list.size()-1).getOptionGroup();
 

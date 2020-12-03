@@ -8,9 +8,10 @@ import org.springframework.stereotype.Component;
 
 import dev.rokong.category.CategoryService;
 import dev.rokong.dto.CategoryDTO;
+import dev.rokong.util.RandomUtil;
 
 @Component("MockCategory")
-public class MockCategory extends MockObjects {
+public class MockCategory {
     
     private List<CategoryDTO> categoryList = new ArrayList<CategoryDTO>();
 
@@ -18,7 +19,7 @@ public class MockCategory extends MockObjects {
 
     public CategoryDTO tempCategory(){
         CategoryDTO category = new CategoryDTO();
-        category.setName("ctgy-"+this.randomString(5));
+        category.setName("ctgy-"+RandomUtil.randomString(5));
         return category;
     }
 

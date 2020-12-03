@@ -8,9 +8,10 @@ import org.springframework.stereotype.Component;
 
 import dev.rokong.dto.ProductOptionDTO;
 import dev.rokong.product.option.ProductOptionService;
+import dev.rokong.util.RandomUtil;
 
 @Component("MockProductOption")
-public class MockProductOption extends MockObjects {
+public class MockProductOption {
     
     private ProductOptionDTO optionGroup = null;
     private List<ProductOptionDTO> pOptionList = new ArrayList<ProductOptionDTO>();
@@ -24,7 +25,7 @@ public class MockProductOption extends MockObjects {
         pOption.setProductId(product.anyProduct().getId());
         pOption.setOptionGroup(1);
         pOption.setOptionId("00");
-        pOption.setName("grp-"+this.randomString(4));
+        pOption.setName("grp-"+RandomUtil.randomString(4));
         pOption.setOrd(1);
         return pOption;
     }
@@ -46,7 +47,7 @@ public class MockProductOption extends MockObjects {
         //create product option from option group
         ProductOptionDTO pOption = new ProductOptionDTO(this.optionGroup);
         pOption.setOptionId(null);
-        pOption.setName("opt-"+this.randomString(4));
+        pOption.setName("opt-"+RandomUtil.randomString(4));
         pOption.setOrd(null);
 
         return pOptionService.createPOption(pOption);

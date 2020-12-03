@@ -39,6 +39,7 @@ import dev.rokong.dto.UserDTO;
 import dev.rokong.user.UserController;
 import dev.rokong.user.UserDAO;
 import dev.rokong.user.UserService;
+import dev.rokong.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -70,8 +71,8 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void MockObjectsTest(){
-        mockObj.randomString();
-        mockObj.randomString();
+        RandomUtil.randomString();
+        RandomUtil.randomString();
         mockObj.user.anyUser();
     }
 

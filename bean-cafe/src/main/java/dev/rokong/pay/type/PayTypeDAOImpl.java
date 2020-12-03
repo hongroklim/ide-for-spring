@@ -22,4 +22,9 @@ public class PayTypeDAOImpl implements PayTypeDAO {
     public PayTypeDTO selectPayType(int id){
         return sqlSession.selectOne(PREFIX+"selectPayType", id);
     }
+
+    public int insertPayType(PayTypeDTO payType){
+        sqlSession.insert(PREFIX+"insertPayType", payType);
+        return payType.getId();
+    }
 }

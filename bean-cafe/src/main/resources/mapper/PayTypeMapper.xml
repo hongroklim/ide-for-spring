@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dev.rokong.payType">
-    <select id="selectPayType" parameterType="int">
+    <select id="selectPayType" resultType="PayTypeDTO">
         SELECT id, type, option1, option2, enabled
           FROM pay_type
          WHERE true = true
-        <if test='id != null and id != 0'>
-            AND id = #{id}
+        <if test='value != null and value != 0'>
+            AND id = #{value}
         </if>
     </select>
+
+    <insert id="insertPayType" parameterType="PayTypeDTO">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            SELECT nextval('pay_type_id_seq'::regclass)
+        </selectKey>
+        INSERT INTO pay_type
+               (id, type, option1, option2, enabled)
+        VALUES (#{id}, #{type}, #{option1}, #{option2}, #{enabled})
+    </insert>
 </mapper>

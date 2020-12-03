@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 import dev.rokong.annotation.PayType;
 import dev.rokong.dto.PayTypeDTO;
 import dev.rokong.exception.BusinessException;
+import dev.rokong.util.ObjUtil;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class PayTypeServiceImpl implements PayTypeService {
     
@@ -23,11 +26,45 @@ public class PayTypeServiceImpl implements PayTypeService {
     }
 
     public PayTypeDTO getPayTypeNotNull(int id){
+        if(id == 0){
+            throw new BusinessException("pay type's id is not defined");
+        }
+
         PayTypeDTO payType = this.getPayType(id);
         if(payType == null){
             throw new BusinessException(id+" pay type is not exists");
         }
         return payType;
+    }
+
+    private PayTypeDTO getPayTypeNotNull(PayTypeDTO payType){
+        return this.getPayTypeNotNull(payType.getId());
+    }
+
+    public PayTypeDTO createPayType(PayTypeDTO payType){
+        //pay type can not be null
+        if(payType.getPayType() == null){
+            log.debug("pay type parameter : "+payType.toString());
+            throw new BusinessException("pay type is not defined");
+        }
+
+        //option2 can not be defined unless option1 is not defined
+        if(ObjUtil.isNotEmpty(payType.getOption2())){
+            if(ObjUtil.isEmpty(payType.getOption1())){
+                log.debug("pay type parameter : "+payType.toString());
+                throw new BusinessException("option2 should be empty because option1 is empty");
+            }
+        }
+
+        //default is enabled=true
+        if(payType.getEnabled() == null){
+            payType.setEnabled(true);
+        }
+
+        //insert
+        pTypeDAO.insertPayType(payType);
+
+        return this.getPayTypeNotNull(payType);
     }
 
     public String getPayTypeFullNm(int id){
