@@ -229,7 +229,7 @@ public enum OrderStatus {
         int causeCode = this.getCode();
         causeCode /= 10;
         causeCode *= -1;
-        causeCode -= OrderStatus.CUSTOMER_CANCEL.getCode();
+        causeCode += OrderStatus.CUSTOMER_CANCEL.getCode();
 
         for(OrderStatus o : OrderStatus.values()){
             if(causeCode == o.getCode()){
@@ -255,7 +255,7 @@ public enum OrderStatus {
         int causeCode = this.getCode();
         causeCode /= 10;
         causeCode *= -1;
-        causeCode -= OrderStatus.SELLER_CANCEL.getCode();
+        causeCode += OrderStatus.SELLER_CANCEL.getCode();
 
         for(OrderStatus o : OrderStatus.values()){
             if(causeCode == o.getCode()){

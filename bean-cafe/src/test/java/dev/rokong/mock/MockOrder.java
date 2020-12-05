@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 
 import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDTO;
+import dev.rokong.dto.PayTypeDTO;
 import dev.rokong.dto.UserDTO;
 import dev.rokong.order.main.OrderService;
+import dev.rokong.pay.type.PayTypeService;
 
 @Component("MockOrder")
 public class MockOrder {
@@ -17,8 +19,10 @@ public class MockOrder {
     private List<OrderDTO> orderList = new ArrayList<OrderDTO>();
 
     @Autowired OrderService oService;
+    @Autowired PayTypeService pTypeService;
 
     @Autowired MockUser mUser;
+    @Autowired MockPayType mPayType;
 
     public OrderDTO tempOrder(){
         OrderDTO order = new OrderDTO();
@@ -30,16 +34,17 @@ public class MockOrder {
         order.setPrice(0);
         order.setDeliveryPrice(0);
 
-        //TODO mock paytype
-        order.setPayId(0);
-        order.setPayNm("");
+        PayTypeDTO payType = mPayType.any();
+        String payNm = pTypeService.getPayTypeFullNm(payType.getId());
+        order.setPayId(payType.getId());
+        order.setPayNm(payNm);
 
         order.setOrderStatus(OrderStatus.WRITING);
 
         return order;
     }
 
-    public OrderDTO createOrder(){
+    private OrderDTO createOrder(){
         return oService.initOrder(this.tempOrder());
     }
 

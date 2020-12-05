@@ -2,6 +2,7 @@ package dev.rokong.order.main;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,15 +30,20 @@ public class OrderController {
         return orderService.initOrder(order);
     }
 
-    @RequestMapping(value="/{id}", method=RequestMethod.PUT)
+    @RequestMapping(value="/{id}/pay", method=RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public OrderDTO updateOrder(@PathVariable int id){
-        return null;
+    public void updateOrderPay(@PathVariable int id,
+            @RequestBody int payId){
+        OrderDTO param = new OrderDTO(id);
+        param.setPayId(payId);
+        
+        orderService.updateOrderPay(param);
     }
 
-    @RequestMapping(value="/{id}", method=RequestMethod.DELETE)
+    @RequestMapping(value="/{id}/status", method=RequestMethod.DELETE, consumes=MediaType.TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public OrderDTO cancelOrder(@PathVariable int id){
-        return null;
+    public void cancelOrder(@PathVariable int id,
+            @RequestBody String user){
+        orderService.cancelOrder(id, user);
     }
 }

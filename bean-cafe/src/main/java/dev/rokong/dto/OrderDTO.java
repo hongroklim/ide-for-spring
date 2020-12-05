@@ -15,7 +15,6 @@ public class OrderDTO {
     private String payNm;
     private String requestDt;
     private OrderStatus orderStatus;
-    private Integer statusCd;
     private String lastEditDt;
     private String editorNm;
 
@@ -33,7 +32,7 @@ public class OrderDTO {
     }
 
     public Integer getStatusCd(){
-        if(this.statusCd == null){
+        if(this.orderStatus == null){
             return null;
         }else{
             return this.orderStatus.getCode();

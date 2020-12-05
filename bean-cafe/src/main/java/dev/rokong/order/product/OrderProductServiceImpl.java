@@ -153,7 +153,7 @@ public class OrderProductServiceImpl implements OrderProductService {
     private void verifyCnt(Integer cnt){
         if(ObjUtil.isNotDefined(cnt) || cnt <= 0){
             log.debug("cnt : "+cnt);
-            throw new BusinessException("cnt is not exists");
+            throw new BusinessException("count must be greater than 0");
         }
     }
 }

@@ -14,7 +14,7 @@ public class MockPayType extends AbstractMockObject<PayTypeDTO> {
     @Autowired PayTypeService pTypeService;
 
     @Override
-    public PayTypeDTO tempObj() {
+    public PayTypeDTO temp() {
         PayTypeDTO payType = new PayTypeDTO();
         payType.setPayType(
             RandomUtil.randomItem(PayType.values())

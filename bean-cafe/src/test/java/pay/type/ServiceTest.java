@@ -25,7 +25,7 @@ public class ServiceTest extends SpringConfig {
 
     @Test
     public void createPayType(){
-        PayTypeDTO payType = mockObj.payType.any();
+        PayTypeDTO payType = mockObj.payType.temp();
 
         //insert
         PayTypeDTO result = pTypeService.createPayType(payType);
@@ -41,6 +41,21 @@ public class ServiceTest extends SpringConfig {
     public void payTypeList(){
         List<PayTypeDTO> list = pTypeService.getPayTypes();
         assertThat(ObjUtil.isNotEmpty(list), is(equalTo(true)));
+    }
+
+    @Test
+    public void junitNotRollback(){
+        List<PayTypeDTO> list = pTypeService.getPayTypes();
+        int beforeSize = list.size();
+
+        //this method does not rollback
+        this.createPayType();
+
+        list = pTypeService.getPayTypes();
+        int afterSize = list.size();
+
+        //list size +1
+        assertThat(afterSize, is(equalTo(beforeSize+1)));
     }
 
 }

@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -83,7 +84,12 @@ public abstract class MvcUnitConfig {
      */
     @After
     public void resetSerial(){
-        mDAO.resetSerial();
+        try{
+            mDAO.resetSerial();
+        }catch(UncategorizedSQLException e){
+            //exception because a test failed
+        }
+        
     }
 
     /**
@@ -160,7 +166,7 @@ public abstract class MvcUnitConfig {
      * @param url request URL
      * @param method request method : GET, POST, PUT, PATCH, DELETE
      * @param reqObject requestBody Object
-     * @param resClass ResponseBody.Class
+     * @param resClass ResponseBody.Class or <code>null</code>
      * @return ResponseBody Object
      * @throws IllegalArgumentException HEAD passed into RequestMethod method parameter
      * @throws Exception from MockMvc.perform(...)

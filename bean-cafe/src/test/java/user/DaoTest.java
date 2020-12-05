@@ -74,7 +74,7 @@ public class DaoTest extends SpringConfig {
     }
 
     @Test(expected=DataIntegrityViolationException.class)
-    public void createUserWithNull(){
+    public void createUserWithNullPassword(){
         UserDTO newUser = new UserDTO();
         newUser.setUserNm("testUser");
         newUser.setPwd(null);

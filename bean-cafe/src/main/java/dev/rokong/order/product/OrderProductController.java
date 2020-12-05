@@ -17,34 +17,37 @@ import dev.rokong.dto.OrderProductDTO;
 @RequestMapping("/order/{oId}/product")
 @ResponseStatus(HttpStatus.OK)
 public class OrderProductController {
-    
+
     @Autowired OrderProductService oProductService;
 
     @RequestMapping(value="", method=RequestMethod.GET)
     public List<OrderProductDTO> getOProducts(@PathVariable int oId){
-        return null;
+        OrderProductDTO oProduct = new OrderProductDTO(oId);
+        return oProductService.getOProducts(oProduct);
     }
 
     @RequestMapping(value="/{pId}/option/{option}", method=RequestMethod.GET)
     public OrderProductDTO getOProduct(@PathVariable int oId,
             @PathVariable int pId, @PathVariable String option){
-        return null;    
+        OrderProductDTO oProduct = new OrderProductDTO(oId, pId, option);
+        return oProductService.getOProduct(oProduct);
     }
 
     @RequestMapping(value="", method=RequestMethod.POST)
-    public OrderProductDTO addOProduct(@PathVariable int oId){
-        return null;
+    public OrderProductDTO addOProduct(@PathVariable int oId, @RequestBody OrderProductDTO oProduct){
+        return oProductService.addOProduct(oProduct);
     }
 
     @RequestMapping(value="/{pId}/option/{option}", method=RequestMethod.PUT)
     public OrderProductDTO updateOProduct(@PathVariable int oId, @PathVariable int pId,
             @PathVariable String option, @RequestBody OrderProductDTO oProduct){
-        return null;
+        return oProductService.updateOProduct(oProduct);
     }
 
     @RequestMapping(value="/{pId}/option/{option}", method=RequestMethod.DELETE)
     public void deleteOProduct(@PathVariable int oId,
             @PathVariable int pId, @PathVariable String option){
-
+        OrderProductDTO oProduct = new OrderProductDTO(oId, pId, option);
+        oProductService.deleteOProduct(oProduct);
     }
 }

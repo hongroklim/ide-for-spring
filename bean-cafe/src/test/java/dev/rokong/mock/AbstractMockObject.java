@@ -6,10 +6,10 @@ import java.util.List;
 /**
  * abstract Mock Object Template
  * <p>override only three method;
- * {@link #tempObj()}, {@link #createObjService(Object)},
+ * {@link #temp()}, {@link #createObjService(Object)},
  * {@link #getObjService(Object)}
  * <p>extends like <code>public class someting extends AbstractMockObject&lt;PayTypeDTO&gt;</code>
- * @param <T> Object Class
+ * @param <T> DTO's Class to make Mock Object
  */
 public abstract class AbstractMockObject<T> {
     
@@ -21,7 +21,7 @@ public abstract class AbstractMockObject<T> {
      * 
      * @return temp object
      */
-    public abstract T tempObj();
+    public abstract T temp();
 
     /**
      * service method which create object
@@ -45,7 +45,7 @@ public abstract class AbstractMockObject<T> {
      * @return
      */
     private T createObj(){
-        T obj = this.tempObj();
+        T obj = this.temp();
         return this.createObjService(obj);
     }
 
@@ -88,6 +88,35 @@ public abstract class AbstractMockObject<T> {
     }
 
     /**
+     * create nth object
+     * <p>this method can be overrided if needed like
+     * <pre>
+     * <code>
+     * OrderProductDTO oProduct = new OrderProductDTO();
+     *return this.createObjService(oProduct);
+     * </code>
+     * </pre>
+     * 
+     * @param index nth index
+     * @return
+     */
+    protected T createNthObj(int index){
+        T obj = this.temp();
+        return this.createObjService(obj);
+    }
+
+    /**
+     * expand object list size until parameter
+     * 
+     * @param count tobe .size()
+     */
+    private void appendListUntil(int count){
+        for(int i=this.objList.size(); i<count; i++){
+            this.objList.add(this.createNthObj(i));
+        }
+    }
+
+    /**
      * return any mock objects
      * 
      * @param count the number of items to be returned
@@ -95,11 +124,7 @@ public abstract class AbstractMockObject<T> {
      */
     public List<T> anyList(int count){
         this.validatingList();
-
-        while(this.objList.size() < count){
-            this.objList.add(this.createObj());
-        }
-
+        this.appendListUntil(count);
         return this.objList.subList(0, count);
     }
 
