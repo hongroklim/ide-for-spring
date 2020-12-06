@@ -8,11 +8,15 @@ import java.util.List;
  * <p>override only three method;
  * {@link #temp()}, {@link #createObjService(Object)},
  * {@link #getObjService(Object)}
- * <p>extends like <code>public class someting extends AbstractMockObject&lt;PayTypeDTO&gt;</code>
+ * 
+ * <p>also can override {@link #createNthObj(int)} if needed
+ * 
  * @param <T> DTO's Class to make Mock Object
  */
 public abstract class AbstractMockObject<T> {
     
+    //TODO extend the other Mock objects
+
     //list contains created mock object(S)
     private List<T> objList = new ArrayList<T>();
 
@@ -63,12 +67,20 @@ public abstract class AbstractMockObject<T> {
     }
 
     /**
+     * clear Mock Object list
+     * 
+     */
+    protected void clear(){
+        this.objList.clear();
+    }
+
+    /**
      * verify list
      * 
      */
     private void validatingList(){
         if(!this.isValidList()){
-            this.objList.clear();
+            this.clear();
         }
     }
 
@@ -88,6 +100,16 @@ public abstract class AbstractMockObject<T> {
     }
 
     /**
+     * create template of nth object
+     * 
+     * @param i nth index
+     * @return
+     */
+    protected T tempNth(int i){
+        return this.temp();
+    }
+
+    /**
      * create nth object
      * <p>this method can be overrided if needed like
      * <pre>
@@ -100,9 +122,9 @@ public abstract class AbstractMockObject<T> {
      * @param index nth index
      * @return
      */
-    protected T createNthObj(int index){
-        T obj = this.temp();
-        return this.createObjService(obj);
+    private T createNthObj(int index){
+        T temp = this.tempNth(index);
+        return this.createObjService(temp);
     }
 
     /**

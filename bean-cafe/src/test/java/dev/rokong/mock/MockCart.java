@@ -1,8 +1,5 @@
 package dev.rokong.mock;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,67 +9,42 @@ import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.util.RandomUtil;
 
 @Component("MockCart")
-public class MockCart {
+public class MockCart extends AbstractMockObject<CartDTO> {
     
-    private List<CartDTO> cartList = new ArrayList<CartDTO>();
+    @Autowired CartService cService;
 
-    @Autowired private CartService cService;
+    @Autowired MockUser mUser;
+    @Autowired MockProductDetail mPDetail;
 
-    @Autowired MockUser user;
-    @Autowired MockProductDetail pDetail;
-
-    public CartDTO tempCart(){
+    @Override
+    public CartDTO temp() {
         CartDTO temp = new CartDTO();
-        temp.setUserNm(user.anyUser().getUserNm());
-        temp.setProductId(pDetail.anyPDetail().getProductId());
-        temp.setOptionCd(pDetail.anyPDetail().getOptionCd());
-        temp.setCnt(RandomUtil.randomInt(1));
+        temp.setUserNm(mUser.any().getUserNm());
+        temp.setProductId(mPDetail.any().getProductId());
+        temp.setOptionCd(mPDetail.any().getOptionCd());
+        temp.setCnt(RandomUtil.randomInt(1)+1);
         return temp;
     }
 
-    public CartDTO createCart(){
-        CartDTO cart = this.tempCart();
-        return cService.createCart(cart);
+    @Override
+    protected CartDTO createObjService(CartDTO obj) {
+        return cService.createCart(obj);
     }
 
-    public CartDTO anyCart(){
-        this.validatingList();
-
-        if(this.cartList.size() == 0){
-            cartList.add(this.createCart());
-        }
-        return cartList.get(0);
+    @Override
+    protected CartDTO getObjService(CartDTO obj) {
+        return cService.getCart(obj);
     }
 
-    public List<CartDTO> anyCartList(int count){
-        this.validatingList();
-        this.appendCartListUntil(count);
-        return this.cartList.subList(0, count);
-    }
+    @Override
+    protected CartDTO tempNth(int i){
+        CartDTO cart = this.temp();
+        ProductDetailDTO pDetail = mPDetail.anyList(i+1).get(i);
 
-    private void appendCartListUntil(int count){
-        List<ProductDetailDTO> detailList = pDetail.anyPDetailList(count);
-        CartDTO cart = this.tempCart();
+        cart.setProductId(pDetail.getProductId());
+        cart.setOptionCd(pDetail.getOptionCd());
 
-        for(int i=this.cartList.size(); i<count; i++){
-            cart.setProductId(detailList.get(i).getProductId());
-            cart.setOptionCd(detailList.get(i).getOptionCd());
-            this.cartList.add(cService.createCart(cart));
-        }
-    }
-
-    private boolean isValidList(){
-        if(this.cartList.size() == 0){
-            return true;
-        }else{
-            return cService.getCart(this.cartList.get(0)) != null;
-        }
-    }
-
-    private void validatingList(){
-        if(!this.isValidList()){
-            this.cartList.clear();
-        }
+        return cart;
     }
 
 }

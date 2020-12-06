@@ -36,15 +36,15 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Before
     public void initAnyCart(){
-        this.anyCart = mockObj.cart.anyCart();
+        this.anyCart = mockObj.cart.any();
     }
 
     @Test
     public void mockCartTest(){
-        CartDTO cart = mockObj.cart.anyCart();
+        CartDTO cart = mockObj.cart.any();
         assertThat(cart, is(notNullValue()));
 
-        List<CartDTO> cartList = mockObj.cart.anyCartList(3);
+        List<CartDTO> cartList = mockObj.cart.anyList(3);
         assertThat(ObjUtil.isNotEmpty(cartList), is(equalTo(true)));
         assertThat(cartList.size(), is(equalTo(3)));
     }
@@ -83,7 +83,7 @@ public class ControllerTest extends MvcUnitConfig {
     @Test
     public void addCart() throws Exception {
         CartDTO req = this.anyCart;
-        req.setUserNm(mockObj.user.anyUserList(2).get(1).getUserNm());
+        req.setUserNm(mockObj.user.anyList(2).get(1).getUserNm());
 
         CartDTO res = this.reqAndResBody(
             this.cartURL(new CartDTO(req.getUserNm())),
@@ -101,9 +101,9 @@ public class ControllerTest extends MvcUnitConfig {
     @Test
     public void deleteCartAll() throws Exception{
         //append cart list to 3
-        mockObj.cart.anyCartList(3);
+        mockObj.cart.anyList(3);
         
-        CartDTO param = new CartDTO(mockObj.cart.anyCart().getUserNm());
+        CartDTO param = new CartDTO(mockObj.cart.any().getUserNm());
         List<CartDTO> list = cService.getCarts(param);
         
         assertThat(ObjUtil.isNotEmpty(list), is(equalTo(true)));

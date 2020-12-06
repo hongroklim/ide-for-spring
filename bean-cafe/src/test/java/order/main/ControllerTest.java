@@ -36,7 +36,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void initializeOrder() throws Exception {
-        OrderDTO order = mockObj.order.tempOrder();
+        OrderDTO order = mockObj.order.temp();
 
         OrderDTO res = this.reqAndResBody(
             "/order", RequestMethod.POST, order, OrderDTO.class
@@ -49,7 +49,7 @@ public class ControllerTest extends MvcUnitConfig {
     
     @Test
     public void getorder() throws Exception {
-        OrderDTO order = mockObj.order.anyOrder();
+        OrderDTO order = mockObj.order.any();
 
         OrderDTO res = this.reqAndResBody(
             "/order/"+order.getId(), RequestMethod.GET,
@@ -62,7 +62,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateOrderPay() throws Exception {
-        OrderDTO order = mockObj.order.anyOrder();
+        OrderDTO order = mockObj.order.any();
 
         //tobe payType
         PayTypeDTO payType = mockObj.payType.anyList(2).get(1);
@@ -80,7 +80,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void cancelOrderByCustomer() throws Exception {
-        OrderDTO order = mockObj.order.anyOrder();
+        OrderDTO order = mockObj.order.any();
 
         String url = "/order/"+order.getId()+"/status";
         

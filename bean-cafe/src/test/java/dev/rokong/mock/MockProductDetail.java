@@ -1,8 +1,5 @@
 package dev.rokong.mock;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,66 +9,44 @@ import dev.rokong.product.detail.ProductDetailService;
 import dev.rokong.util.RandomUtil;
 
 @Component("MockProductDetail")
-public class MockProductDetail {
+public class MockProductDetail extends AbstractMockObject<ProductDetailDTO> {
     
-    private List<ProductDetailDTO> pDetailList = new ArrayList<ProductDetailDTO>();
-
     @Autowired private ProductDetailService pDetailService;
 
-    @Autowired private MockProductOption pOption;
+    @Autowired private MockProductOption mPOption;
 
-    public ProductDetailDTO tempDetail(){
-        ProductOptionDTO option = pOption.anyPOption();
+    @Override
+    public ProductDetailDTO temp() {
         ProductDetailDTO temp = new ProductDetailDTO();
+
+        ProductOptionDTO option = mPOption.any();
         temp.setProductId(option.getProductId());
         temp.setOptionCd(option.getOptionId());
+
         temp.setPriceChange(RandomUtil.randomInt(4));
         temp.setStockCnt(RandomUtil.randomInt(2));
         temp.setEnabled(true);
+
         return temp;
     }
 
-    public ProductDetailDTO createDetail(){
-        return pDetailService.createDetail(this.tempDetail());
+    @Override
+    protected ProductDetailDTO createObjService(ProductDetailDTO obj) {
+        return pDetailService.createDetail(obj);
     }
 
-    private boolean isValidList(){
-        if(this.pDetailList.size() == 0){
-            return true;
-        }else{
-            return pDetailService.getDetail(this.pDetailList.get(0)) != null;
-        }
+    @Override
+    protected ProductDetailDTO getObjService(ProductDetailDTO obj) {
+        return pDetailService.getDetail(obj);
     }
 
-    private void validatingList(){
-        if(!this.isValidList()){
-            this.pDetailList.clear();
-        }
-    }
+    @Override
+    protected ProductDetailDTO tempNth(int i){
+        ProductDetailDTO pDetail = this.temp();
+        ProductOptionDTO pOption = mPOption.anyList(i+1).get(i);
 
-    public ProductDetailDTO anyPDetail(){
-        this.validatingList();
+        pDetail.setOptionCd(pOption.getOptionId());
 
-        if(this.pDetailList.size() == 0){
-            pDetailList.add(this.createDetail());
-        }
-        return pDetailList.get(0);
-    }
-
-    private void appendPDetailListUntil(int count){
-        List<ProductOptionDTO> optionList = pOption.anyPOptionList(count);
-        ProductDetailDTO pDetail = null;
-
-        for(int i=this.pDetailList.size(); i<count; i++){
-            pDetail = this.tempDetail();
-            pDetail.setOptionCd(optionList.get(i).getOptionId());
-            this.pDetailList.add(pDetailService.createDetail(pDetail));
-        }
-    }
-
-    public List<ProductDetailDTO> anyPDetailList(int count){
-        this.validatingList();
-        this.appendPDetailListUntil(count);
-        return this.pDetailList.subList(0, count);
+        return pDetail;
     }
 }

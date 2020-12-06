@@ -144,7 +144,4 @@ public class ControllerTest extends MvcUnitConfig {
 
         assertThat(afterDelete, is(nullValue()));
     }
-
-    //TODO after change, verify order_main's price
-    
 }

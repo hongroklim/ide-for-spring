@@ -1,8 +1,5 @@
 package dev.rokong.mock;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,20 +11,19 @@ import dev.rokong.order.main.OrderService;
 import dev.rokong.pay.type.PayTypeService;
 
 @Component("MockOrder")
-public class MockOrder {
+public class MockOrder extends AbstractMockObject<OrderDTO> {
     
-    private List<OrderDTO> orderList = new ArrayList<OrderDTO>();
-
     @Autowired OrderService oService;
     @Autowired PayTypeService pTypeService;
 
     @Autowired MockUser mUser;
     @Autowired MockPayType mPayType;
 
-    public OrderDTO tempOrder(){
+    @Override
+    public OrderDTO temp() {
         OrderDTO order = new OrderDTO();
         
-        UserDTO user = mUser.anyUser();
+        UserDTO user = mUser.any();
         order.setUserNm(user.getUserNm());
         order.setEditorNm(user.getUserNm());
 
@@ -44,39 +40,14 @@ public class MockOrder {
         return order;
     }
 
-    private OrderDTO createOrder(){
-        return oService.initOrder(this.tempOrder());
+    @Override
+    protected OrderDTO createObjService(OrderDTO obj) {
+        return oService.initOrder(obj);
     }
 
-    private boolean isValidList(){
-        if(this.orderList.size() == 0){
-            return true;
-        }else{
-            return oService.getOrder(this.orderList.get(0).getId()) != null;
-        }
-    }
-
-    private void validatingList(){
-        if(!this.isValidList()){
-            this.orderList.clear();
-        }
-    }
-
-    public OrderDTO anyOrder(){
-        this.validatingList();
-
-        if(this.orderList.size() == 0){
-            this.orderList.add(this.createOrder());
-        }
-        return this.orderList.get(0);
-    }
-
-    public List<OrderDTO> anyOrderList(int count){
-        this.validatingList();
-        while(this.orderList.size() < count){
-            this.orderList.add(this.createOrder());
-        }
-        return this.orderList.subList(0, count);
+    @Override
+    protected OrderDTO getObjService(OrderDTO obj) {
+        return oService.getOrder(obj.getId());
     }
 
 }

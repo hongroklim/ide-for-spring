@@ -58,12 +58,12 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Before
     public void initAnyDetail() throws Exception {
-        this.anyDetail = mockObj.pDetail.anyPDetail();
+        this.anyDetail = mockObj.pDetail.any();
     }
 
     @Test
     public void MockProductDetail(){
-        List<ProductDetailDTO> list = mockObj.pDetail.anyPDetailList(3);
+        List<ProductDetailDTO> list = mockObj.pDetail.anyList(3);
         assertThat(ObjUtil.isNotEmpty(list), is(equalTo(true)));
         assertThat(list.size(), is(equalTo(3)));
     }

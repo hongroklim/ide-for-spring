@@ -54,7 +54,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void createProduct() throws Exception {
-        ProductDTO product = mockObj.product.tempProduct();
+        ProductDTO product = mockObj.product.temp();
 
         ProductDTO getProduct = this.reqAndResBody("/product",
             RequestMethod.POST, product, ProductDTO.class);
@@ -66,7 +66,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void getProduct() throws Exception {
-        ProductDTO req = mockObj.product.anyProduct();
+        ProductDTO req = mockObj.product.any();
         
         ProductDTO res = this.reqAndResBody("/product/"+req.getId(),
             RequestMethod.GET, null, ProductDTO.class);
@@ -77,7 +77,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateProductName() throws Exception {
-        ProductDTO asisProduct = mockObj.product.anyProduct();
+        ProductDTO asisProduct = mockObj.product.any();
         String newName = "new Name TEST";
 
         ProductDTO product = asisProduct;
@@ -93,7 +93,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void deleteProduct() throws Exception {
-        ProductDTO product = mockObj.product.anyProduct();
+        ProductDTO product = mockObj.product.any();
 
         this.reqAndResBody("/product/"+product.getId(),
             RequestMethod.DELETE, null, null);
@@ -105,7 +105,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateProductStock() throws Exception {
-        ProductDTO product = mockObj.product.anyProduct();
+        ProductDTO product = mockObj.product.any();
         int tobeCnt = product.getStockCntInt() + 10;
         product.setStockCnt(tobeCnt);
 
@@ -125,7 +125,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateProductStockNull() throws Exception {
-        ProductDTO product = mockObj.product.anyProduct();
+        ProductDTO product = mockObj.product.any();
         Integer tobeCnt = null;
         product.setStockCnt(tobeCnt);
 

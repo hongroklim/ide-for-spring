@@ -73,12 +73,12 @@ public class ControllerTest extends MvcUnitConfig {
     public void MockObjectsTest(){
         RandomUtil.randomString();
         RandomUtil.randomString();
-        mockObj.user.anyUser();
+        mockObj.user.any();
     }
 
     @Test
     public void createUser() throws Exception {
-        UserDTO newUser = mockObj.user.tempUser();
+        UserDTO newUser = mockObj.user.temp();
 
         log.debug(this.objectMapper.writeValueAsString(newUser));
 
@@ -116,7 +116,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateUserPwd() throws Exception {
-        UserDTO asisUser = mockObj.user.anyUser();
+        UserDTO asisUser = mockObj.user.any();
 
         UserDTO updateUser = new UserDTO(); // set new password
         updateUser.setUserNm(asisUser.getUserNm());
@@ -131,7 +131,7 @@ public class ControllerTest extends MvcUnitConfig {
     @Test
     public void updateUserEnabled() throws Exception {
         // create any user
-        UserDTO asisUser = mockObj.user.anyUser();
+        UserDTO asisUser = mockObj.user.any();
 
         // make new user whose enabled is opposite compared to asis
         UserDTO tobeUser = new UserDTO();
@@ -147,7 +147,7 @@ public class ControllerTest extends MvcUnitConfig {
     @Test
     public void addUserAuthority() throws Exception {
         // create new user
-        UserDTO newUser = mockObj.user.anyUser();
+        UserDTO newUser = mockObj.user.any();
 
         // authority list to be added
         List<String> authList = new ArrayList<>();
@@ -169,7 +169,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void deleteUser() throws Exception {
-        UserDTO newUser = mockObj.user.anyUser();
+        UserDTO newUser = mockObj.user.any();
 
         //authority list to be added
         List<String> authList = new ArrayList<>();

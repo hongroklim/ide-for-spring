@@ -1,8 +1,5 @@
 package dev.rokong.mock;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,53 +8,28 @@ import dev.rokong.user.UserService;
 import dev.rokong.util.RandomUtil;
 
 @Component("MockUser")
-public class MockUser {
-
-    private List<UserDTO> userList = new ArrayList<UserDTO>();
+public class MockUser extends AbstractMockObject<UserDTO> {
 
     @Autowired UserService uService;
 
-    public UserDTO tempUser(){
+    @Override
+    public UserDTO temp() {
         UserDTO user = new UserDTO();
+
         user.setUserNm("user"+RandomUtil.randomString(4));
         user.setPwd("pwd"+RandomUtil.randomString(10));
         user.setEnabled(true);
+
         return user;
     }
 
-    private UserDTO createUser(){
-        return uService.createUser(this.tempUser());
+    @Override
+    protected UserDTO createObjService(UserDTO obj) {
+        return uService.createUser(obj);
     }
 
-    private boolean isValidList(){
-        if(this.userList.size() == 0){
-            return true;
-        }else{
-            return uService.getUser(this.userList.get(0).getUserNm()) != null;
-        }
-    }
-
-    private void validatingList(){
-        if(!this.isValidList()){
-            this.userList.clear();
-        }
-    }
-
-    public UserDTO anyUser(){
-        this.validatingList();
-
-        if(this.userList.size() == 0){
-            this.userList.add(this.createUser());
-        }
-        return this.userList.get(0);
-    }
-
-    public List<UserDTO> anyUserList(int count){
-        this.validatingList();
-
-        while(this.userList.size() < count){
-            this.userList.add(this.createUser());
-        }
-        return this.userList.subList(0, count);
+    @Override
+    protected UserDTO getObjService(UserDTO obj) {
+        return uService.getUser(obj.getUserNm());
     }
 }

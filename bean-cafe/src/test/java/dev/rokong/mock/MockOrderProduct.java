@@ -15,19 +15,20 @@ public class MockOrderProduct extends AbstractMockObject<OrderProductDTO> {
     @Autowired OrderProductService oProductService;
 
     @Autowired MockOrder mOrder;
-
     @Autowired MockProduct mProduct;
     @Autowired MockProductDetail mPDetail;
 
     @Override
     public OrderProductDTO temp() {
         OrderProductDTO orderProduct = new OrderProductDTO();
-        orderProduct.setOrderId(mOrder.anyOrder().getId());
+        orderProduct.setOrderId(mOrder.any().getId());
 
-        ProductDTO product = mProduct.anyProduct();
-        ProductDetailDTO pDetail = mPDetail.anyPDetail();
+        ProductDTO product = mProduct.any();
+        ProductDetailDTO pDetail = mPDetail.any();
 
         orderProduct.setProductId(product.getId());
+        orderProduct.setPrice(product.getPrice()+pDetail.getPriceChange());
+
         orderProduct.setOptionCd(pDetail.getOptionCd());
         orderProduct.setSellerNm(product.getSellerNm());
         orderProduct.setDiscountPrice(product.getDiscountPrice());
@@ -35,7 +36,7 @@ public class MockOrderProduct extends AbstractMockObject<OrderProductDTO> {
         orderProduct.setProductNm(product.getName());
         orderProduct.setOptionNm(pDetail.getFullNm());
 
-        orderProduct.setCnt(RandomUtil.randomInt(1));
+        orderProduct.setCnt(RandomUtil.randomInt(1)+1);
 
         return orderProduct;
     }
@@ -51,13 +52,13 @@ public class MockOrderProduct extends AbstractMockObject<OrderProductDTO> {
     }
 
     @Override
-    protected OrderProductDTO createNthObj(int index){
+    protected OrderProductDTO tempNth(int i){
         OrderProductDTO oProduct = this.temp();
 
-        ProductDetailDTO pDetail = mPDetail.anyPDetailList(index+1).get(index);
+        ProductDetailDTO pDetail = mPDetail.anyList(i+1).get(i);
         oProduct.setOptionCd(pDetail.getOptionCd());
         oProduct.setOptionNm(pDetail.getFullNm());
 
-        return this.createObjService(oProduct);
+        return oProduct;
     }
 }

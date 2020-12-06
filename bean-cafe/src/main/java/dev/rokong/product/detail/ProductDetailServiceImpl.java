@@ -13,6 +13,7 @@ import dev.rokong.exception.BusinessException;
 import dev.rokong.order.product.OrderProductService;
 import dev.rokong.product.main.ProductService;
 import dev.rokong.product.option.ProductOptionService;
+import dev.rokong.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -154,7 +155,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     private void verifyOptionCd(ProductDetailDTO pDetail){
         //check option cd is not empty
-        if(pDetail.getOptionCd() == null || "".equals(pDetail.getOptionCd())){
+        if(ObjUtil.isEmpty(pDetail.getOptionCd())){
             log.debug("product detail parameter : "+pDetail.toString());
             throw new BusinessException("product detail is empty");
         }
@@ -163,6 +164,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         ProductOptionDTO optionParam = new ProductOptionDTO(pDetail.getProductId());
         List<ProductOptionDTO> optionList = pOptionService.getPOptionList(optionParam);
 
+        //option list's first item is 00 (option name) -> this is not a available option
         if(optionList == null || optionList.size() <= 1){
             log.debug("product detail parameter : "+pDetail.toString());
             throw new BusinessException("available option list is empty");

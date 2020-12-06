@@ -48,7 +48,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Before
     public void initAnyProductOption(){
-        this.anyPOption = mockObj.pOption.anyPOption();
+        this.anyPOption = mockObj.pOption.any();
     }
 
     @Test
