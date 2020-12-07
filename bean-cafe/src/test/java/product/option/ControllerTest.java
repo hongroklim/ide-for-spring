@@ -242,6 +242,7 @@ public class ControllerTest extends MvcUnitConfig {
         product.setSellerNm(this.getAnyUser().getUserNm());
         product.setName("new product test");
         product.setPrice(1000);
+        product.setDeliveryPrice(100);
         product = pService.createProduct(product);
         assertThat(product, is(notNullValue()));
         assertThat(product.getId(), is(greaterThan(0)));

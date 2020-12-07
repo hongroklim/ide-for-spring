@@ -24,7 +24,7 @@ public class MockProduct extends AbstractMockObject<ProductDTO> {
         product.setCategoryId(mCategory.any().getId());
         product.setEnabled(true);
         product.setSellerNm(mUser.any().getUserNm());
-        product.setStockCnt(null);
+        product.setStockCnt(1);
         product.setDeliveryPrice(RandomUtil.randomInt(5));
         product.setDiscountPrice(0);
 

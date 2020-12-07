@@ -2,7 +2,6 @@ package dev.rokong.product.main;
 
 import java.util.List;
 
-import dev.rokong.annotation.PriceField;
 import dev.rokong.dto.ProductDTO;
 
 public interface ProductService {
@@ -12,7 +11,5 @@ public interface ProductService {
     public ProductDTO getProductNotNull(int id);
     // TODO public boolean isProductExists(int id);
     public ProductDTO updateProduct(ProductDTO product);
-    public void deleteProductStock(int id);
     public void deleteProduct(int id);
-    public ProductDTO updateProductPrice(ProductDTO product, PriceField field);
 }

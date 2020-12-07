@@ -12,6 +12,7 @@ public class MockObjects {
     
     @Autowired public MockOrder order;
     @Autowired public MockOrderProduct oProduct;
+    @Autowired public MockOrderDelivery oDelivery;
 
     @Autowired public MockPayType payType;
     

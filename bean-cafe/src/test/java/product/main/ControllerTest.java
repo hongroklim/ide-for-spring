@@ -34,16 +34,6 @@ public class ControllerTest extends MvcUnitConfig {
     }
 
     @Test
-    public void pathVariableEnum() throws Exception {
-        String url = "/product/"+2+"/discount";
-        ProductDTO req = new ProductDTO();
-        req.setId(2);
-        req.setPrice(1234);
-
-        this.reqAndResBody(url, RequestMethod.PUT, req, ProductDTO.class);
-    }
-
-    @Test
     public void getProductList() throws Exception {
         List<ProductDTO> pList = this.reqAndResBodyList("/product",
             RequestMethod.GET, null, ProductDTO.class);
@@ -60,8 +50,11 @@ public class ControllerTest extends MvcUnitConfig {
             RequestMethod.POST, product, ProductDTO.class);
         
         assertThat(getProduct, is(notNullValue()));
-        product.setId(getProduct.getId());
-        assertThat(product, equalTo(getProduct));
+        
+        //verfiy values
+        assertThat(getProduct.getId(), is(greaterThan(0)));
+        assertThat(getProduct.getDeliveryId(), is(notNullValue()));
+        assertThat(getProduct.getDeliveryId(), is(greaterThan(0)));
     }
 
     @Test
@@ -121,20 +114,6 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(res.getCategoryId(), is(equalTo(product.getCategoryId())));
         assertThat(res.getSellerNm(), is(equalTo(product.getSellerNm())));
         assertThat(res.getEnabled(), is(equalTo(product.getEnabled())));
-    }
-
-    @Test
-    public void updateProductStockNull() throws Exception {
-        ProductDTO product = mockObj.product.any();
-        Integer tobeCnt = null;
-        product.setStockCnt(tobeCnt);
-
-        ProductDTO res = this.reqAndResBody("/product/"+product.getId(),
-            RequestMethod.PUT, product, ProductDTO.class);
-        
-        assertThat(res, is(notNullValue()));
-        assertThat(res.getId(), is(equalTo(product.getId())));
-        assertThat(res.getStockCnt(), is(nullValue()));
     }
 
 }

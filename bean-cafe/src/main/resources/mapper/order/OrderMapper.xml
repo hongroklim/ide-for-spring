@@ -4,28 +4,28 @@
     <select id="selectOrder" parameterType="int" resultType="OrderDTO">
         SELECT id, user_nm, price, delivery_price, pay_id, pay_nm,
                request_dt, status_cd, last_edit_dt, editor_nm
-          FROM order_main
+          FROM ord_main
          WHERE id = #{id}
     </select>
 
     <insert id="insertOrder" parameterType="OrderDTO">
         <selectKey keyProperty="id" resultType="int" order="BEFORE">
-            SELECT nextval('order_main_id_seq'::regclass)
+            SELECT nextval('ord_main_id_seq'::regclass)
         </selectKey>
-        INSERT INTO order_main
+        INSERT INTO ord_main
                (id, user_nm, status_cd, last_edit_dt, editor_nm)
         VALUES (#{id}, #{userNm}, #{statusCd}, now(), #{userNm})
     </insert>
 
     <update id="updateOrderPay" parameterType="OrderDTO">
-        UPDATE order_main
+        UPDATE ord_main
            SET pay_id = #{payId},
                pay_nm = #{payNm}
          WHERE id = #{id}
     </update>
 
     <update id="updateOrderStatus" parameterType="OrderDTO">
-        UPDATE order_main
+        UPDATE ord_main
            SET status_cd = #{statusCd},
                last_edit_dt = now(),
                editor_nm = #{editorNm}
@@ -33,7 +33,7 @@
     </update>
 
     <update id="updateOrderPrice" parameterType="OrderDTO">
-        UPDATE order_main
+        UPDATE ord_main
            SET price = #{price},
                delivery_price = #{deliveryPrice}
          WHERE id = #{id}

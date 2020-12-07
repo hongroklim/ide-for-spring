@@ -97,7 +97,7 @@ public class CartServiceImpl implements CartService {
     }
 
     private void verifyCnt(Integer cnt){
-        if(ObjUtil.isNotDefined(cnt)){
+        if(ObjUtil.isEmpty(cnt)){
             throw new BusinessException("count should be defined");
 
         }else if(cnt <= 0){
@@ -120,7 +120,7 @@ public class CartServiceImpl implements CartService {
             log.debug("cart parameter : "+cart.toString());
             throw new BusinessException("user name is not defined");
 
-        }else if(ObjUtil.isNotDefined(cart.getProductId())){
+        }else if(ObjUtil.isEmpty(cart.getProductId())){
             log.debug("cart parameter : "+cart.toString());
             throw new BusinessException("product id is not defined");
 

@@ -19,10 +19,12 @@ public class MockCart extends AbstractMockObject<CartDTO> {
     @Override
     public CartDTO temp() {
         CartDTO temp = new CartDTO();
+        
         temp.setUserNm(mUser.any().getUserNm());
         temp.setProductId(mPDetail.any().getProductId());
         temp.setOptionCd(mPDetail.any().getOptionCd());
         temp.setCnt(RandomUtil.randomInt(1)+1);
+
         return temp;
     }
 

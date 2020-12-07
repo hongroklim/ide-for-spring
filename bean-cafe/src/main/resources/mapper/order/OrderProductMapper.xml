@@ -3,8 +3,9 @@
 <mapper namespace="dev.rokong.orderProduct">
     <select id="selectOProduct" parameterType="OrderProductDTO" resultType="OrderProductDTO">
         SELECT order_id, product_id, option_cd, seller_nm, cnt,
-               price, discount_price, product_nm, option_nm
-          FROM order_product
+               price, discount_price, product_nm, option_nm,
+               is_valid, status_cd
+          FROM ord_prod
          WHERE order_id = #{orderId}
         <if test='productId != null and productId != 0'>
             AND product_id = #{productId}
@@ -15,7 +16,7 @@
     </select>
 
     <insert id="insertOProduct" parameterType="OrderProductDTO">
-        INSERT INTO order_product
+        INSERT INTO ord_prod
                (order_id, product_id, option_cd, seller_nm, cnt,
                 price, discount_price, product_nm, option_nm)
         VALUES (#{orderId}, #{productId}, #{optionCd}, #{sellerNm}, #{cnt},
@@ -24,7 +25,7 @@
 
     <delete id="deleteOProduct" parameterType="OrderProductDTO">
         DELETE
-          FROM order_product
+          FROM ord_prod
          WHERE order_id = #{orderId}
         <if test='productId != null and productId != 0'>
             AND product_id = #{productId}
@@ -34,8 +35,8 @@
         </if>
     </delete>
 
-    <update id="updateOProduct" parameterType="OrderProductDTO">
-        UPDATE order_product
+    <update id="updateOProductCnt" parameterType="OrderProductDTO">
+        UPDATE ord_prod
            SET cnt = #{cnt}
          WHERE order_id = #{orderId}
            AND product_id = #{productId}
@@ -43,7 +44,7 @@
     </update>
 
     <update id="updateOProductToNull" parameterType="OrderProductDTO">
-        UPDATE order_product
+        UPDATE ord_prod
            SET option_cd = null
                <if test='optionCd == null || "".equals(optionCd)'>
                    , product_id = null

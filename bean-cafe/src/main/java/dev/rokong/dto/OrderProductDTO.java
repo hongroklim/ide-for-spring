@@ -15,6 +15,8 @@ public class OrderProductDTO {
     private Integer discountPrice;
     private String productNm;
     private String optionNm;
+    private Boolean isValid;
+    private Integer statusCd;
 
     public OrderProductDTO(int orderId){
         this.orderId = orderId;

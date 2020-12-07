@@ -3,7 +3,7 @@
 <mapper namespace="dev.rokong.productOption">
     <select id="selectProductOption" parameterType="ProductOptionDTO" resultType="ProductOptionDTO">
         SELECT product_id, option_group, option_id, name, ord
-          FROM product_option
+          FROM prod_opt
          WHERE product_id = #{productId}
         <if test="optionGroup != null">
            AND option_group = #{optionGroup}    
@@ -15,14 +15,14 @@
     </select>
 
     <insert id="insertProductOption" parameterType="ProductOptionDTO">
-        INSERT INTO product_option
+        INSERT INTO prod_opt
                (product_id, option_group, option_id, name, ord)
         VALUES (#{productId}, #{optionGroup}, #{optionId}, #{name}, #{ord})
     </insert>
 
     <delete id="deleteProductOption">
         DELETE
-          FROM product_option
+          FROM prod_opt
          WHERE product_id = #{productId}
         <if test="optionGroup != null">
            AND option_group = #{optionGroup}    
@@ -33,7 +33,7 @@
     </delete>
 
     <update id="updateProductOption" parameterType="hashmap">
-        UPDATE product_option
+        UPDATE prod_opt
            SET name = #{name},
                ord = #{ord}
          WHERE product_id = #{pOption.productId}
@@ -42,7 +42,7 @@
     </update>
 
     <update id="backwardOptionOrder" parameterType="hashmap">
-        UPDATE product_option
+        UPDATE prod_opt
            SET ord = ord+1
          WHERE product_id = #{pOption.productId}
            AND option_group = #{pOption.optionGroup}
@@ -51,7 +51,7 @@
     </update>
 
     <update id="forwardOptionOrder" parameterType="hashmap">
-        UPDATE product_option
+        UPDATE prod_opt
            SET ord = ord-1
          WHERE product_id = #{pOption.productId}
            AND option_group = #{pOption.optionGroup}
@@ -60,14 +60,14 @@
     </update>
 
     <update id="updateOptionGroup" parameterType="hashmap">
-        UPDATE product_option
+        UPDATE prod_opt
            SET option_group = #{tobeGroup}
          WHERE product_id = #{pOption.productId}
            AND option_group = #{pOption.optionGroup}
     </update>
 
     <update id="backwardOptionGroup" parameterType="hashmap">
-        UPDATE product_option
+        UPDATE prod_opt
            SET option_group = option_group+1
          WHERE product_id = #{productId}
            AND option_group <![CDATA[ >= ]]> #{startGroup}
@@ -75,7 +75,7 @@
     </update>
   
     <update id="forwardOptionGroup" parameterType="hashmap">
-        UPDATE product_option
+        UPDATE prod_opt
            SET option_group = option_group-1
          WHERE product_id = #{productId}
            AND option_group <![CDATA[ >= ]]> #{startGroup}

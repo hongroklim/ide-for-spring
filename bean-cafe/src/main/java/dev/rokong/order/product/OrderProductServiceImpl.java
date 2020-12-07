@@ -90,7 +90,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         return this.getOProductNotNull(oProduct);
     }
     
-    public OrderProductDTO updateOProduct(OrderProductDTO oProduct){
+    public OrderProductDTO updateOProductCnt(OrderProductDTO oProduct){
         //update cnt
         this.getOProductNotNull(oProduct);
         
@@ -98,7 +98,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         this.verifyCnt(oProduct.getCnt());
 
         //update
-        oProductDAO.updateOProduct(oProduct);
+        oProductDAO.updateOProductCnt(oProduct);
         
         //update order main price
         this.updateOrderPrice(oProduct.getOrderId());
@@ -132,26 +132,28 @@ public class OrderProductServiceImpl implements OrderProductService {
 
         //sum product's price
         for(OrderProductDTO oProduct : oProductList){
-            itemPrice = oProduct.getPrice() + oProduct.getDiscountPrice();
-            totalPrice += oProduct.getCnt() * itemPrice;
+            if(oProduct.getIsValid()){
+                itemPrice = oProduct.getPrice() + oProduct.getDiscountPrice();
+                totalPrice += oProduct.getCnt() * itemPrice;
+            }
         }
 
         orderService.updateOrderPrice(orderId, totalPrice);
     }
     
     private void verifyPrimaryParameter(OrderProductDTO oProduct){
-        if(ObjUtil.isNotDefined(oProduct.getOrderId())){
+        if(ObjUtil.isEmpty(oProduct.getOrderId())){
             log.debug("order product parameter : "+oProduct.toString());
             throw new BusinessException("order id is not defined");
             
-        }else if(ObjUtil.isNotDefined(oProduct.getProductId())){
+        }else if(ObjUtil.isEmpty(oProduct.getProductId())){
             log.debug("order product parameter : "+oProduct.toString());
             throw new BusinessException("product id is not defined");
         }
     }
 
     private void verifyCnt(Integer cnt){
-        if(ObjUtil.isNotDefined(cnt) || cnt <= 0){
+        if(ObjUtil.isEmpty(cnt) || cnt <= 0){
             log.debug("cnt : "+cnt);
             throw new BusinessException("count must be greater than 0");
         }

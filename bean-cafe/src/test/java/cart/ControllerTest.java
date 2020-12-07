@@ -58,7 +58,7 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(ObjUtil.isNotEmpty(cart.getUserNm()), is(equalTo(true)));
         sbuf.append(cart.getUserNm());
 
-        if(ObjUtil.isDefined(cart.getProductId())){
+        if(ObjUtil.isNotEmpty(cart.getProductId())){
             //if productId defined, set product id and option cd
             sbuf.append("/product/")
                 .append(cart.getProductId())

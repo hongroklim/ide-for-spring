@@ -9,13 +9,11 @@ import java.util.List;
  * {@link #temp()}, {@link #createObjService(Object)},
  * {@link #getObjService(Object)}
  * 
- * <p>also can override {@link #createNthObj(int)} if needed
+ * <p>also can override {@link #tmpNth(int)} if needed
  * 
  * @param <T> DTO's Class to make Mock Object
  */
 public abstract class AbstractMockObject<T> {
-    
-    //TODO extend the other Mock objects
 
     //list contains created mock object(S)
     private List<T> objList = new ArrayList<T>();

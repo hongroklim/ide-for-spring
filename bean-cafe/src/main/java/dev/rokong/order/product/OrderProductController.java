@@ -41,7 +41,7 @@ public class OrderProductController {
     @RequestMapping(value="/{pId}/option/{option}", method=RequestMethod.PUT)
     public OrderProductDTO updateOProduct(@PathVariable int oId, @PathVariable int pId,
             @PathVariable String option, @RequestBody OrderProductDTO oProduct){
-        return oProductService.updateOProduct(oProduct);
+        return oProductService.updateOProductCnt(oProduct);
     }
 
     @RequestMapping(value="/{pId}/option/{option}", method=RequestMethod.DELETE)

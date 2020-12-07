@@ -9,6 +9,6 @@ public interface OrderProductDAO {
     public OrderProductDTO selectOProduct(OrderProductDTO oProduct);
     public void insertOProduct(OrderProductDTO oProduct);
     public void deleteOProduct(OrderProductDTO oProduct);
-    public void updateOProduct(OrderProductDTO oProduct);
+    public void updateOProductCnt(OrderProductDTO oProduct);
     public void updateOProductToNull(OrderProductDTO oProduct);
 }

@@ -3,7 +3,7 @@
 <mapper namespace="dev.rokong.productDetail">
     <select id="selectDetailList" parameterType="ProductDetailDTO" resultType="ProductDetailDTO">
         SELECT product_id, option_cd, full_nm, price_change, stock_cnt, enabled
-          FROM product_detail
+          FROM prod_det
          WHERE product_id = #{productId}
           <if test='optionCd != null and !"".equals(optionCd)'>
             AND option_cd like #{optionCd}
@@ -11,12 +11,12 @@
     </select>
     <select id="selectDetail" parameterType="ProductDetailDTO" resultType="ProductDetailDTO">
         SELECT product_id, option_cd, full_nm, price_change, stock_cnt, enabled
-          FROM product_detail
+          FROM prod_det
          WHERE product_id = #{productId}
             AND option_cd = #{optionCd}
     </select>
     <insert id="insertDetail" parameterType="ProductDetailDTO">
-        INSERT INTO product_detail
+        INSERT INTO prod_det
                (product_id, option_cd, full_nm, price_change,
                 stock_cnt, enabled)
         VALUES (#{productId}, #{optionCd}, #{fullNm}, #{priceChange},
@@ -24,20 +24,20 @@
     </insert>
     <delete id="deleteDetail" parameterType="ProductDetailDTO">
         DELETE
-          FROM product_detail
+          FROM prod_det
          WHERE product_id = #{productId}
             AND option_cd = #{optionCd}
     </delete>
     <delete id="deleteDetailList" parameterType="ProductDetailDTO">
         DELETE
-          FROM product_detail
+          FROM prod_det
          WHERE product_id = #{productId}
          <if test='optionCd != null and !"".equals(optionCd)'>
            AND option_cd like #{optionCd}
          </if>
     </delete>
     <update id="updateDetail" parameterType="ProductDetailDTO">
-        UPDATE product_detail
+        UPDATE prod_det
            SET price_change = #{priceChange},
                stock_cnt = #{stockCnt},
                enabled = #{enabled}

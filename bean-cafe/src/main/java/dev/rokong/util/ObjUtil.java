@@ -72,20 +72,20 @@ public class ObjUtil {
     }
 
     /**
-     * check Integer is defined (not null and not 0)
+     * check Integer is defined
      * @param integer to be verified Integer
      * @return if return true, parameter is defined
      */
-    public static boolean isDefined(Integer integer){
-        return integer != null && integer != 0;
+    public static boolean isEmpty(Integer integer){
+        return integer == null;
     }
 
     /**
-     * check Integer is defined (is null and is 0)
+     * check Integer is defined
      * @param integer to be verified Integer
      * @return if return true, parameter is not defined
      */
-    public static boolean isNotDefined(Integer integer){
-        return !isDefined(integer);
+    public static boolean isNotEmpty(Integer integer){
+        return !isEmpty(integer);
     }
 }

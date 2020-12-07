@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.rokong.annotation.PriceField;
 import dev.rokong.dto.ProductDTO;
 
 @RestController
@@ -45,24 +44,10 @@ public class ProductController {
         return pService.updateProduct(product);
     }
 
-    @RequestMapping(value="/{id}/stock", method=RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteProductStock(@PathVariable int id){
-        pService.deleteProductStock(id);
-    }
-
     @RequestMapping(value="/{id}", method=RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
     public void deleteProduct(@PathVariable int id){
         pService.deleteProduct(id);
-    }
-
-    @RequestMapping(value="/{id}/{field}", method=RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public ProductDTO updateProductPrice(@RequestBody ProductDTO product,
-            @PathVariable PriceField field){
-        //TODO get PriceField also in lowerCase
-        return pService.updateProductPrice(product, field);
     }
 
 }

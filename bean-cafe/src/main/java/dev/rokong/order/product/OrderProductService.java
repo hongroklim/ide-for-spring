@@ -9,7 +9,7 @@ public interface OrderProductService {
     public OrderProductDTO getOProduct(OrderProductDTO oProduct);
     public OrderProductDTO getOProductNotNull(OrderProductDTO oProduct);
     public OrderProductDTO addOProduct(OrderProductDTO oProduct);
-    public OrderProductDTO updateOProduct(OrderProductDTO oProduct);
+    public OrderProductDTO updateOProductCnt(OrderProductDTO oProduct);
     public void deleteOProduct(OrderProductDTO oProduct);
     public void updateOProductToNull(int productId, String optionCd);
 }

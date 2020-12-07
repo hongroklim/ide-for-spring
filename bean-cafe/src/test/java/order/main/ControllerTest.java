@@ -57,7 +57,7 @@ public class ControllerTest extends MvcUnitConfig {
         );
 
         assertThat(res, is(notNullValue()));
-        assertThat(ObjUtil.isDefined(res.getId()), is(equalTo(true)));
+        assertThat(ObjUtil.isNotEmpty(res.getId()), is(equalTo(true)));
     }
 
     @Test

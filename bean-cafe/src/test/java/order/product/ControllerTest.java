@@ -41,7 +41,7 @@ public class ControllerTest extends MvcUnitConfig {
             .append("/").append(oId)
             .append("/product");
         
-        if(ObjUtil.isDefined(pId)){
+        if(ObjUtil.isNotEmpty(pId)){
             sbuf.append("/")
                 .append(pId);
             
