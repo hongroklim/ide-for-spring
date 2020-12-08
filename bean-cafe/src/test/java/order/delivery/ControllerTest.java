@@ -123,7 +123,6 @@ public class ControllerTest extends MvcUnitConfig {
             = oDeliveryService.getODelivery(oDelivery.getOrderId());
 
         assertThat(getODelivery, is(nullValue()));
-
     }
     
 }

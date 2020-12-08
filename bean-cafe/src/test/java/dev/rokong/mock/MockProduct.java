@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import dev.rokong.dto.ProductDTO;
+import dev.rokong.dto.ProductDeliveryDTO;
 import dev.rokong.product.main.ProductService;
 import dev.rokong.util.RandomUtil;
 
@@ -14,6 +15,7 @@ public class MockProduct extends AbstractMockObject<ProductDTO> {
 
     private @Autowired MockUser mUser;
     private @Autowired MockCategory mCategory;
+    private @Autowired MockProductDelivery mPDelivery;
 
     @Override
     public ProductDTO temp() {
@@ -25,7 +27,11 @@ public class MockProduct extends AbstractMockObject<ProductDTO> {
         product.setEnabled(true);
         product.setSellerNm(mUser.any().getUserNm());
         product.setStockCnt(1);
-        product.setDeliveryPrice(RandomUtil.randomInt(5));
+        
+        ProductDeliveryDTO pDelivery = mPDelivery.any();
+        product.setDeliveryId(pDelivery.getId());
+        product.setDeliveryPrice(pDelivery.getPrice());
+
         product.setDiscountPrice(0);
 
         return product;

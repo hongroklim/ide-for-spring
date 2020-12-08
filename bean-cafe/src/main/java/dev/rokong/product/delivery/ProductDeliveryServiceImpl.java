@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import dev.rokong.annotation.DeliveryType;
 import dev.rokong.dto.ProductDeliveryDTO;
 import dev.rokong.exception.BusinessException;
+import dev.rokong.product.main.ProductService;
 import dev.rokong.user.UserService;
 import dev.rokong.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
     @Autowired ProductDeliveryDAO pDeliveryDAO;
 
     @Autowired UserService uService;
+    @Autowired ProductService pService;
 
     public ProductDeliveryDTO getPDelivery(int id){
         return pDeliveryDAO.selectPDelivery(id);
@@ -34,6 +36,10 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
         return this.getPDeliveryNotNull(pDelivery.getId());
     }
 
+    public ProductDeliveryDTO getPDeliveryByProduct(int productId){
+        return pDeliveryDAO.selectPDeliveryByProductId(productId);
+    }
+
     public ProductDeliveryDTO initDefaultPDelivery(String sellerNm, int price){
         ProductDeliveryDTO pDelivery = new ProductDeliveryDTO();
 
@@ -47,6 +53,12 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
     }
 
     public ProductDeliveryDTO createPDelivery(ProductDeliveryDTO pDelivery){
+        //verify must be defined parameter
+        if(ObjUtil.isEmpty(pDelivery.getSellerNm())){
+            log.debug("product delivery paramter :"+pDelivery.toString());
+            throw new BusinessException("seller name is not defined in product delivery");
+        }
+        
         this.verifyPDeliveryParameter(pDelivery);
 
         //insert
@@ -65,6 +77,11 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
     }
 
     public void deletePDelivery(int id){
+        //if product exists, throw exception
+        if(pService.getProductsByDelivery(id) != null){
+            throw new BusinessException(id+" delivery id has product(s)");
+        }
+
         pDeliveryDAO.deletePDelivery(id);
     }
 
@@ -82,6 +99,9 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
         }
 
         //is seller exists
-        uService.getUserNotNull(pDelivery.getSellerNm());
+        if(ObjUtil.isNotEmpty(pDelivery.getSellerNm())){
+            uService.getUserNotNull(pDelivery.getSellerNm());
+        }
+        
     }
 }

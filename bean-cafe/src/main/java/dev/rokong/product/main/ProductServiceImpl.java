@@ -110,6 +110,10 @@ public class ProductServiceImpl implements ProductService {
         return pDAO.selectProduct(id);
     }
 
+    public List<ProductDTO> getProductsByDelivery(int deliveryId){
+        return pDAO.selectProductsByDelivery(deliveryId);
+    }
+
     public ProductDTO updateProduct(ProductDTO product){
         this.getProductNotNull(product);
 

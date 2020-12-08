@@ -14,6 +14,13 @@
          WHERE id = #{id}
     </select>
 
+    <select id="selectProductsByDelivery" parameterType="int" resultType="ProductDTO">
+        SELECT id, name, price, category_id, enabled, seller_nm,
+               stock_cnt, delivery_id, delivery_price, discount_price
+          FROM prod_main
+         WHERE delivery_id = #{deliveryId}
+    </select>
+
     <insert id="insertProduct" parameterType="ProductDTO">
         <selectKey keyProperty="id" resultType="int" order="BEFORE">
             SELECT nextval('prod_id_seq'::regclass)

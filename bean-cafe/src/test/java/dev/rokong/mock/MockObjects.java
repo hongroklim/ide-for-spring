@@ -19,6 +19,7 @@ public class MockObjects {
     @Autowired public MockProduct product;
     @Autowired public MockProductOption pOption;
     @Autowired public MockProductDetail pDetail;
+    @Autowired public MockProductDelivery pDelivery;
     
     @Autowired public MockUser user;
 

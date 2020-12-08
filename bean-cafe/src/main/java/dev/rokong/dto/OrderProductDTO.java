@@ -18,6 +18,8 @@ public class OrderProductDTO {
     private Boolean isValid;
     private Integer statusCd;
 
+    //TODO add column private Integer deliveryId;
+
     public OrderProductDTO(int orderId){
         this.orderId = orderId;
     }

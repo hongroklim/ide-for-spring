@@ -10,6 +10,7 @@ import dev.rokong.dto.ProductDTO;
 import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.exception.BusinessException;
 import dev.rokong.order.main.OrderService;
+import dev.rokong.order.product.delivery.OrderProductDeliveryService;
 import dev.rokong.product.detail.ProductDetailService;
 import dev.rokong.product.main.ProductService;
 import dev.rokong.util.ObjUtil;
@@ -22,6 +23,8 @@ public class OrderProductServiceImpl implements OrderProductService {
     @Autowired OrderProductDAO oProductDAO;
 
     @Autowired OrderService orderService;
+    @Autowired OrderProductDeliveryService oPDeliveryService;
+
     @Autowired ProductService pService;
     @Autowired ProductDetailService pDetailService;
 
@@ -69,6 +72,9 @@ public class OrderProductServiceImpl implements OrderProductService {
         oProduct.setPrice(product.getPrice());
         oProduct.setDiscountPrice(product.getDiscountPrice());
 
+        //add order product delivery
+        oPDeliveryService.addOPDelivery(oProduct.getOrderId(), oProduct.getProductId());
+
         if(ObjUtil.isNotEmpty(oProduct.getOptionCd())){
             //is product detail exists
             ProductDetailDTO pDetail = new ProductDetailDTO(oProduct.getProductId(), oProduct.getOptionCd());
@@ -86,6 +92,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 
         //update order main price
         this.updateOrderPrice(oProduct.getOrderId());
+        this.updateOrderDeliveryPrice(oProduct.getOrderId());
 
         return this.getOProductNotNull(oProduct);
     }
@@ -102,17 +109,23 @@ public class OrderProductServiceImpl implements OrderProductService {
         
         //update order main price
         this.updateOrderPrice(oProduct.getOrderId());
-
+        
         return this.getOProductNotNull(oProduct);
     }
     
     public void deleteOProduct(OrderProductDTO oProduct){
-        this.getOProductNotNull(oProduct);
+        oProduct = this.getOProductNotNull(oProduct);
         
         oProductDAO.deleteOProduct(oProduct);
-
         //update order main price
         this.updateOrderPrice(oProduct.getOrderId());
+        
+        boolean isDeliveryChanged
+            = oPDeliveryService.removeOPDelivery(oProduct.getOrderId(), oProduct.getProductId());
+        if(isDeliveryChanged){
+            //update order main delivery price
+            this.updateOrderDeliveryPrice(oProduct.getOrderId());
+        }
     }
 
     public void updateOProductToNull(int productId, String optionCd){
@@ -139,6 +152,10 @@ public class OrderProductServiceImpl implements OrderProductService {
         }
 
         orderService.updateOrderPrice(orderId, totalPrice);
+    }
+
+    private void updateOrderDeliveryPrice(int orderId){
+        //TODO updateOrderDeliveryPrice
     }
     
     private void verifyPrimaryParameter(OrderProductDTO oProduct){

@@ -23,6 +23,10 @@ public class ProductDeliveryDAOImpl implements ProductDeliveryDAO {
         return sqlSession.selectList(PREFIX+"selectPDeliveryBySellerNm", sellerNm);
     }
 
+    public ProductDeliveryDTO selectPDeliveryByProductId(int productId){
+        return sqlSession.selectOne(PREFIX+"selectPDeliveryByProductId", productId);
+    }
+
     public int insertPDelivery(ProductDeliveryDTO pDelivery){
         sqlSession.insert(PREFIX+"insertPDelivery", pDelivery);
         return pDelivery.getId();

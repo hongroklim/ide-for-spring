@@ -7,6 +7,7 @@ import dev.rokong.dto.ProductDTO;
 public interface ProductDAO {
     public List<ProductDTO> selectProductList();
     public ProductDTO selectProduct(int id);
+    public List<ProductDTO> selectProductsByDelivery(int deliveryId);
     public int insertProduct(ProductDTO product);
     public void deleteProduct(int id);
     public void updateProduct(ProductDTO product);

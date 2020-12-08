@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.rokong.orderProductDelivery">
+    <select id="select" parameterType="OrderProductDeliveryDTO" resultType="OrderProductDeliveryDTO">
+        SELECT order_id, seller_nm, delivery_id, type_nm, delivery_nm, price
+          FROM ord_prod_dlvr
+         WHERE order_id = #{orderId}
+           AND seller_nm = #{sellerNm}
+           AND delivery_id = #{deliveryId}
+    </select>
+
+    <insert id="insert" parameterType="OrderProductDeliveryDTO">
+        INSERT INTO ord_prod_dlvr
+               (order_id, seller_nm, delivery_id, type_nm, delivery_nm, price)
+        VALUES (#{orderId}, #{sellerNm}, #{deliveryId}, #{typeNm}, #{deliveryNm}, #{price})
+    </insert>
+</mapper>

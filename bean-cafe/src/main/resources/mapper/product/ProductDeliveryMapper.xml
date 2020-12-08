@@ -13,6 +13,14 @@
          WHERE seller_nm = #{sellerNm}
     </select>
 
+    <select id="selectPDeliveryByProductId" parameterType="int" resultType="ProductDeliveryDTO">
+        SELECT B.id, B.seller_nm, B.type, B.name, B.price
+          FROM prod_main A,
+               prod_dlvr B
+         WHERE A.id = #{id}
+           AND A.delivery_id = B.id
+    </select>
+
     <insert id="insertPDelivery" parameterType="ProductDeliveryDTO">
         <selectKey keyProperty="id" resultType="int" order="BEFORE">
             SELECT nextval('prod_dlvr_id_seq'::regclass)
@@ -33,9 +41,6 @@
         </if>
         <if test='price != null'>
             , price = #{price}
-        </if>
-        <if test='deliveryId != null'>
-            , deliveryId = #{deliveryId}
         </if>
          WHERE id = #{id}
     </update>
