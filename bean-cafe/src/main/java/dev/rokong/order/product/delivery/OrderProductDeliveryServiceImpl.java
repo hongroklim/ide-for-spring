@@ -1,5 +1,7 @@
 package dev.rokong.order.product.delivery;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7,9 +9,9 @@ import dev.rokong.dto.OrderProductDeliveryDTO;
 import dev.rokong.dto.ProductDeliveryDTO;
 import dev.rokong.exception.BusinessException;
 import dev.rokong.order.main.OrderService;
+import dev.rokong.order.product.OrderProductService;
 import dev.rokong.product.delivery.ProductDeliveryService;
 import dev.rokong.product.main.ProductService;
-import dev.rokong.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -19,6 +21,7 @@ public class OrderProductDeliveryServiceImpl implements OrderProductDeliveryServ
     @Autowired OrderProductDeliveryDAO oPDeliveryDAO;
 
     @Autowired OrderService oService;
+    @Autowired OrderProductService oProductService;
 
     @Autowired ProductService pService;
     @Autowired ProductDeliveryService pDeliveryService;
@@ -33,12 +36,6 @@ public class OrderProductDeliveryServiceImpl implements OrderProductDeliveryServ
         if(oPDelivery.getOrderId() == 0){
             log.debug("oPDelivery parameter :"+oPDelivery.toString());
             throw new BusinessException("order id is not defined in oPDelivery");
-        }
-
-        //seller name
-        if(ObjUtil.isEmpty(oPDelivery.getSellerNm())){
-            log.debug("oPDelivery parameter :"+oPDelivery.toString());
-            throw new BusinessException("seller name is not defined in oPDelivery");
         }
 
         //delivery id
@@ -63,16 +60,6 @@ public class OrderProductDeliveryServiceImpl implements OrderProductDeliveryServ
     }
 
     public OrderProductDeliveryDTO createOPDelivery(OrderProductDeliveryDTO oPDelivery){
-        //if seller name is not defined
-        ProductDeliveryDTO pDelivery = null;    //to reuse after verify
-        if(ObjUtil.isEmpty(oPDelivery.getSellerNm())){
-            if(oPDelivery.getDeliveryId() != 0){
-                //set seller name
-                pDelivery = pDeliveryService.getPDeliveryNotNull(oPDelivery.getDeliveryId());
-                oPDelivery.setSellerNm(pDelivery.getSellerNm());
-            }
-        }
-
         //verify all values are defined
         this.verifyPrimaryDefined(oPDelivery);
 
@@ -86,11 +73,11 @@ public class OrderProductDeliveryServiceImpl implements OrderProductDeliveryServ
         oService.getOrderNotNull(oPDelivery.getOrderId());
 
         //is produt delivery exists
-        if(pDelivery == null){
-            pDeliveryService.getPDeliveryNotNull(oPDelivery.getDeliveryId());
-        }
+        ProductDeliveryDTO pDelivery
+            = pDeliveryService.getPDeliveryNotNull(oPDelivery.getDeliveryId());
 
         //set values by product delivery
+        oPDelivery.setSellerNm(pDelivery.getSellerNm());
         oPDelivery.setTypeNm(pDelivery.getType());
         oPDelivery.setDeliveryNm(pDelivery.getName());
         oPDelivery.setPrice(pDelivery.getPrice());
@@ -101,50 +88,55 @@ public class OrderProductDeliveryServiceImpl implements OrderProductDeliveryServ
         return this.getOPDeliveryNotNull(oPDelivery);
     }
 
-    public OrderProductDeliveryDTO addOPDelivery(int orderId, int productId){
-        //is order exists
-        oService.getOrderNotNull(orderId);
-
-        //is product exists
-        pService.getProductNotNull(productId);
-
-        //get productDelivery by productId
-        ProductDeliveryDTO pDelivery = pDeliveryService.getPDeliveryByProduct(productId);
-
+    public boolean addOPDelivery(int orderId, int deliveryId){
         //search oPDelivery whether it is already exists
-        OrderProductDeliveryDTO oPDelivery = this.orderAndPDelivery(orderId, pDelivery);
+        OrderProductDeliveryDTO oPDelivery = new OrderProductDeliveryDTO(orderId, deliveryId);
         oPDelivery = this.getOPDelivery(oPDelivery);
 
         if(oPDelivery != null){
             //oPDelivery is already exists
-            return oPDelivery;
+            return false;
         }else{
             //if not exists, create oPDelivery
-            return this.createOPDelivery(oPDelivery);
+            oPDelivery = new OrderProductDeliveryDTO(orderId, deliveryId);
+            this.createOPDelivery(oPDelivery);
+            return true;
         }
     }
     
     public boolean removeOPDelivery(int orderId, int deliveryId){
-        //TODO removeOPDelivery
-        return false;
-    }
-
-    private OrderProductDeliveryDTO orderAndPDelivery(int orderId, ProductDeliveryDTO pDelivery){
+        //verfiy all values are defined
         if(orderId == 0){
             throw new BusinessException("order id is not defined");
+        }else if(deliveryId == 0){
+            throw new BusinessException("delivery id is not defined");
         }
 
-        if(pDelivery == null){
-            throw new BusinessException("product delivery is not defined");
+        //is oPDelivery exists
+        OrderProductDeliveryDTO oPDelivery = new OrderProductDeliveryDTO(orderId, deliveryId);
+        this.getOPDeliveryNotNull(oPDelivery);
+        
+        int oProductCnt = oProductService.countOProductsByDelivery(orderId, deliveryId);
+        if(oProductCnt > 0){
+            //order products are exists
+            log.debug("order products are exists :"+oProductCnt);
+            return false;
         }else{
-            //check product delivery's values are defined
-            if(pDelivery.getId() == 0){
-                throw new BusinessException("product delivery id is not defined");
-            }else if(ObjUtil.isEmpty(pDelivery.getSellerNm())){
-                throw new BusinessException("seller name is not defined");
-            }
+            //order products are not exists, then delete
+            oPDeliveryDAO.deleteOPDelivery(oPDelivery);
+            return true;
+        }
+    }
+
+    public int totalDeliveryPrice(int orderId){
+        List<OrderProductDeliveryDTO> list = oPDeliveryDAO.selectOPdeliveriesByOrder(orderId);
+
+        int totalPrice = 0;
+
+        for(OrderProductDeliveryDTO item : list){
+            totalPrice += item.getPrice();
         }
 
-        return new OrderProductDeliveryDTO(orderId, pDelivery.getSellerNm(), pDelivery.getId());
+        return totalPrice;
     }
 }

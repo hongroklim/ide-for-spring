@@ -36,6 +36,8 @@ public class MockOrderProduct extends AbstractMockObject<OrderProductDTO> {
         orderProduct.setProductNm(product.getName());
         orderProduct.setOptionNm(pDetail.getFullNm());
 
+        orderProduct.setDeliveryId(product.getDeliveryId());
+
         orderProduct.setCnt(RandomUtil.randomInt(1)+1);
 
         return orderProduct;

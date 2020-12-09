@@ -11,4 +11,5 @@ public interface OrderProductDAO {
     public void deleteOProduct(OrderProductDTO oProduct);
     public void updateOProductCnt(OrderProductDTO oProduct);
     public void updateOProductToNull(OrderProductDTO oProduct);
+    public int countOProductsByDelivery(OrderProductDTO oProduct);
 }

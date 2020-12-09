@@ -1,5 +1,7 @@
 package dev.rokong.order.product.delivery;
 
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,5 +21,13 @@ public class OrderProductDeliveryDAOImpl implements OrderProductDeliveryDAO {
 
     public void insertOPDelivery(OrderProductDeliveryDTO oPDelivery){
         sqlSession.insert(PREFIX+"insert", oPDelivery);
+    }
+
+    public void deleteOPDelivery(OrderProductDeliveryDTO oPDelivery){
+        sqlSession.delete(PREFIX+"delete", oPDelivery);
+    }
+
+    public List<OrderProductDeliveryDTO> selectOPdeliveriesByOrder(int orderId){
+        return sqlSession.selectList(PREFIX+"selectOPdeliveriesByOrder", orderId);
     }
 }

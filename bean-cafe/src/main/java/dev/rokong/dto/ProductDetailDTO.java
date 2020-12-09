@@ -26,6 +26,12 @@ public class ProductDetailDTO {
         this(pDetail.getProductId(), pDetail.getOptionCd());
     }
     
+    /**
+     * get id in specified option group
+     * 
+     * @param optionGroup where id to find exists
+     * @return id
+     */
     public String idOfGroup(int optionGroup){
         if(this.optionCd == null || "".equals(optionCd)){
             throw new IllegalStateException("optionCd is not defined");

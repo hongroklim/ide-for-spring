@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OrderProductDeliveryDTO {
     private int orderId;
-    private String sellerNm;
     private int deliveryId;
+    private String sellerNm;
     private String typeNm;
     private String deliveryNm;
     private Integer price;
@@ -19,13 +19,9 @@ public class OrderProductDeliveryDTO {
         this.orderId = orderId;
     }
 
-    public OrderProductDeliveryDTO(int orderId, String sellerNm){
+    public OrderProductDeliveryDTO(int orderId, int deliveryId){
         this(orderId);
-        this.sellerNm = sellerNm;
-    }
-
-    public OrderProductDeliveryDTO(int orderId, String sellerNm, int deliveryId){
-        this(orderId, sellerNm);
         this.deliveryId = deliveryId;
     }
+
 }

@@ -1,9 +1,8 @@
 package dev.rokong.order.product.delivery;
 
-import dev.rokong.dto.OrderProductDeliveryDTO;
-
 public interface OrderProductDeliveryService {
-    public OrderProductDeliveryDTO addOPDelivery(int orderId, int productId);
+    public boolean addOPDelivery(int orderId, int deliveryId);
+    
     /**
      * 
      * 
@@ -12,4 +11,6 @@ public interface OrderProductDeliveryService {
      * @return if true, delivery is removed
      */
     public boolean removeOPDelivery(int orderId, int deliveryId);
+
+    public int totalDeliveryPrice(int orderId);
 }

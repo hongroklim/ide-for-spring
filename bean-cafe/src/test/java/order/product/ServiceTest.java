@@ -2,8 +2,10 @@ package order.product;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -18,6 +20,8 @@ import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.mock.MockObjects;
 import dev.rokong.order.main.OrderService;
 import dev.rokong.order.product.OrderProductService;
+import dev.rokong.product.main.ProductService;
+import dev.rokong.util.RandomUtil;
 
 public class ServiceTest extends SpringConfig {
     
@@ -26,6 +30,8 @@ public class ServiceTest extends SpringConfig {
 
     @Autowired OrderService oService;
     @Autowired OrderProductService oProductService;
+
+    @Autowired ProductService pService;
 
     @Test
     public void priceChangeAfterInit(){
@@ -89,4 +95,73 @@ public class ServiceTest extends SpringConfig {
         
     }
 
+    private void addOrderProduct(int orderId, List<ProductDTO> productList){
+        OrderProductDTO oProduct = null;
+        for(ProductDTO p : productList){
+            oProduct = new OrderProductDTO(orderId, p.getId());
+            oProduct.setCnt(RandomUtil.randomInt(1)+1);
+            oProductService.addOProduct(oProduct);
+        }
+    }
+
+    @Test
+    public void productsWithSameDeliveryId(){
+        OrderDTO order = mockObj.order.any();
+
+        int asisDeliveryPrice = order.getDeliveryPrice();
+        assertThat(asisDeliveryPrice, is(equalTo(0)));
+
+        //get product list
+        List<ProductDTO> productList = mockObj.product.anyList(3);
+
+        //three mock products have same delivery id
+        int expectedDeliveryPrice = productList.get(0).getDeliveryPrice();
+
+        //add products into order product
+        this.addOrderProduct(order.getId(), productList);
+
+        //get order after add products
+        order = oService.getOrderNotNull(order.getId());
+        
+        int tobeDeliveryPrice = order.getDeliveryPrice();
+
+        assertThat(tobeDeliveryPrice, is(equalTo(expectedDeliveryPrice)));
+    }
+
+    @Test
+    public void productsWithDifferentDeliveryId(){
+        //init order
+        OrderDTO order = mockObj.order.any();
+        
+        //get three products with different delivery Id
+        List<ProductDTO> pList = new ArrayList<ProductDTO>();
+        for(int i=0; i<3; i++){
+            pList.add(this.createProductWithNullDeliveryId());
+        }
+
+        //TODO compare all delivery ids in list
+        assertThat(pList.get(0).getDeliveryId(),
+            is(not(equalTo(pList.get(1).getDeliveryId()))));
+
+        //TODO lamda expression
+        int expected = 0;
+        for(ProductDTO p : pList){
+            expected += p.getDeliveryPrice();
+        }
+
+        //add products
+        this.addOrderProduct(order.getId(), pList);
+
+        //get order after add products
+        order = oService.getOrderNotNull(order.getId());
+
+        assertThat(order.getDeliveryPrice(), is(equalTo(expected)));
+    }
+
+    private ProductDTO createProductWithNullDeliveryId(){
+        ProductDTO product = mockObj.product.temp();
+        product.setDeliveryId(null);    //new delivery will be created
+
+        return pService.createProduct(product);
+    }
 }

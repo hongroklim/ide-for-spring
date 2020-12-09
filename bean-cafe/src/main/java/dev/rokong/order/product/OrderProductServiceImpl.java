@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderProductDTO;
 import dev.rokong.dto.ProductDTO;
 import dev.rokong.dto.ProductDetailDTO;
@@ -33,7 +34,7 @@ public class OrderProductServiceImpl implements OrderProductService {
     }
 
     public OrderProductDTO getOProduct(OrderProductDTO oProduct){
-        this.verifyPrimaryParameter(oProduct);
+        this.verifyPrimaryValuesDefined(oProduct);
         return oProductDAO.selectOProduct(oProduct);
     }
 
@@ -47,13 +48,10 @@ public class OrderProductServiceImpl implements OrderProductService {
     }
     
     public OrderProductDTO addOProduct(OrderProductDTO oProduct){
-        this.verifyPrimaryParameter(oProduct);
+        this.verifyPrimaryValuesDefined(oProduct);
 
         //is cnt defined
         this.verifyCnt(oProduct.getCnt());
-
-        //is order exists
-        orderService.getOrderNotNull(oProduct.getOrderId());
 
         //is order product already exists
         OrderProductDTO getOProduct = this.getOProduct(oProduct);
@@ -62,22 +60,40 @@ public class OrderProductServiceImpl implements OrderProductService {
             throw new BusinessException("order porduct already exists");
         }
 
-        //is product exists
-        ProductDTO product = pService.getProductNotNull(oProduct.getProductId());
+        int orderId = oProduct.getOrderId();
+        int productId = oProduct.getProductId();
 
-        //set product name
+        //is order exists
+        orderService.getOrderNotNull(orderId);
+
+        //is product exists
+        ProductDTO product = pService.getProductNotNull(productId);
+
+        //set product and seller name
         oProduct.setProductNm(product.getName());
+        oProduct.setSellerNm(product.getSellerNm());
 
         //set price
         oProduct.setPrice(product.getPrice());
         oProduct.setDiscountPrice(product.getDiscountPrice());
 
-        //add order product delivery
-        oPDeliveryService.addOPDelivery(oProduct.getOrderId(), oProduct.getProductId());
+        //set delivery id
+        oProduct.setDeliveryId(product.getDeliveryId());
 
-        if(ObjUtil.isNotEmpty(oProduct.getOptionCd())){
+        //add order product delivery
+        boolean isDeliveryChanged
+            = oPDeliveryService.addOPDelivery(orderId, product.getDeliveryId());
+
+        if(ObjUtil.isEmpty(oProduct.getOptionCd())
+                || OrderProductDTO.NULL_OPTION_CD.equals(oProduct.getOptionCd())){
+            //is only product (not with option cd) exists
+            oProduct.setOptionCd(OrderProductDTO.NULL_OPTION_CD);
+
+        }else{
             //is product detail exists
-            ProductDetailDTO pDetail = new ProductDetailDTO(oProduct.getProductId(), oProduct.getOptionCd());
+            ProductDetailDTO pDetail = new ProductDetailDTO(
+                    productId, oProduct.getOptionCd()
+                );
             pDetail = pDetailService.getDetailNotNull(pDetail);
             
             //set option name
@@ -87,12 +103,17 @@ public class OrderProductServiceImpl implements OrderProductService {
             oProduct.setPrice(oProduct.getPrice()+pDetail.getPriceChange());
         }
 
+        //set status
+        oProduct.setOrderStatus(OrderStatus.WRITING);
+
         //insert
         oProductDAO.insertOProduct(oProduct);
 
-        //update order main price
-        this.updateOrderPrice(oProduct.getOrderId());
-        this.updateOrderDeliveryPrice(oProduct.getOrderId());
+        //update order main price and delivery price
+        this.updateOrderPrice(orderId);
+        if(isDeliveryChanged){
+            this.updateOrderDeliveryPrice(orderId);
+        }
 
         return this.getOProductNotNull(oProduct);
     }
@@ -128,7 +149,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         }
     }
 
-    public void updateOProductToNull(int productId, String optionCd){
+    public void updateOProductToNull(int productId, String optionCd){        
         OrderProductDTO oProduct = new OrderProductDTO();
         oProduct.setProductId(productId);
         oProduct.setOptionCd(optionCd);
@@ -145,7 +166,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 
         //sum product's price
         for(OrderProductDTO oProduct : oProductList){
-            if(oProduct.getIsValid()){
+            if(oProduct.getOrderStatus().isProcess()){
                 itemPrice = oProduct.getPrice() + oProduct.getDiscountPrice();
                 totalPrice += oProduct.getCnt() * itemPrice;
             }
@@ -155,10 +176,14 @@ public class OrderProductServiceImpl implements OrderProductService {
     }
 
     private void updateOrderDeliveryPrice(int orderId){
-        //TODO updateOrderDeliveryPrice
+        //get total delivery price
+        int totalPrice = oPDeliveryService.totalDeliveryPrice(orderId);
+        
+        //update
+        orderService.updateOrderDeliveryPrice(orderId, totalPrice);
     }
     
-    private void verifyPrimaryParameter(OrderProductDTO oProduct){
+    private void verifyPrimaryValuesDefined(OrderProductDTO oProduct){
         if(ObjUtil.isEmpty(oProduct.getOrderId())){
             log.debug("order product parameter : "+oProduct.toString());
             throw new BusinessException("order id is not defined");
@@ -174,5 +199,21 @@ public class OrderProductServiceImpl implements OrderProductService {
             log.debug("cnt : "+cnt);
             throw new BusinessException("count must be greater than 0");
         }
+    }
+
+    public int countOProductsByDelivery(int orderId, int deliveryId){
+        //verify parameter
+        if(ObjUtil.isEmpty(orderId)){
+            throw new BusinessException("order id is not defined");
+            
+        }else if(ObjUtil.isEmpty(deliveryId)){
+            throw new BusinessException("delivery id is not defined");
+        }
+
+        //set parameter
+        OrderProductDTO oProduct = new OrderProductDTO(orderId);
+        oProduct.setDeliveryId(deliveryId);
+
+        return oProductDAO.countOProductsByDelivery(oProduct);
     }
 }

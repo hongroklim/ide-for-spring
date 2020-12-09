@@ -88,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
         OrderDTO order = this.getOrderNotNull(id);
         order.setDeliveryPrice(deliveryPrice);
 
-        orderDAO.updateOrderPrice(order);
+        orderDAO.updateOrderDeliveryPrice(order);
     }
 
     public void updateOrderPay(OrderDTO order){

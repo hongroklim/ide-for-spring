@@ -34,8 +34,13 @@
 
     <update id="updateOrderPrice" parameterType="OrderDTO">
         UPDATE ord_main
-           SET price = #{price},
-               delivery_price = #{deliveryPrice}
+           SET price = #{price}
+         WHERE id = #{id}
+    </update>
+
+    <update id="updateOrderDeliveryPrice" parameterType="OrderDTO">
+        UPDATE ord_main
+           SET delivery_price = #{deliveryPrice}
          WHERE id = #{id}
     </update>
 </mapper>

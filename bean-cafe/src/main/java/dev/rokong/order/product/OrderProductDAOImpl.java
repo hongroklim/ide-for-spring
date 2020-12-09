@@ -38,4 +38,7 @@ public class OrderProductDAOImpl implements OrderProductDAO {
     public void updateOProductToNull(OrderProductDTO oProduct){
         sqlSession.update(PREFIX+"updateOProductToNull", oProduct);
     }
+    public int countOProductsByDelivery(OrderProductDTO oProduct){
+        return sqlSession.selectOne(PREFIX+"countOProductsByDelivery", oProduct);
+    }
 }

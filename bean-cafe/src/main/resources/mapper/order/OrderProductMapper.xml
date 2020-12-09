@@ -4,7 +4,7 @@
     <select id="selectOProduct" parameterType="OrderProductDTO" resultType="OrderProductDTO">
         SELECT order_id, product_id, option_cd, seller_nm, cnt,
                price, discount_price, product_nm, option_nm,
-               is_valid, status_cd
+               status_cd, delivery_id
           FROM ord_prod
          WHERE order_id = #{orderId}
         <if test='productId != null and productId != 0'>
@@ -18,9 +18,9 @@
     <insert id="insertOProduct" parameterType="OrderProductDTO">
         INSERT INTO ord_prod
                (order_id, product_id, option_cd, seller_nm, cnt,
-                price, discount_price, product_nm, option_nm)
+                price, discount_price, product_nm, option_nm, status_cd, delivery_id)
         VALUES (#{orderId}, #{productId}, #{optionCd}, #{sellerNm}, #{cnt},
-                #{price}, #{discountPrice}, #{productNm}, #{optionNm})
+                #{price}, #{discountPrice}, #{productNm}, #{optionNm}, #{statusCd}, #{deliveryId})
     </insert>
 
     <delete id="deleteOProduct" parameterType="OrderProductDTO">
@@ -54,4 +54,11 @@
             AND option_cd like #{optionCd}
         </if>
     </update>
+
+    <select id="countOProductsByDelivery" parameterType="OrderProductDTO" resultType="int">
+        SELECT count(*)
+          FROM ord_prod
+         WHERE order_id = #{orderId}
+           AND delivery_id = #{deliveryId}
+    </select>
 </mapper>
