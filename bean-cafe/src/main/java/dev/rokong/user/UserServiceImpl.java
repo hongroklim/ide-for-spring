@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.rokong.dto.UserDTO;
 import dev.rokong.exception.ApplicationException;
 import dev.rokong.exception.BusinessException;
+import dev.rokong.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -26,6 +27,9 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDTO getUser(String userNm) {
+        if(ObjUtil.isEmpty(userNm)){
+            throw new BusinessException("user name is not defined");
+        }
         return userDAO.selectUser(userNm);
     }
 

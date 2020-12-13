@@ -1,6 +1,7 @@
 package dev.rokong.annotation;
 
 public enum PayType {
+    API("API"),
     TRANSFER("계좌이체"),
     CARD("신용/체크카드"),
     PHONE("휴대폰");

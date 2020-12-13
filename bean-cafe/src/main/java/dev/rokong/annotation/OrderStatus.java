@@ -1,5 +1,13 @@
 package dev.rokong.annotation;
 
+/**
+ * Order Status in order process.
+ * <p>if <code>code > 0</code>, it is normal process.
+ * else <code>code < 0</code>, it is canceled status.
+ * <p>especially, if code like <code>-100 ~</code>, it is canceled by customer.
+ * if code like <code>-200 ~</code>, it is canceled by seller.
+ * 
+ */
 public enum OrderStatus {
     //normal process
     WRITING(100), //주문 작성 중
@@ -91,8 +99,30 @@ public enum OrderStatus {
     }
 
     /**
+     * get next process
+     * 
+     * @return next process
+     * @throws UnsupportedOperationException canceled status tries this method
+     */
+    public OrderStatus nextProcess(){
+        if(!this.isProcess()){
+            throw new UnsupportedOperationException("only normal process supported");
+        }
+
+        int nextCode = this.getCode() + 100;
+
+        for(OrderStatus o : OrderStatus.values()){
+            if(nextCode == o.getCode()){
+                return o;
+            }
+        }
+
+        throw new IllegalArgumentException("can not find next process");
+    }
+
+    /**
      * check canceled status has cause process
-     * CUSTOMER_CANCEL and SELLER_CANCEL can return true
+     * <code>CUSTOMER_CANCEL</code> and <code>SELLER_CANCEL</code> can return true
      * 
      * @return if true, this has cause
      */

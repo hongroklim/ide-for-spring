@@ -139,14 +139,17 @@ public class ServiceTest extends SpringConfig {
             pList.add(this.createProductWithNullDeliveryId());
         }
 
-        //TODO compare all delivery ids in list
-        assertThat(pList.get(0).getDeliveryId(),
-            is(not(equalTo(pList.get(1).getDeliveryId()))));
-
-        //TODO lamda expression
         int expected = 0;
         for(ProductDTO p : pList){
+            //add prices into expected values
             expected += p.getDeliveryPrice();
+
+            //compare all delivery ids in list
+            for(ProductDTO p1 : pList){
+                if(p.getId() != p1.getId()){
+                    assertThat(p.getDeliveryId(), is(not(equalTo(p1.getDeliveryId()))));
+                }
+            }
         }
 
         //add products

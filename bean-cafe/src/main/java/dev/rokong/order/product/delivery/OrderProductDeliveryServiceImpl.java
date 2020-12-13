@@ -63,7 +63,7 @@ public class OrderProductDeliveryServiceImpl implements OrderProductDeliveryServ
         //verify all values are defined
         this.verifyPrimaryDefined(oPDelivery);
 
-        //avoid duplicate
+        //avoid duplicate in order product delivery
         if(this.getOPDelivery(oPDelivery) != null){
             log.debug("oPDelivery parameter :"+oPDelivery.toString());
             throw new BusinessException("oPDelivery is already exists");
@@ -106,14 +106,10 @@ public class OrderProductDeliveryServiceImpl implements OrderProductDeliveryServ
     
     public boolean removeOPDelivery(int orderId, int deliveryId){
         //verfiy all values are defined
-        if(orderId == 0){
-            throw new BusinessException("order id is not defined");
-        }else if(deliveryId == 0){
-            throw new BusinessException("delivery id is not defined");
-        }
+        OrderProductDeliveryDTO oPDelivery = new OrderProductDeliveryDTO(orderId, deliveryId);
+        this.verifyPrimaryDefined(oPDelivery);
 
         //is oPDelivery exists
-        OrderProductDeliveryDTO oPDelivery = new OrderProductDeliveryDTO(orderId, deliveryId);
         this.getOPDeliveryNotNull(oPDelivery);
         
         int oProductCnt = oProductService.countOProductsByDelivery(orderId, deliveryId);
