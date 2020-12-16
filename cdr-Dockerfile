@@ -9,7 +9,7 @@ RUN mkdir -p /home/coder/.local/share/code-server \
     && chown -R coder:coder /home/coder/.local/share/code-server
 
 # docker
-ARG DOCKERVERSION=19.03.13
+ARG DOCKERVERSION=20.10.1
 RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
     && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 -C /usr/bin docker/docker \
     && rm docker-${DOCKERVERSION}.tgz \

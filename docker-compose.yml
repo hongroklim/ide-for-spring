@@ -46,7 +46,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: "hongrr123@gmail.com"
       PGADMIN_DEFAULT_PASSWORD: "ghdfhr"
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:4.29
     volumes:
       - ./pga-data:/var/lib/pgadmin
     ports:
@@ -71,11 +71,9 @@ services:
       - logs:/opt/jboss/wildfly/standalone/log
     ports:
       - 127.0.0.1:8082:8080
-     #- 127.0.0.1:8083:9990
     networks:
       intranet:
         ipv4_address: 172.18.0.14
-    #entrypoint: ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "--debug"]
 
 networks:
   intranet:
@@ -90,4 +88,3 @@ volumes:
   deployments:
   logs:
   psql-data:
-  #pga-data:
