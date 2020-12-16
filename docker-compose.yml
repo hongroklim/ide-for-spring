@@ -1,32 +1,6 @@
 version: "3"
 
 services:
-  # code-server
-  cdr:
-    environment:
-      TZ: "Asia/Seoul"
-    build:
-      context: .
-      dockerfile: ./cdr-Dockerfile
-    volumes:
-        # dood
-      - /var/run/docker.sock:/var/run/docker.sock
-        # data (extensions, settings etc)
-      - ./cdr-data:/home/coder/.local/share/code-server
-        # project
-      - ./bean-cafe:/home/coder/bean-cafe
-        # maven repository
-      - $HOME/.m2/repository:/home/coder/.m2/repository
-        # wildfly deploy (wired with wildfly)
-      - deployments:/home/coder/wildfly/standalone/deployments
-        # wildfly logs (wired with cdr)
-      - logs:/home/coder/wildfly/standalone/log
-    ports:
-      - 127.0.0.1:8081:8080
-    networks:
-      intranet: 
-        ipv4_address: 172.18.0.11
-
   # database
   psql:
     environment:
@@ -66,9 +40,9 @@ services:
         # maven repository
       - $HOME/.m2/repository:/root/.m2/repository
         # tomcat deploy (wired with cdr)
-      - deployments:/opt/jboss/wildfly/standalone/deployments
+      - ./bean-cafe/deployments:/opt/jboss/wildfly/standalone/deployments
         # wildfly logs (wired with cdr)
-      - logs:/opt/jboss/wildfly/standalone/log
+      - ./bean-cafe/logs:/opt/jboss/wildfly/standalone/log
     ports:
       - 127.0.0.1:8082:8080
     networks:
@@ -85,6 +59,4 @@ networks:
           gateway: 172.18.0.1
 
 volumes:
-  deployments:
-  logs:
   psql-data:

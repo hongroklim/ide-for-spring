@@ -39,7 +39,7 @@ public class TossService implements PayAPIService {
     @Autowired(required = false)
     private String apiKey = "sk_real_w5lNQylNqa5lNQe013Nq";
 
-    @Autowired
+    @Autowired(required = false)
     @Qualifier("mvcMessageConverter")
     private MappingJackson2HttpMessageConverter messageConverter;
 
@@ -50,7 +50,9 @@ public class TossService implements PayAPIService {
      */
     @PostConstruct
     public void init() {
-        this.objectMapper = messageConverter.getObjectMapper();
+        if(messageConverter != null){
+            this.objectMapper = messageConverter.getObjectMapper();
+        }
     }
 
     @Autowired
@@ -75,7 +77,7 @@ public class TossService implements PayAPIService {
         URL url = null;
         URLConnection connection = null;
         StringBuilder responseBody = new StringBuilder();
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
 
         try {
             url = new URL(this.requestPaymentURL);

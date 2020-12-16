@@ -142,7 +142,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         this.updateOrderPrice(oProduct.getOrderId());
         
         boolean isDeliveryChanged
-            = oPDeliveryService.removeOPDelivery(oProduct.getOrderId(), oProduct.getProductId());
+            = oPDeliveryService.removeOPDelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
         if(isDeliveryChanged){
             //update order main delivery price
             this.updateOrderDeliveryPrice(oProduct.getOrderId());

@@ -6,4 +6,8 @@ pga-data/*
 !pga-data/.gitkeep
 !pga-data/storage
 .idea/
-bean-cafe/bean-cafe.iml
+*.iml
+bean-cafe/deployments/*
+!bean-cafe/deployments/.gitkeep
+bean-cafe/logs/*
+!bean-cafe/logs/.gitkeep

@@ -11,13 +11,8 @@ import config.MvcConfig;
 import config.SpringConfig;
 import dev.rokong.pay.api.TossService;
 
-public class TossTest extends MvcConfig {
-    
-    @Autowired TossService tService;
-
-    @Test
-    public void initialize(){
-        assertThat(tService.objectMapper, is(notNullValue()));
-    }
+public class TossTest {
+    //TODO extends test
+    //@Autowired TossService tService;
 
 }
