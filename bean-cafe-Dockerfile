@@ -17,7 +17,7 @@ RUN mkdir -p $JBOSS_HOME/standalone/log/ \
        >> $JBOSS_HOME/bin/standalone.conf
 
 # management console
-#RUN $JBOSS_HOME/bin/add-user.sh admin ghdfhr --silent
+RUN $JBOSS_HOME/bin/add-user.sh admin ghdfhr --silent
 
 USER jboss
 

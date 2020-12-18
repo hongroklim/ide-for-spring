@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -36,9 +37,10 @@ import dev.rokong.main.MainDAO;
 import dev.rokong.mock.MockObjects;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@ActiveProfiles(value="test")
 @ContextConfiguration
 (locations={"file:src/main/webapp/WEB-INF/context/root-context.xml",
-    "file:src/main/webapp/WEB-INF/context/app-context.xml"})
+        "file:src/main/webapp/WEB-INF/context/dispatcher-servlet.xml"})
 @WebAppConfiguration
 @Transactional @Rollback
 public abstract class MvcUnitConfig {

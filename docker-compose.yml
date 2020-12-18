@@ -44,7 +44,8 @@ services:
         # wildfly logs (wired with cdr)
       - ./bean-cafe/logs:/opt/jboss/wildfly/standalone/log
     ports:
-      - 127.0.0.1:8082:8080
+      - 127.0.0.1:8080:8080
+      - 127.0.0.1:9990:9990
     networks:
       intranet:
         ipv4_address: 172.18.0.14

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.rokong.main.MainDAO;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@ActiveProfiles(value="test")
 @ContextConfiguration({"file:src/main/webapp/WEB-INF/context/root-context.xml"})
 @Transactional @Rollback
 public class SpringConfig {

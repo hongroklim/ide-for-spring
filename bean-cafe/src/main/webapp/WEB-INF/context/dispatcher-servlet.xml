@@ -8,7 +8,7 @@
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <!-- Static Resource mapping -->
-    <mvc:resources mapping="/resources/**" location="/static/*" />
+    <mvc:resources mapping="/resources/**" location="/WEB-INF/static/" />
 
     <!-- messageConverter -->
     <bean id="mvcMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">

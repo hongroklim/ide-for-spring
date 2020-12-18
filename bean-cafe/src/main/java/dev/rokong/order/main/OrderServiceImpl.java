@@ -1,5 +1,7 @@
 package dev.rokong.order.main;
 
+import dev.rokong.dto.OrderProductDTO;
+import dev.rokong.order.product.OrderProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +12,21 @@ import dev.rokong.pay.type.PayTypeService;
 import dev.rokong.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
-    
-    @Autowired OrderDAO orderDAO;
 
-    @Autowired UserService userService;
-    @Autowired PayTypeService pTypeService;
+    @Autowired
+    OrderDAO orderDAO;
+
+    @Autowired
+    OrderProductService oProductService;
+    @Autowired
+    UserService userService;
+    @Autowired
+    PayTypeService pTypeService;
 
     public OrderDTO getOrder(int id){
         return orderDAO.selectOrder(id);
@@ -36,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
         return this.getOrderNotNull(order.getId());
     }
 
-    public OrderDTO initOrder(OrderDTO order){
+    public OrderDTO initOrder(OrderDTO order) {
         //initialize order
 
         /*
@@ -58,21 +67,12 @@ public class OrderServiceImpl implements OrderService {
         int id = orderDAO.insertOrder(order);
 
         //if payId exists, update it
-        if(order.getPayId() != null){
+        if (order.getPayId() != null) {
             order.setId(id);
             this.updateOrderPay(order);
         }
 
         return this.getOrderNotNull(id);
-    }
-
-    public void updateOrderPrice(int id, int price, int deliveryPrice){
-        //used by order.product
-        OrderDTO order = this.getOrderNotNull(id);
-        order.setPrice(price);
-        order.setDeliveryPrice(deliveryPrice);
-
-        orderDAO.updateOrderPrice(order);
     }
 
     public void updateOrderPrice(int id, int price){
@@ -193,5 +193,16 @@ public class OrderServiceImpl implements OrderService {
         order.setEditorNm(user);
 
         orderDAO.updateOrderStatus(order);
+    }
+
+    public String getOrderDesc(int id){
+        this.getOrderNotNull(id);
+
+        List<OrderProductDTO> list
+                = oProductService.getOProducts(new OrderProductDTO(id));
+
+
+
+        return null;
     }
 }

@@ -14,13 +14,6 @@
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
     </context:component-scan>
 
-    <!-- HikariCP configuration -->
-    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
-        <constructor-arg name="properties">
-            <util:properties id="hikariProperties" location="classpath:hikari.properties" />
-        </constructor-arg>
-    </bean>
-    
     <!-- java.sql - dataSource -->
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <constructor-arg name="configuration" ref="hikariConfig" />
@@ -45,4 +38,28 @@
     <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
+
+    <!-- HikariCP configuration -->
+    <beans profile="prod">
+        <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+            <constructor-arg name="properties">
+                <util:properties id="hikariProperties" location="classpath:hikari.properties" />
+            </constructor-arg>
+        </bean>
+    </beans>
+
+    <beans profile="test">
+        <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+            <constructor-arg name="properties">
+                <util:properties id="hikariProperties">
+                    <prop key="dataSourceClassName">org.postgresql.ds.PGSimpleDataSource</prop>
+                    <prop key="dataSource.user">bean_cafe_dev</prop>
+                    <prop key="dataSource.password">ghdfhr</prop>
+                    <prop key="dataSource.databaseName">bean_cafe_db</prop>
+                    <prop key="dataSource.portNumber">5432</prop>
+                    <prop key="dataSource.serverName">127.0.0.1</prop>
+                </util:properties>
+            </constructor-arg>
+        </bean>
+    </beans>
 </beans>

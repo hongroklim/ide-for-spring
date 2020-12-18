@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/pay/api/")
+@RequestMapping("/pay/api")
 public class PayAPIController {
     
     /**
@@ -25,12 +25,19 @@ public class PayAPIController {
 
     @RequestMapping("/cancel")
     public String cancelPayment(@RequestParam int orderId){
-        //TODO 주문취소
+        //TODO 결제취소
 
         //order status -> PAYMENT_CANCELED
 
         return "redirect:/order/{id}/status";
     }
-    
 
+    @RequestMapping("/status")
+    public String paymentStatus(@RequestParam int orderId){
+        //TODO payment status
+
+        //order status -> PAYMENT_CANCELED
+
+        return "redirect:/order/{id}/status";
+    }
 }

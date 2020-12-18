@@ -13,6 +13,8 @@ public enum OrderStatus {
     WRITING(100), //주문 작성 중
     //작성완료
     PAYMENT_READY(200), //결재 중
+        PAYMENT_STANDBY(210),   //결재 대기 중
+        PAYMENT_PROGRESS(220),  //결재 진행 중   //TODO test PAYMENT_STANDBY, PAYMENT_PROGRESS
     //결재
     CHECKING(300), //주문 확인 중
     //확인완료
