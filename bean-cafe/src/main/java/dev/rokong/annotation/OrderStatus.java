@@ -12,11 +12,14 @@ public enum OrderStatus {
     //normal process
     WRITING(100), //주문 작성 중
     //작성완료
-    PAYMENT_READY(200), //결재 중
+    PAYMENT(200), //결재 중
         PAYMENT_STANDBY(210),   //결재 대기 중
-        PAYMENT_PROGRESS(220),  //결재 진행 중   //TODO test PAYMENT_STANDBY, PAYMENT_PROGRESS
+        //결재생성요청 완료
+        PAYMENT_PROGRESS(220),  //결재 진행 중
+        //사용자 결재 완료
     //결재
     CHECKING(300), //주문 확인 중
+        CHECK_COMPLETE(310),    //확인 완료
     //확인완료
     PRODUCT_READY(400), //상품 준비 중
     //준비완료
@@ -24,11 +27,11 @@ public enum OrderStatus {
     //배송완료
     COMPLETE(600),
     
-    //exception status
+    //canceled status
     CUSTOMER_CANCEL(-100), //고객요청에 의해 취소
     
     CANCELED_WRITE(-110),
-    CALCELED_PAYMENT(-120),
+    CANCELED_PAYMENT(-120),
     CANCELED_CHECK(-130),
     CANCELED_PRODUCT(-140),
 
@@ -201,6 +204,30 @@ public enum OrderStatus {
     }
 
     /**
+     * find main normal process
+     * main process also return this
+     *
+     * @return main process (like _00)
+     * @throws IllegalArgumentException canceled status tried this method
+     */
+    public OrderStatus getMainProcess(){
+        if(!this.isProcess()){
+            throw new UnsupportedOperationException("only normal process supported");
+        }
+
+        int mainProcessCode = this.getCode() / 100;
+        mainProcessCode *= 100;
+
+        for(OrderStatus o : OrderStatus.values()){
+            if(o.getCode() == mainProcessCode){
+                return o;
+            }
+        }
+
+        throw new IllegalArgumentException("can not find main process");
+    }
+
+    /**
      * ask customer can cancel in this process
      * 
      * @return if true, customer can cancel
@@ -212,9 +239,11 @@ public enum OrderStatus {
             throw new UnsupportedOperationException("only normal process supported");
         }
 
+        OrderStatus mainProcess = this.getMainProcess();
+
         for(OrderStatus o : OrderStatus.values()){
             if(o.isCanceled() && o.isCustomerCancel()){
-                if(o.hasCauseProcess() && o.causeProcess() == this){
+                if(o.hasCauseProcess() && o.causeProcess() == mainProcess){
                     return true;
                 }
             }
@@ -235,9 +264,11 @@ public enum OrderStatus {
             throw new UnsupportedOperationException("only normal process supported");
         }
 
+        OrderStatus mainProcess = this.getMainProcess();
+
         for(OrderStatus o : OrderStatus.values()){
             if(o.isCanceled() && o.isSellerCancel()){
-                if(o.hasCauseProcess() && o.causeProcess() == this){
+                if(o.hasCauseProcess() && o.causeProcess() == mainProcess){
                     return true;
                 }
             }

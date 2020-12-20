@@ -13,7 +13,7 @@ public class EnumTest {
     @Test
     public void normalProcess(){
         assertThat(OrderStatus.WRITING.isProcess(), is(equalTo(true)));
-        assertThat(OrderStatus.PAYMENT_READY.isProcess(), is(equalTo(true)));
+        assertThat(OrderStatus.PAYMENT.isProcess(), is(equalTo(true)));
         assertThat(OrderStatus.CHECKING.isProcess(), is(equalTo(true)));
         assertThat(OrderStatus.PRODUCT_READY.isProcess(), is(equalTo(true)));
         assertThat(OrderStatus.DELIVERING.isProcess(), is(equalTo(true)));
@@ -38,7 +38,7 @@ public class EnumTest {
 
         //latter
         assertThat(OrderStatus.DELIVERING.isLatterThan(OrderStatus.CHECKING), is(equalTo(true)));
-        assertThat(OrderStatus.PRODUCT_READY.isLatterThan(OrderStatus.PAYMENT_READY), is(equalTo(true)));
+        assertThat(OrderStatus.PRODUCT_READY.isLatterThan(OrderStatus.PAYMENT), is(equalTo(true)));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class EnumTest {
     @Test
     public void getCauseSubject(){
         assertThat(OrderStatus.CANCELED_WRITE.isCustomerCancel(), is(equalTo(true)));
-        assertThat(OrderStatus.CALCELED_PAYMENT.isCustomerCancel(), is(equalTo(true)));
+        assertThat(OrderStatus.CANCELED_PAYMENT.isCustomerCancel(), is(equalTo(true)));
 
         assertThat(OrderStatus.CANCEL_DELIVER.isSellerCancel(), is(equalTo(true)));
         assertThat(OrderStatus.CANCEL_CHECK.isSellerCancel(), is(equalTo(true)));
@@ -60,7 +60,15 @@ public class EnumTest {
     @Test
     public void checkCancelAvailable(){
         assertThat(OrderStatus.PRODUCT_READY.isCustomerCanCancel(), is(equalTo(true)));
-        assertThat(OrderStatus.PAYMENT_READY.isSellerCanCancel(), is(equalTo(false)));
+        assertThat(OrderStatus.PAYMENT.isSellerCanCancel(), is(equalTo(false)));
     }
 
+    public void getMainProcess(){
+        assertThat(OrderStatus.PAYMENT_STANDBY.getMainProcess(), is(equalTo(OrderStatus.PAYMENT)));
+    }
+
+    @Test
+    public void subProcessInPayment(){
+        assertThat(OrderStatus.PAYMENT_STANDBY.isCustomerCanCancel(), is(equalTo(true)));
+    }
 }

@@ -2,6 +2,7 @@ package dev.rokong.order.main;
 
 import dev.rokong.dto.OrderProductDTO;
 import dev.rokong.order.product.OrderProductService;
+import dev.rokong.util.ObjUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -201,8 +202,20 @@ public class OrderServiceImpl implements OrderService {
         List<OrderProductDTO> list
                 = oProductService.getOProducts(new OrderProductDTO(id));
 
+        StringBuffer sbuf = new StringBuffer();
 
+        //order product is not exists
+        if(ObjUtil.isEmpty(list)){
+            return "";
+        }
 
-        return null;
+        sbuf.append(list.get(0).getProductNm());
+        if(list.size() > 1){
+            sbuf.append(" 외 ")
+                    .append(list.size()-1)
+                    .append("건");
+        }
+
+        return sbuf.toString();
     }
 }

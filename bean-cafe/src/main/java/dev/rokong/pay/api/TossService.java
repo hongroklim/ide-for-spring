@@ -6,8 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDTO;
+import dev.rokong.dto.PayApiDTO;
 import dev.rokong.dto.PayStatusDTO;
+import dev.rokong.exception.BusinessException;
 import dev.rokong.order.main.OrderService;
+import dev.rokong.util.ObjUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -22,10 +25,15 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-@Service("TossService")
-public class TossService implements PayAPIService {
+@Service("tossService")
+public class TossService implements PayApiService {
 
     //https://tossdev.github.io/api.html#payments
+    private final int TIMEOUT = 2000;
+
+    private final int PAY_TYPE_ID = 7;
+
+    private final String API_NAME = "TOSS";
 
     //결재 생성
     private final String requestPaymentURL = "https://pay.toss.im/api/v2/payments";
@@ -37,8 +45,6 @@ public class TossService implements PayAPIService {
 
     //취소 시 redirect
     private final String requestCancelURL = "http://test/pay/api/cancel";
-
-
 
     private final String apiKey = "sk_real_w5lNQylNqa5lNQe013Nq";
 
@@ -60,7 +66,14 @@ public class TossService implements PayAPIService {
     }
 
     @Autowired
+    PayApiDAO payApiDAO;
+
+    @Autowired
     OrderService orderService;
+
+    public int getPayTypeId(){
+        return this.PAY_TYPE_ID;
+    }
 
     private ObjectNode createRequestOrderParam(int orderId) {
         //get order and description
@@ -98,7 +111,7 @@ public class TossService implements PayAPIService {
     private String requestURL(String url, Object requestBody){
         URL u = null;
         URLConnection connection = null;
-        StringBuilder responseBody = new StringBuilder();
+        StringBuffer responseBody = new StringBuffer();
 
         try {
             u = new URL(url);
@@ -106,13 +119,17 @@ public class TossService implements PayAPIService {
             connection.addRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
             connection.setDoInput(true);
+            connection.setConnectTimeout(this.TIMEOUT);
+            connection.setReadTimeout(this.TIMEOUT);
 
             BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream());
 
+            //set requestBody
             bos.write(requestBody.toString().getBytes(StandardCharsets.UTF_8));
             bos.flush();
             bos.close();
 
+            //get responseBody
             BufferedReader br = new BufferedReader(
                     new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)
             );
@@ -136,7 +153,10 @@ public class TossService implements PayAPIService {
      * @return
      */
     private Map<String, Object> requestPayment(int orderId) {
+        //create parameter
         ObjectNode param = this.createRequestOrderParam(orderId);
+
+        //make request and get response
         String response = this.requestURL(this.requestPaymentURL, param);
         return this.parseMap(response);
     }
@@ -151,29 +171,49 @@ public class TossService implements PayAPIService {
      */
     public String makeRequest(int orderId){
         //request payment
-        Map<String, Object> result = this.requestPayment(orderId);
+        Map<String, Object> response = this.requestPayment(orderId);
+        this.verifyResponseCode(response);
 
-        int code = (int) result.get("code");
+        //insert pay token
+        PayApiDTO payApi = new PayApiDTO();
+        payApi.setOrderId(orderId);
+        payApi.setApiKey((String) response.get("payToken"));
+        payApi.setApiName(this.API_NAME);
+        payApiDAO.insertPayApi(payApi);
 
-        if(code == -1){
-            //if response code is falied
-            //TODO handle exception status
-        }
-
-        String payToken = (String) result.get("payToken");
-
-        //TODO insert pay token
-
-        String redirectPage = (String) result.get("checkoutPage");
-
-        return redirectPage;
+        return (String) response.get("checkoutPage");
     }
 
+    /**
+     * verify response from toss API
+     *
+     * @param response responseBody (Map Type)
+     * @throws RuntimeException when response is failed
+     */
+    private void verifyResponseCode(Map<String, Object> response) {
+        int code = (int) response.get("code");
+        if(code == -1){
+            //if payment status response is failed
+            String tossMessage = (String) response.get("msg");
+            String tossCode = (String) response.get("errorCode");
+            throw new RuntimeException("message : "+tossMessage+", code : "+tossCode);
+        }
+    }
+
+    /**
+     * to check payment status, prepare parameters
+     * to be used in requestbody for toss API
+     * @param orderId to check order id
+     * @return json
+     */
     private ObjectNode createPayStatusParam(int orderId){
         //get order and description
-        OrderDTO order = orderService.getOrderNotNull(orderId);
+        orderService.getOrderNotNull(orderId);
 
-        String payToken = "";   //TODO get payToken in database
+        String payToken = payApiDAO.getApiKey(orderId);
+        if(ObjUtil.isEmpty(payToken)){
+            throw new BusinessException("payId is not exists in order : "+orderId);
+        }
 
         ObjectNode json = this.objectMapper.createObjectNode();
         json.put("apiKey", apiKey);
@@ -182,21 +222,57 @@ public class TossService implements PayAPIService {
         return json;
     }
 
+    /**
+     * convert Toss's payment status into order status
+     *
+     * @param payStatus payment status from toss
+     * @return order status
+     */
+    private OrderStatus payToOrderStatus(String payStatus){
+        OrderStatus orderStatus = null;
+
+        if ("PAY_STANDBY".equals(payStatus)) { //결제 대기 중
+            orderStatus = OrderStatus.PAYMENT_STANDBY;
+        } else if ("PAY_APPROVED".equals(payStatus)) { //구매자 인증 완료
+            orderStatus = OrderStatus.CHECKING;
+        } else if ("PAY_CANCEL".equals(payStatus)) { //결제 취소
+            orderStatus = OrderStatus.CANCELED_PAYMENT;
+        } else if ("PAY_PROGRESS".equals(payStatus)) { //결제 진행 중
+            orderStatus = OrderStatus.CHECK_COMPLETE;
+        } else if ("PAY_COMPLETE".equals(payStatus)) { //결제 완료
+            orderStatus = OrderStatus.CHECK_COMPLETE;
+        } else if ("REFUND_PROGRESS".equals(payStatus)) { //환불 진행 중
+            orderStatus = OrderStatus.CHECK_COMPLETE;
+        } else if ("REFUND_SUCCESS".equals(payStatus)) { //환불 성공
+            orderStatus = OrderStatus.CHECK_COMPLETE;
+        } else if ("SETTLEMENT_COMPLETE".equals(payStatus)) {  //정산 완료
+            orderStatus = OrderStatus.CHECK_COMPLETE;
+        } else if ("SETTLEMENT_REFUND_COMPLETE".equals(payStatus)) {   //환불 정산 완료
+            orderStatus = OrderStatus.CHECK_COMPLETE;
+        } else {
+            throw new IllegalStateException("Unexpected value: " + payStatus);
+        }
+
+        return orderStatus;
+    }
+
+    /**
+     * parse toss's payment status map into PayStatusDTO
+     *
+     * @param map toss's payment status
+     * @return PayStatusDTO
+     */
     private PayStatusDTO parsePayStatus(Map<String, Object> map) {
         PayStatusDTO payStatus = new PayStatusDTO();
 
-        payStatus.setApiName("TOSS");
+        payStatus.setApiName(this.API_NAME);
         payStatus.setApiKey((String) map.get("payToken"));
 
-        OrderStatus o = null;
         String status = (String) map.get("payStatus");
-        if ("PAY_STANDBY".equals(status)) {
-            o = OrderStatus.PAYMENT_READY;
-        } else if ("PAY_PROGRESS".equals(status)) {
-            o = OrderStatus.PAYMENT_READY;
-        } else {
-            throw new IllegalStateException("Unexpected value: " + map.get("payStatus"));
-        }
+        payStatus.setOrderStatus(this.payToOrderStatus(status));
+
+        payStatus.setPayMethod((String) map.get("payMethod"));
+        payStatus.setPrice((int) map.get("amount"));
 
         return payStatus;
     }
@@ -212,10 +288,12 @@ public class TossService implements PayAPIService {
         ObjectNode param = this.createPayStatusParam(orderId);
 
         //request and get response
-        String response = this.requestURL(this.paymentStatusURL, param);
-        Map<String, Object> map = this.parseMap(response);
+        String resp = this.requestURL(this.paymentStatusURL, param);
+        Map<String, Object> response = this.parseMap(resp);
 
-        return this.parsePayStatus(map);
+        this.verifyResponseCode(response);
+
+        return this.parsePayStatus(response);
     }
 
 }
