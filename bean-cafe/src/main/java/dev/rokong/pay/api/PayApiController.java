@@ -23,15 +23,20 @@ public class PayApiController {
 
     @RequestMapping(value="/{orderId}", method= RequestMethod.POST)
     public String requestPayment(@PathVariable int orderId){
-        return this.makeRequest(orderId);
+        return this.requestPay(orderId);
     }
 
     @RequestMapping("/{orderId}/status")
     public PayStatusDTO paymentStatus(@PathVariable int orderId){
-        return this.getPayStatus(orderId);
+        return this.payStatus(orderId);
     }
 
-    private String makeRequest(int orderId){
+    @RequestMapping("/{orderId}/approve")
+    public void approvePayment(@PathVariable int orderId){
+        this.approvePay(orderId);
+    }
+
+    private String requestPay(int orderId){
         OrderDTO order = orderService.getOrderNotNull(orderId);
 
         if(tossService.getPayTypeId() == order.getPayId()){
@@ -42,11 +47,22 @@ public class PayApiController {
         }
     }
 
-    private PayStatusDTO getPayStatus(int orderId){
+    private PayStatusDTO payStatus(int orderId){
         OrderDTO order = orderService.getOrderNotNull(orderId);
 
         if(tossService.getPayTypeId() == order.getPayId()){
             return tossService.getPayStatus(orderId);
+            //TODO add another API service
+        }else{
+            throw new BusinessException("no API service available");
+        }
+    }
+
+    private void approvePay(int orderId){
+        OrderDTO order = orderService.getOrderNotNull(orderId);
+
+        if(tossService.getPayTypeId() == order.getPayId()){
+            tossService.approvePay(orderId);
             //TODO add another API service
         }else{
             throw new BusinessException("no API service available");

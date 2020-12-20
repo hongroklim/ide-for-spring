@@ -35,16 +35,23 @@ public class TossService implements PayApiService {
 
     private final String API_NAME = "TOSS";
 
-    //결재 생성
+    //결재 생성 (from API)
     private final String requestPaymentURL = "https://pay.toss.im/api/v2/payments";
 
+    //결제 상태 (from API)
     private final String paymentStatusURL = "https://pay.toss.im/api/v2/status";
+
+    //결제 요청 (from API)
+    private final String approvePaymentURL = "https://pay.toss.im/api/v2/execute";
 
     //성공 시 redirect
     private final String requestReturnURL = "http://test/pay/api/complete";
 
     //취소 시 redirect
     private final String requestCancelURL = "http://test/pay/api/cancel";
+
+    //실패 시 redirect
+    private final String requestFailURL = "http://test/pay/api/fail";
 
     private final String apiKey = "sk_real_w5lNQylNqa5lNQe013Nq";
 
@@ -94,6 +101,12 @@ public class TossService implements PayApiService {
         return json;
     }
 
+    /**
+     * parse string into map
+     *
+     * @param string to parse string
+     * @return map
+     */
     private Map<String, Object> parseMap(String string){
         Map<String, Object> result = null;
         try {
@@ -108,6 +121,13 @@ public class TossService implements PayApiService {
         return result;
     }
 
+    /**
+     * communication with another server by HTTP protocol
+     *
+     * @param url request url
+     * @param requestBody request body to transfer to other
+     * @return response
+     */
     private String requestURL(String url, Object requestBody){
         URL u = null;
         URLConnection connection = null;
@@ -150,7 +170,7 @@ public class TossService implements PayApiService {
      * make request and get response with Toss API
      *
      * @param orderId order id
-     * @return
+     * @return response from API
      */
     private Map<String, Object> requestPayment(int orderId) {
         //create parameter
@@ -196,7 +216,7 @@ public class TossService implements PayApiService {
             //if payment status response is failed
             String tossMessage = (String) response.get("msg");
             String tossCode = (String) response.get("errorCode");
-            throw new RuntimeException("message : "+tossMessage+", code : "+tossCode);
+            throw new RuntimeException("code : "+tossCode+" / message : "+tossMessage);
         }
     }
 
@@ -206,8 +226,8 @@ public class TossService implements PayApiService {
      * @param orderId to check order id
      * @return json
      */
-    private ObjectNode createPayStatusParam(int orderId){
-        //get order and description
+    private ObjectNode createPayTokenParam(int orderId){
+        //get order
         orderService.getOrderNotNull(orderId);
 
         String payToken = payApiDAO.getApiKey(orderId);
@@ -228,7 +248,7 @@ public class TossService implements PayApiService {
      * @param payStatus payment status from toss
      * @return order status
      */
-    private OrderStatus payToOrderStatus(String payStatus){
+    private OrderStatus translateStatus(String payStatus){
         OrderStatus orderStatus = null;
 
         if ("PAY_STANDBY".equals(payStatus)) { //결제 대기 중
@@ -269,7 +289,7 @@ public class TossService implements PayApiService {
         payStatus.setApiKey((String) map.get("payToken"));
 
         String status = (String) map.get("payStatus");
-        payStatus.setOrderStatus(this.payToOrderStatus(status));
+        payStatus.setOrderStatus(this.translateStatus(status));
 
         payStatus.setPayMethod((String) map.get("payMethod"));
         payStatus.setPrice((int) map.get("amount"));
@@ -285,15 +305,37 @@ public class TossService implements PayApiService {
      */
     public PayStatusDTO getPayStatus(int orderId){
         //create parameter
-        ObjectNode param = this.createPayStatusParam(orderId);
+        ObjectNode param = this.createPayTokenParam(orderId);
+
+        //request and get response
+        String resp = this.requestURL(this.approvePaymentURL, param);
+        Map<String, Object> response = this.parseMap(resp);
+
+        this.verifyResponseCode(response);
+
+        return this.parsePayStatus(response);
+    }
+
+    /**
+     * approve transaction by seller
+     *
+     * @param orderId to approve order
+     */
+    public void approvePay(int orderId){
+        //check order status
+        PayStatusDTO payStatus = this.getPayStatus(orderId);
+        if(payStatus.getOrderStatus() != OrderStatus.CHECKING){
+            throw new BusinessException("payment is not completed");
+        }
+
+        //create parameter
+        ObjectNode param = this.createPayTokenParam(orderId);
 
         //request and get response
         String resp = this.requestURL(this.paymentStatusURL, param);
         Map<String, Object> response = this.parseMap(resp);
 
         this.verifyResponseCode(response);
-
-        return this.parsePayStatus(response);
     }
 
 }
