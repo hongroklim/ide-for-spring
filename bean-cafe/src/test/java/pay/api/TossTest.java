@@ -7,7 +7,7 @@ import dev.rokong.dto.PayStatusDTO;
 import dev.rokong.dto.PayTypeDTO;
 import dev.rokong.mock.MockObjects;
 import dev.rokong.pay.api.PayApiDAO;
-import dev.rokong.pay.api.PayApiService;
+import dev.rokong.pay.api.TossService;
 import dev.rokong.pay.type.PayTypeService;
 import dev.rokong.util.ObjUtil;
 import dev.rokong.util.RandomUtil;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertThat;
 public class TossTest extends MvcConfig {
     //TODO extends test
     @Autowired @Qualifier("tossService")
-    PayApiService tossService;
+    TossService tossService;
 
     @Autowired
     PayTypeService payTypeService;
@@ -52,7 +52,7 @@ public class TossTest extends MvcConfig {
         //append order products
         mObj.oProduct.anyList(3);
 
-        String redirectURL = tossService.makeRequest(order.getId());
+        String redirectURL = tossService.preparePay(order.getId());
 
         assertThat(ObjUtil.isNotEmpty(redirectURL), is(equalTo(true)));
     }
@@ -76,5 +76,14 @@ public class TossTest extends MvcConfig {
         PayStatusDTO payStatus = tossService.getPayStatus(order.getId());
 
         assertThat(payStatus.getOrderId(), is(equalTo(order.getId())));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void approvePay(){
+        //insert new payApi
+        OrderDTO order = mObj.order.any();
+        this.insertPayApi(order.getId());
+
+        tossService.approvePay(order.getId(), null);
     }
 }

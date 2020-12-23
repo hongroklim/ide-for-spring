@@ -9,7 +9,7 @@ import java.util.List;
  * {@link #temp()}, {@link #createObjService(Object)},
  * {@link #getObjService(Object)}
  * 
- * <p>also can override {@link #tmpNth(int)} if needed
+ * <p>also can override {@link #tempNth(int)} if needed
  * 
  * @param <T> DTO's Class to make Mock Object
  */
@@ -44,7 +44,7 @@ public abstract class AbstractMockObject<T> {
     /**
      * create one object then inserted into database
      * 
-     * @return
+     * @return created object
      */
     private T createObj(){
         T obj = this.temp();
@@ -101,7 +101,7 @@ public abstract class AbstractMockObject<T> {
      * create template of nth object
      * 
      * @param i nth index
-     * @return
+     * @return temp object at nth
      */
     protected T tempNth(int i){
         return this.temp();
@@ -111,14 +111,11 @@ public abstract class AbstractMockObject<T> {
      * create nth object
      * <p>this method can be overrided if needed like
      * <pre>
-     * <code>
-     * OrderProductDTO oProduct = new OrderProductDTO();
-     *return this.createObjService(oProduct);
-     * </code>
-     * </pre>
-     * 
+     * <code>OrderProductDTO oProduct = new OrderProductDTO();
+     * return this.createObjService(oProduct);</code></pre>
+     *
      * @param index nth index
-     * @return
+     * @return created object
      */
     private T createNthObj(int index){
         T temp = this.tempNth(index);

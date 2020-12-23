@@ -1,12 +1,32 @@
 package dev.rokong.util;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * util of List
  * @see java.util.List
  */
 public class ObjUtil {
+
+    /**
+     * check Map<?, ?> is empty
+     * @param map to be verified Map
+     * @return if return true, parameter is empty
+     */
+    public static boolean isEmpty(Map<?, ?> map){
+        return (map==null || map.size()==0) ? true : false;
+    }
+
+    /**
+     * check Map<?, ?> is empty
+     * @param map to be verified Map
+     * @return if return true, parameter is not empty
+     * @see {@link #isEmpty(Map)}
+     */
+    public static boolean isNotEmpty(Map<?, ?> map){
+        return !isEmpty(map);
+    }
 
     /**
      * check List<?> is empty
