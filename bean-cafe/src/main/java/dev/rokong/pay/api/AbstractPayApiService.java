@@ -17,13 +17,14 @@ import javax.annotation.PostConstruct;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public abstract class AbstractPayApiService {
+public abstract class AbstractPayApiService implements PayApiService {
 
     protected final String PAY_NAME;  //API's name
 
@@ -52,11 +53,11 @@ public abstract class AbstractPayApiService {
     private final ApiUrl API_URL;   //API URL (instance)
 
     //redirect URL in beanCafe (static class)
-    private static class REDIRECT_URL {
-        private static final String CONTEXT_PATH = "http://rokong.dev/beanCafe";
-        private static final String SUCCESS = CONTEXT_PATH+"/pay/api/complete";
-        private static final String CANCEL = CONTEXT_PATH+"/pay/api/cancel";
-        private static final String FAIL = CONTEXT_PATH+"/pay/api/fail";
+    protected static class REDIRECT_URL {
+        protected static final String CONTEXT_PATH = "http://rokong.dev/beanCafe";
+        protected static final String SUCCESS = CONTEXT_PATH+"/pay/api/complete";
+        protected static final String CANCEL = CONTEXT_PATH+"/pay/api/cancel";
+        protected static final String FAIL = CONTEXT_PATH+"/pay/api/fail";
     }
 
     /**
@@ -159,7 +160,7 @@ public abstract class AbstractPayApiService {
      */
     private ObjectNode requestURL(String url, Object requestBody) {
         URL u = null;
-        URLConnection connection = null;
+        HttpURLConnection connection = null;
         StringBuffer contentType = new StringBuffer();
         StringBuffer responseBody = new StringBuffer();
 
@@ -170,7 +171,7 @@ public abstract class AbstractPayApiService {
 
         try {
             u = new URL(url);
-            connection = u.openConnection();
+            connection = (HttpURLConnection) u.openConnection();
             connection.addRequestProperty("Content-Type", contentType.toString());
             connection.setDoOutput(true);
             connection.setDoInput(true);
@@ -185,11 +186,22 @@ public abstract class AbstractPayApiService {
             bos.close();
 
             //get responseBody
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), this.CHARSET)
-            );
+            BufferedReader br = null;
+            if(connection.getResponseCode() == HttpURLConnection.HTTP_OK){
+                //if response is ok
+                br = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream(), this.CHARSET)
+                );
+
+            }else{
+                br = new BufferedReader(
+                        new InputStreamReader(connection.getErrorStream(), this.CHARSET)
+                );
+                //responseBody.append(connection.getResponseMessage());
+            }
+
             String line = null;
-            while ((line = br.readLine()) != null) {
+            while (br != null && (line = br.readLine()) != null) {
                 responseBody.append(line);
             }
             br.close();

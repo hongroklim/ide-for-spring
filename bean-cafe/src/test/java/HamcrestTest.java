@@ -1,10 +1,8 @@
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
+import dev.rokong.pay.api.PayApiService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -12,6 +10,7 @@ import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.dto.ProductOptionDTO;
 import org.springframework.http.MediaType;
 
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -113,5 +112,25 @@ public class HamcrestTest {
         log.debug("double class : "+obj.getClass());
         assertThat(obj.getClass(), is(equalTo(Double.class)));
 
+    }
+
+    @Test
+    public void relfectWithoutParameter() throws NoSuchMethodException {
+        Method method = null;
+
+        method = PayApiService.class.getMethod("getPayTypeId", null);
+        assertThat(method, is(notNullValue()));
+
+        method = PayApiService.class.getMethod("preparePay", int.class);
+        assertThat(method, is(notNullValue()));
+
+        //primitive type is not detected
+        try{
+            method = PayApiService.class.getMethod("preparePay", Integer.class);
+        }catch(NoSuchMethodException e){
+            method = null;
+        }
+
+        assertThat(method, is(nullValue()));
     }
 }

@@ -2,6 +2,7 @@ package dev.rokong.pay.api;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.rokong.annotation.OrderStatus;
+import dev.rokong.dto.OrderDTO;
 import dev.rokong.dto.PayApiDTO;
 import dev.rokong.dto.PayStatusDTO;
 import dev.rokong.exception.BusinessException;
@@ -38,11 +39,17 @@ public class TossService extends AbstractPayApiService {
     @Override
     protected ObjectNode paramToPrepare(int orderId) {
         //get order
-        orderService.getOrderNotNull(orderId);
+        OrderDTO order = orderService.getOrderNotNull(orderId);
 
         ObjectNode json = this.objectMapper.createObjectNode();
+        json.put("orderNo", orderId);
+        json.put("amount", order.getPrice()+order.getDeliveryPrice());
+        json.put("amountTaxFree", 0);
+        json.put("productDesc", orderService.getOrderDesc(orderId));
         json.put("apiKey", this.API_KEY);
-        json.put("payToken", this.getPayKeyNotNull(orderId));
+        json.put("autoExecute", false);
+        json.put("retUrl", REDIRECT_URL.SUCCESS);
+        json.put("retCancelUrl", REDIRECT_URL.CANCEL);
 
         return json;
     }

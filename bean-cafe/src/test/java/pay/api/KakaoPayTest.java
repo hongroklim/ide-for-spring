@@ -1,13 +1,13 @@
 package pay.api;
 
-import config.MvcConfig;
+import config.SpringConfig;
 import dev.rokong.dto.OrderDTO;
 import dev.rokong.dto.PayApiDTO;
 import dev.rokong.dto.PayStatusDTO;
 import dev.rokong.dto.PayTypeDTO;
 import dev.rokong.mock.MockObjects;
+import dev.rokong.pay.api.KakaoPayService;
 import dev.rokong.pay.api.PayApiDAO;
-import dev.rokong.pay.api.TossService;
 import dev.rokong.pay.type.PayTypeService;
 import dev.rokong.util.ObjUtil;
 import dev.rokong.util.RandomUtil;
@@ -19,9 +19,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class TossTest extends MvcConfig {
-    @Autowired @Qualifier("tossService")
-    private TossService tossService;
+public class KakaoPayTest extends SpringConfig {
+
+    @Autowired @Qualifier("kakaoPayService")
+    private KakaoPayService kakaoPayService;
 
     @Autowired
     private PayTypeService payTypeService;
@@ -34,24 +35,24 @@ public class TossTest extends MvcConfig {
 
     @Test
     public void payTypeId(){
-        int id = 7;     //in database
+        int id = 8;     //in database
         PayTypeDTO payType = payTypeService.getPayTypeNotNull(id);
         assertThat(payType.getType(), is(equalTo("API")));
-        assertThat(payType.getOption1(), is(equalTo("토스")));
+        assertThat(payType.getOption1(), is(equalTo("카카오페이")));
 
-        assertThat(tossService.getPayTypeId(), is(equalTo(id)));
+        assertThat(kakaoPayService.getPayTypeId(), is(equalTo(id)));
     }
 
-    //expected COMMON_INVALID_API_KEY from Toss
+    //no authentication key from API
     @Test(expected = RuntimeException.class)
-    public void makeRequest(){
+    public void preparePay(){
         //create order
         OrderDTO order = mObj.order.any();
 
         //append order products
         mObj.oProduct.anyList(3);
 
-        String redirectURL = tossService.preparePay(order.getId());
+        String redirectURL = kakaoPayService.preparePay(order.getId());
 
         assertThat(ObjUtil.isNotEmpty(redirectURL), is(equalTo(true)));
     }
@@ -60,11 +61,10 @@ public class TossTest extends MvcConfig {
         PayApiDTO payApi = new PayApiDTO();
         payApi.setOrderId(OrderId);
         payApi.setApiKey(RandomUtil.randomString(10));
-        payApi.setApiName("TOSS");
+        payApi.setApiName("KAKAOPAY");
         payApiDAO.insertPayApi(payApi);
     }
 
-    //expected COMMON_INVALID_API_KEY from Toss
     @Test(expected = RuntimeException.class)
     public void getPayStatus(){
         //insert new payApi
@@ -72,7 +72,7 @@ public class TossTest extends MvcConfig {
         this.insertPayApi(order.getId());
 
         //test
-        PayStatusDTO payStatus = tossService.getPayStatus(order.getId());
+        PayStatusDTO payStatus = kakaoPayService.getPayStatus(order.getId());
 
         assertThat(payStatus.getOrderId(), is(equalTo(order.getId())));
     }
@@ -83,6 +83,6 @@ public class TossTest extends MvcConfig {
         OrderDTO order = mObj.order.any();
         this.insertPayApi(order.getId());
 
-        tossService.approvePay(order.getId(), null);
+        kakaoPayService.approvePay(order.getId(), null);
     }
 }
