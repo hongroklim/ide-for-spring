@@ -15,14 +15,14 @@ public class ObjUtil {
      * @return if return true, parameter is empty
      */
     public static boolean isEmpty(Map<?, ?> map){
-        return (map==null || map.size()==0) ? true : false;
+        return map == null || map.size() == 0;
     }
 
     /**
      * check Map<?, ?> is empty
      * @param map to be verified Map
      * @return if return true, parameter is not empty
-     * @see {@link #isEmpty(Map)}
+     * @see #isEmpty(Map)
      */
     public static boolean isNotEmpty(Map<?, ?> map){
         return !isEmpty(map);
@@ -34,14 +34,14 @@ public class ObjUtil {
      * @return if return true, parameter is empty
      */
     public static boolean isEmpty(List<?> list){
-        return (list==null || list.size()==0) ? true : false;
+        return list == null || list.size() == 0;
     }
 
     /**
      * check List<?> is empty
      * @param list to be verified List
      * @return if return true, parameter is not empty
-     * @see {@link #isEmpty(List)}
+     * @see #isEmpty(List)
      */
     public static boolean isNotEmpty(List<?> list){
         return !isEmpty(list);
@@ -55,7 +55,7 @@ public class ObjUtil {
      * @return return true if array is empty
      */
     public static <T> boolean isEmpty(T[] array){
-        return (array == null || array.length == 0) ? true : false;
+        return array == null || array.length == 0;
     }
 
     /**
@@ -64,10 +64,10 @@ public class ObjUtil {
      * @param <T> array element's class
      * @param array to be verifed array
      * @return return true if array is not empty
-     * @see {@link #isEmpty(Object[])}
+     * @see #isEmpty(Object[])
      */
     public static <T> boolean isNotEmpty(T[] array){
-        return !isNotEmpty(array);
+        return !isEmpty(array);
     }
 
     /**
@@ -85,7 +85,7 @@ public class ObjUtil {
      * 
      * @param string to be verified string
      * @return if return true, parameter is not empty
-     * @see {@link #isEmpty(String)}
+     * @see #isEmpty(String)
      */
     public static boolean isNotEmpty(String string){
         return !isEmpty(string);

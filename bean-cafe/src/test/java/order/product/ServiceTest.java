@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.rokong.annotation.OrderStatus;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -167,4 +168,54 @@ public class ServiceTest extends SpringConfig {
 
         return pService.createProduct(product);
     }
+
+    @Test
+    public void invalidateOrderProduct(){
+        List<OrderProductDTO> list = mockObj.oProduct.anyList(3);
+        OrderProductDTO oProduct = list.get(0);
+
+        //get asis order
+        OrderDTO order = oService.getOrderNotNull(oProduct.getOrderId());
+        int asisPrice = order.getPrice();
+
+        //set order status and invalidate
+        oProduct.setOrderStatus(OrderStatus.CANCELED_WRITE);
+        oProductService.updateOProductStatus(oProduct);
+
+        int priceDiff = oProduct.getCnt() * (oProduct.getPrice()+oProduct.getDiscountPrice());
+
+        //get tobe order
+        order = oService.getOrderNotNull(oProduct.getOrderId());
+        int tobePrice = order.getPrice();
+
+        assertThat(asisPrice - tobePrice, is(equalTo(priceDiff)));
+    }
+
+    @Test
+    public void skipInvalidateProduct(){
+        //create order product
+        List<OrderProductDTO> list = mockObj.oProduct.anyList(3);
+        OrderProductDTO oProduct = list.get(0);
+
+        //get asis count
+        int asisCount = oProductService.countOProductsByDelivery(
+                oProduct.getOrderId(), oProduct.getDeliveryId());
+
+        //update invalid one
+        oProduct.setOrderStatus(OrderStatus.CANCELED_WRITE);
+        oProductService.updateOProductStatus(oProduct);
+
+        //get tobe count
+        int tobeCount = oProductService.countOProductsByDelivery(
+                oProduct.getOrderId(), oProduct.getDeliveryId());
+
+        //count is different -1
+        assertThat(tobeCount, is(equalTo(asisCount-1)));
+    }
+
+    //TODO updateOProductStatus
+
+    //TODO updateStatusByOrder
+
+    //TODO getProperOrderStatus
 }

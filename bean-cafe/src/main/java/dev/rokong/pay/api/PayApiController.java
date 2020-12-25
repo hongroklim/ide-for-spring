@@ -175,8 +175,8 @@ public class PayApiController {
     }
 
     /**
-     * invoke appropriate api service per order
-     * only {@link PayApiService} type fields in this class detected
+     * invoke appropriate api service per order.
+     * only {@link PayApiService} type fields in this class detected.
      * first parameter should be orderId
      *
      * @param methodName method in {@link PayApiService}

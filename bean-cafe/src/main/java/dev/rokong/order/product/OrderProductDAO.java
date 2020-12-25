@@ -1,15 +1,16 @@
 package dev.rokong.order.product;
 
-import java.util.List;
-
 import dev.rokong.dto.OrderProductDTO;
 
+import java.util.List;
+
 public interface OrderProductDAO {
-    public List<OrderProductDTO> selectOProductList(OrderProductDTO oProduct);
-    public OrderProductDTO selectOProduct(OrderProductDTO oProduct);
-    public void insertOProduct(OrderProductDTO oProduct);
-    public void deleteOProduct(OrderProductDTO oProduct);
-    public void updateOProductCnt(OrderProductDTO oProduct);
-    public void updateOProductToNull(OrderProductDTO oProduct);
-    public int countOProductsByDelivery(OrderProductDTO oProduct);
+    public List<OrderProductDTO> selectList(OrderProductDTO oProduct);
+    public OrderProductDTO select(OrderProductDTO oProduct);
+    public void insert(OrderProductDTO oProduct);
+    public void delete(OrderProductDTO oProduct);
+    public void updateCnt(OrderProductDTO oProduct);
+    public void updateToNull(OrderProductDTO oProduct);
+    public int countByDelivery(OrderProductDTO oProduct);
+    public void updateValidAndStatus(OrderProductDTO oProduct);
 }

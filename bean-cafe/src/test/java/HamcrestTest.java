@@ -2,6 +2,8 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
+import dev.rokong.annotation.OrderStatus;
+import dev.rokong.dto.OrderProductDTO;
 import dev.rokong.pay.api.PayApiService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -13,6 +15,9 @@ import org.springframework.http.MediaType;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class HamcrestTest {
@@ -132,5 +137,35 @@ public class HamcrestTest {
         }
 
         assertThat(method, is(nullValue()));
+    }
+
+    @Test
+    public void streamTest(){
+        //create list
+        List<OrderProductDTO> list = new ArrayList<>();
+
+        //append objects
+        OrderProductDTO oProduct = new OrderProductDTO(1);
+        oProduct.setOrderStatus(OrderStatus.PAYMENT);
+        list.add(oProduct);
+
+        oProduct = new OrderProductDTO(3);
+        oProduct.setOrderStatus(OrderStatus.WRITING);
+        list.add(oProduct);
+
+        oProduct = new OrderProductDTO(2);
+        oProduct.setOrderStatus(OrderStatus.CHECKING);
+        list.add(oProduct);
+
+        //get stream
+        List<OrderStatus> statusList = list.stream().map(OrderProductDTO::getOrderStatus).collect(Collectors.toList());
+
+        //check
+        assertThat(statusList, is(notNullValue()));
+        assertThat(statusList.size(), is(equalTo(3)));
+
+        assertThat(statusList.get(0), is(equalTo(OrderStatus.PAYMENT)));
+        assertThat(statusList.get(1), is(equalTo(OrderStatus.WRITING)));
+        assertThat(statusList.get(2), is(equalTo(OrderStatus.CHECKING)));
     }
 }

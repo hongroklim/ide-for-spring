@@ -1,5 +1,6 @@
 package dev.rokong.order.main;
 
+import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDTO;
 
 public interface OrderService {
@@ -10,6 +11,13 @@ public interface OrderService {
     public void updateOrderDeliveryPrice(int id, int deliveryPrice);
     public void updateOrderPay(OrderDTO order);
     public OrderDTO updateOrderStatus(OrderDTO order);
+    public void updateOrderStatus(int id, String editorNm);
+    /**
+     *
+     * @param id
+     * @param user
+     * @deprecated {@link #updateOrderStatus(OrderDTO)} is alternative
+     */
     public void cancelOrder(int id, String user);
     public String getOrderDesc(int id);
 }

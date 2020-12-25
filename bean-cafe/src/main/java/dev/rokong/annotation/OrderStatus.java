@@ -28,18 +28,20 @@ public enum OrderStatus {
     COMPLETE(600),
     
     //canceled status
-    CUSTOMER_CANCEL(-100), //고객요청에 의해 취소
+    CANCEL(-100),   //주문취소
+
+    CUSTOMER_CANCEL(-200), //고객요청에 의해 취소
     
-    CANCELED_WRITE(-110),
-    CANCELED_PAYMENT(-120),
-    CANCELED_CHECK(-130),
-    CANCELED_PRODUCT(-140),
+    CANCELED_WRITE(-210),
+    CANCELED_PAYMENT(-220),
+    CANCELED_CHECK(-230),
+    CANCELED_PRODUCT(-240),
 
-    SELLER_CANCEL(-200), //판매자에 의해 취소
+    SELLER_CANCEL(-300), //판매자에 의해 취소
 
-    CANCEL_CHECK(-230),
-    CANCEL_PRODUCT(-240),
-    CANCEL_DELIVER(-250);
+    CANCEL_CHECK(-330),
+    CANCEL_PRODUCT(-340),
+    CANCEL_DELIVER(-350);
 
     private int code;
 
@@ -77,7 +79,7 @@ public enum OrderStatus {
         if(this == orderStatus){
             return false;
         }else{
-            return this.getCode() < orderStatus.getCode();
+            return this.getMainProcess().getCode() < orderStatus.getCode();
         }
     }
 
@@ -197,7 +199,7 @@ public enum OrderStatus {
      * 
      * @return if true, this is caused by customer
      * @throws UnsupportedOperationException process tries this method
-     * @see {@link #isCustomerCancel()}
+     * @see #isCustomerCancel()
      */
     public boolean isSellerCancel(){
         return !this.isCustomerCancel();

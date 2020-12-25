@@ -1,9 +1,11 @@
 package dev.rokong.order.main;
 
+import com.sun.corba.se.impl.resolver.ORBDefaultInitRefResolverImpl;
 import dev.rokong.dto.OrderProductDTO;
 import dev.rokong.order.product.OrderProductService;
 import dev.rokong.util.ObjUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import dev.rokong.annotation.OrderStatus;
@@ -103,77 +105,69 @@ public class OrderServiceImpl implements OrderService {
         orderDAO.updateOrderPay(order);
     }
 
-    public void verifyUpdateOrderStatus(OrderStatus asisStatus, OrderStatus tobeStatus){
-        //verify parameter
-        if(asisStatus == null){
-            throw new BusinessException("asis status is not defined");
+    public OrderDTO updateOrderStatus(OrderDTO order){
+        //update order status through main order
+        OrderStatus tobeStatus = order.getOrderStatus();
 
-        }else if(tobeStatus == null){
-            throw new BusinessException("tobe status is not defined");
-        }
-
-        //get asis order status
-
-        if(asisStatus.equals(tobeStatus)){
-            //if order status is same
-            log.debug("asis status : "+asisStatus.toString());
-            log.debug("tobe order status : "+tobeStatus.toString());
-            throw new BusinessException("tobe order status is not changed");
-        }
-
-        if(asisStatus.isCanceled()){
-            //if order status is already canceled
-            log.debug("asis status : "+asisStatus.toString());
-            log.debug("tobe order status : "+tobeStatus.toString());
-            throw new BusinessException("order is already canceled");
-        }
-
-        if(tobeStatus.isProcess()){
-            //change to process
-            if(asisStatus.nextProcess() != tobeStatus){
-                log.debug("asis status : "+asisStatus.toString());
-                log.debug("tobe order status : "+tobeStatus.toString());
-                throw new BusinessException("tobe status doesn't match later asis one");
+        //verify tobe order status
+        if (tobeStatus.isProcess()) {
+            //if tobe status is normal process
+            OrderStatus mainStatus = tobeStatus.getMainProcess();
+            if (mainStatus != OrderStatus.WRITING
+                    && mainStatus != OrderStatus.PAYMENT
+                    && mainStatus != OrderStatus.CHECKING) {
+                log.debug("tobe order status : {}", tobeStatus.name());
+                throw new BusinessException("order status is not allowed in main order");
             }
-
-        }else{
-            //change to cancel
-            if(tobeStatus.isCustomerCancel() && !asisStatus.isCustomerCanCancel()){
-                log.debug("asis status : "+asisStatus.toString());
-                log.debug("tobe order status : "+tobeStatus.toString());
-                throw new BusinessException("customer can not cancel");
-
-            }else if(tobeStatus.isSellerCancel() && !asisStatus.isSellerCanCancel()){
-                log.debug("asis status : "+asisStatus.toString());
-                log.debug("tobe order status : "+tobeStatus.toString());
-                throw new BusinessException("seller can not cancel");
-
+        } else {
+            //if tobe status is cancel
+            if(tobeStatus != OrderStatus.CANCELED_WRITE
+                    && tobeStatus != OrderStatus.CANCELED_PAYMENT){
+                log.debug("tobe order status : {}", tobeStatus.name());
+                throw new BusinessException("order status is not allowed in main order");
             }
         }
-    }
 
-    public OrderDTO updateOrderStatus(OrderDTO order){        
-        OrderDTO getOrder = this.getOrderNotNull(order);
+        //check order exists
+        OrderDTO asisOrder = this.getOrderNotNull(order);
 
-        //verify order status before change
-        this.verifyUpdateOrderStatus(
-            getOrder.getOrderStatus(), order.getOrderStatus()
-        );
-
-        //verify editor nm
-        if(order.getOrderStatus().isSellerCancel()){
-            //if order status is changed to seller cancel
-            userService.getUserNotNull(order.getEditorNm());
-
-        }else{
-            //the other case is that customer becomes editor
-            order.setEditorNm(getOrder.getUserNm());
-        }
-
-        //update
+        //set editor name as customer and update
+        order.setEditorNm(asisOrder.getUserNm());
         orderDAO.updateOrderStatus(order);
 
+        //update order product in specific status
+        if(tobeStatus == OrderStatus.CHECKING || tobeStatus.isCanceled()){
+            oProductService.updateStatusByOrder(order.getId(), tobeStatus);
+        }
+
         return this.getOrderNotNull(order);
+    }
+
+    public void updateOrderStatus(int id, String editorNm){
+        //referred by order product
+
+        //verify parameter
+        if (id == 0) {
+            throw new BusinessException("order id is not defined");
+        }
+
+        //get existing order
+        OrderDTO order = this.getOrderNotNull(id);
+
+        //get tobe order status
+        OrderStatus orderStatus = oProductService.getProperOrderStatus(id);
+
+        //default editor name is customer name
+        if (ObjUtil.isEmpty(editorNm)) {
+            editorNm = order.getUserNm();
+        }
+
+        if(order.getOrderStatus() != orderStatus){
+            //update only status is changed
+            order.setOrderStatus(orderStatus);
+            order.setEditorNm(editorNm);
+            orderDAO.updateOrderStatus(order);
+        }
     }
 
     public void cancelOrder(int id, String user){

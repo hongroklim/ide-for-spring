@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dev.rokong.orderProduct">
-    <select id="selectOProduct" parameterType="OrderProductDTO" resultType="OrderProductDTO">
+    <select id="select" parameterType="OrderProductDTO" resultType="OrderProductDTO">
         SELECT order_id, product_id, option_cd, seller_nm, cnt,
                price, discount_price, product_nm, option_nm,
-               status_cd, delivery_id
+               status_cd, delivery_id, is_valid
           FROM ord_prod
          WHERE order_id = #{orderId}
         <if test='productId != null and productId != 0'>
@@ -15,15 +15,17 @@
         </if>
     </select>
 
-    <insert id="insertOProduct" parameterType="OrderProductDTO">
+    <insert id="insert" parameterType="OrderProductDTO">
         INSERT INTO ord_prod
                (order_id, product_id, option_cd, seller_nm, cnt,
-                price, discount_price, product_nm, option_nm, status_cd, delivery_id)
+                price, discount_price, product_nm, option_nm, status_cd,
+                delivery_id, is_valid)
         VALUES (#{orderId}, #{productId}, #{optionCd}, #{sellerNm}, #{cnt},
-                #{price}, #{discountPrice}, #{productNm}, #{optionNm}, #{statusCd}, #{deliveryId})
+                #{price}, #{discountPrice}, #{productNm}, #{optionNm}, #{statusCd},
+                #{deliveryId}, #{isValid})
     </insert>
 
-    <delete id="deleteOProduct" parameterType="OrderProductDTO">
+    <delete id="delete" parameterType="OrderProductDTO">
         DELETE
           FROM ord_prod
          WHERE order_id = #{orderId}
@@ -35,7 +37,7 @@
         </if>
     </delete>
 
-    <update id="updateOProductCnt" parameterType="OrderProductDTO">
+    <update id="updateCnt" parameterType="OrderProductDTO">
         UPDATE ord_prod
            SET cnt = #{cnt}
          WHERE order_id = #{orderId}
@@ -43,7 +45,7 @@
            AND option_cd = #{optionCd}
     </update>
 
-    <update id="updateOProductToNull" parameterType="OrderProductDTO">
+    <update id="updateToNull" parameterType="OrderProductDTO">
         UPDATE ord_prod
            SET option_cd = null
                <if test='optionCd == null || "".equals(optionCd)'>
@@ -55,10 +57,24 @@
         </if>
     </update>
 
-    <select id="countOProductsByDelivery" parameterType="OrderProductDTO" resultType="int">
+    <select id="countByDelivery" parameterType="OrderProductDTO" resultType="int">
         SELECT count(*)
           FROM ord_prod
          WHERE order_id = #{orderId}
            AND delivery_id = #{deliveryId}
+           AND is_valid = true
     </select>
+
+    <update id="updateValidAndStatus" parameterType="OrderProductDTO">
+        UPDATE ord_prod
+           SET status_cd = #{statusCd},
+               is_valid = #{isValid}
+        WHERE order_id = #{orderId}
+         <if test='productId != null and productId != 0'>
+            AND product_id = #{productId}
+            <if test='optionCd != null and !"".equals(optionCd)'>
+                AND option_cd LIKE #{optionCd}
+            </if>
+         </if>
+    </update>
 </mapper>

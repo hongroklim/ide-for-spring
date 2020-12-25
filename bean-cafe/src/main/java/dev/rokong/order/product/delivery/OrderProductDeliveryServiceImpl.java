@@ -115,7 +115,7 @@ public class OrderProductDeliveryServiceImpl implements OrderProductDeliveryServ
         int oProductCnt = oProductService.countOProductsByDelivery(orderId, deliveryId);
         if(oProductCnt > 0){
             //order products are exists
-            log.debug("order products are exists :"+oProductCnt);
+            log.debug("order products are exists : {}", oProductCnt);
             return false;
         }else{
             //order products are not exists, then delete

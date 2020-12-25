@@ -2,7 +2,9 @@ package dev.rokong.order.product;
 
 import java.util.List;
 
+import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderProductDTO;
+import org.springframework.core.annotation.Order;
 
 public interface OrderProductService {
     public List<OrderProductDTO> getOProducts(OrderProductDTO oProduct);
@@ -23,4 +25,7 @@ public interface OrderProductService {
     public void deleteOProduct(OrderProductDTO oProduct);
     public void updateOProductToNull(int productId, String optionCd);
     public int countOProductsByDelivery(int orderId, int deliveryId);
+    public void updateOProductStatus(OrderProductDTO oProduct);
+    public void updateStatusByOrder(int orderId, OrderStatus orderStatus);
+    public OrderStatus getProperOrderStatus(int orderId);
 }

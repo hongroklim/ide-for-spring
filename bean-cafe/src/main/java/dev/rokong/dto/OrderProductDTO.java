@@ -18,6 +18,7 @@ public class OrderProductDTO {
     private Integer deliveryId;
     private String productNm;
     private String optionNm;
+    private Boolean isValid;
     
     //if optionCd is equal to NULL_OPTION_CD, it means only product
     public static final String NULL_OPTION_CD = ProductOptionDTO.TITLE_ID;

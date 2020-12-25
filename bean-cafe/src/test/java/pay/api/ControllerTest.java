@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class ControllerTest extends MvcUnitConfig {
         this.mvc = MockMvcBuilders.standaloneSetup(payApiController).build();
     }
 
-    @Test(expected = BusinessException.class)   //invalid API key
+    @Test(expected = RuntimeException.class)   //invalid API key
     public void channelingTest(){
         //create order product
         List<OrderProductDTO> pList = mockObj.oProduct.anyList(3);

@@ -15,30 +15,35 @@ public class OrderProductDAOImpl implements OrderProductDAO {
 
     @Autowired SqlSessionTemplate sqlSession;
 
-    public List<OrderProductDTO> selectOProductList(OrderProductDTO oProduct){
-        return sqlSession.selectList(PREFIX+"selectOProduct", oProduct);
+    public List<OrderProductDTO> selectList(OrderProductDTO oProduct){
+        return sqlSession.selectList(PREFIX+"select", oProduct);
     }
 
-    public OrderProductDTO selectOProduct(OrderProductDTO oProduct){
-        return sqlSession.selectOne(PREFIX+"selectOProduct", oProduct);
+    public OrderProductDTO select(OrderProductDTO oProduct){
+        return sqlSession.selectOne(PREFIX+"select", oProduct);
     }
     
-    public void insertOProduct(OrderProductDTO oProduct){
-        sqlSession.insert(PREFIX+"insertOProduct", oProduct);
+    public void insert(OrderProductDTO oProduct){
+        sqlSession.insert(PREFIX+"insert", oProduct);
     }
     
-    public void deleteOProduct(OrderProductDTO oProduct){
-        sqlSession.delete(PREFIX+"deleteOProduct", oProduct);
+    public void delete(OrderProductDTO oProduct){
+        sqlSession.delete(PREFIX+"delete", oProduct);
     }
     
-    public void updateOProductCnt(OrderProductDTO oProduct){
-        sqlSession.update(PREFIX+"updateOProductCnt", oProduct);
+    public void updateCnt(OrderProductDTO oProduct){
+        sqlSession.update(PREFIX+"updateCnt", oProduct);
     }
 
-    public void updateOProductToNull(OrderProductDTO oProduct){
-        sqlSession.update(PREFIX+"updateOProductToNull", oProduct);
+    public void updateToNull(OrderProductDTO oProduct){
+        sqlSession.update(PREFIX+"updateToNull", oProduct);
     }
-    public int countOProductsByDelivery(OrderProductDTO oProduct){
-        return sqlSession.selectOne(PREFIX+"countOProductsByDelivery", oProduct);
+
+    public int countByDelivery(OrderProductDTO oProduct){
+        return sqlSession.selectOne(PREFIX+"countByDelivery", oProduct);
+    }
+
+    public void updateValidAndStatus(OrderProductDTO oProduct){
+        sqlSession.update(PREFIX+"updateValidAndStatus", oProduct);
     }
 }
