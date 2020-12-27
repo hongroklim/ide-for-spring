@@ -1,5 +1,6 @@
-package dev.rokong.order.delivery;
+package dev.rokong.delivery;
 
+import dev.rokong.dto.DeliveryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,35 +10,34 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.rokong.dto.OrderDeliveryDTO;
-
 @RestController
 @RequestMapping("/order/{oId}/delivery")
 @ResponseStatus(HttpStatus.OK)
-public class OrderDeliveryController {
+public class DeliveryController {
     
-    @Autowired OrderDeliveryService oDeliveryService;
+    @Autowired
+    DeliveryService deliveryService;
 
     @RequestMapping(value="", method=RequestMethod.GET)
-    public OrderDeliveryDTO getOrderDelivery(@PathVariable int oId){
-        return oDeliveryService.getODelivery(oId);
+    public DeliveryDTO getDelivery(@PathVariable int oId){
+        return deliveryService.getDelivery(oId);
     }
 
     @RequestMapping(value="", method=RequestMethod.POST)
-    public OrderDeliveryDTO createOrderDelivery(@PathVariable int oId,
-            @RequestBody OrderDeliveryDTO oDelivery){
-        return oDeliveryService.createODelivery(oDelivery);
+    public DeliveryDTO createDelivery(@PathVariable int oId,
+                                           @RequestBody DeliveryDTO delivery){
+        return deliveryService.createDelivery(delivery);
     }
 
     @RequestMapping(value="", method=RequestMethod.PUT)
-    public OrderDeliveryDTO updateOrderDelivery(@PathVariable int oId,
-            @RequestBody OrderDeliveryDTO oDelivery){
-        return oDeliveryService.updateODelivery(oDelivery);
+    public DeliveryDTO updateDelivery(@PathVariable int oId,
+                                           @RequestBody DeliveryDTO delivery){
+        return deliveryService.updateDelivery(delivery);
     }
 
     @RequestMapping(value="", method=RequestMethod.DELETE)
-    public void deleteOrderDelivery(@PathVariable int oId){
-        oDeliveryService.deleteODelivery(oId);
+    public void deleteDelivery(@PathVariable int oId){
+        deliveryService.deleteDelivery(oId);
     }
 
 }

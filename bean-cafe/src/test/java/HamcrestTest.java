@@ -168,4 +168,28 @@ public class HamcrestTest {
         assertThat(statusList.get(1), is(equalTo(OrderStatus.WRITING)));
         assertThat(statusList.get(2), is(equalTo(OrderStatus.CHECKING)));
     }
+
+    @Test
+    public void streamFilter(){
+        List<Integer> list = new ArrayList<>();
+
+        list.add(0);
+        list.add(1);
+        list.add(2);
+        list.add(3);
+
+        int originalSize = list.size();
+
+        //filtering only even numbers
+        List<Integer> evenList = list.stream()
+                .filter(i -> i%2 == 0)
+                .collect(Collectors.toList());
+
+        int evenListSize = evenList.size();
+        assertThat(evenListSize, is(not(equalTo(originalSize))));
+
+        //original list if not changed
+        assertThat(list.size(), is(equalTo(originalSize)));
+
+    }
 }

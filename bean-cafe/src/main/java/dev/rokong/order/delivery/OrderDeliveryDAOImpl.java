@@ -1,31 +1,32 @@
 package dev.rokong.order.delivery;
 
+import java.util.List;
+
+import dev.rokong.dto.OrderDeliveryDTO;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import dev.rokong.dto.OrderDeliveryDTO;
 
 @Repository
 public class OrderDeliveryDAOImpl implements OrderDeliveryDAO {
     
     @Autowired SqlSession sqlSession;
 
-    private static final String PREFIX = "dev.rokong.orderDelivery.";
+    public static final String PREFIX = "dev.rokong.orderDelivery.";
 
-    public OrderDeliveryDTO selectOrderDelivery(int orderId){
-        return sqlSession.selectOne(PREFIX+"selectOrderDelivery", orderId);
+    public OrderDeliveryDTO select(OrderDeliveryDTO oDelivery){
+        return sqlSession.selectOne(PREFIX+"select", oDelivery);
     }
 
-    public void insertOrderDelivery(OrderDeliveryDTO oDelivery){
-        sqlSession.insert(PREFIX+"insertOrderDelivery", oDelivery);
+    public void insert(OrderDeliveryDTO oDelivery){
+        sqlSession.insert(PREFIX+"insert", oDelivery);
     }
 
-    public void updateOrderDelivery(OrderDeliveryDTO oDelivery){
-        sqlSession.update(PREFIX+"updateOrderDelivery", oDelivery);
+    public void delete(OrderDeliveryDTO oDelivery){
+        sqlSession.delete(PREFIX+"delete", oDelivery);
     }
 
-    public void deleteOrderDelivery(int orderId){
-        sqlSession.delete(PREFIX+"deleteOrderDelivery", orderId);
+    public List<OrderDeliveryDTO> selectByOrder(int orderId){
+        return sqlSession.selectList(PREFIX+"selectByOrder", orderId);
     }
 }

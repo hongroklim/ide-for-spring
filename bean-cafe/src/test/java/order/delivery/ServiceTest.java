@@ -1,28 +1,29 @@
-package order.product.delivery;
+package order.delivery;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import dev.rokong.dto.OrderDeliveryDTO;
+import dev.rokong.order.delivery.OrderDeliveryService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import config.SpringConfig;
 import dev.rokong.dto.OrderDTO;
-import dev.rokong.dto.OrderProductDeliveryDTO;
 import dev.rokong.dto.ProductDeliveryDTO;
 import dev.rokong.mock.MockObjects;
-import dev.rokong.order.product.delivery.OrderProductDeliveryService;
 
 public class ServiceTest extends SpringConfig {
 
-    @Autowired OrderProductDeliveryService oPDeliveryService;
+    @Autowired
+    OrderDeliveryService oDeliveryService;
 
     @Autowired MockObjects mObj;
 
     @Test
-    public void addOPDelivery(){
+    public void addODelivery(){
         //create order
         OrderDTO order = mObj.order.any();
 
@@ -30,29 +31,29 @@ public class ServiceTest extends SpringConfig {
         ProductDeliveryDTO pDelivery = mObj.pDelivery.any();
 
         //add order product delivery
-        boolean isAdded = oPDeliveryService.addOPDelivery(
+        boolean isAdded = oDeliveryService.addODelivery(
             order.getId(), pDelivery.getId()
         );
 
-        //if oPDelivery doesn't already exists, then return true
+        //if oDelivery doesn't already exists, then return true
         assertThat(isAdded, is(equalTo(true)));
 
         //get order product delivery
-        OrderProductDeliveryDTO param = new OrderProductDeliveryDTO(order.getId(), pDelivery.getId());
-        OrderProductDeliveryDTO oPDelivery = oPDeliveryService.getOPDeliveryNotNull(param);
+        OrderDeliveryDTO param = new OrderDeliveryDTO(order.getId(), pDelivery.getId());
+        OrderDeliveryDTO oDelivery = oDeliveryService.getODeliveryNotNull(param);
 
         //verify primary values
-        assertThat(oPDelivery.getOrderId(), is(equalTo(order.getId())));
-        assertThat(oPDelivery.getDeliveryId(), is(equalTo(pDelivery.getId())));
+        assertThat(oDelivery.getOrderId(), is(equalTo(order.getId())));
+        assertThat(oDelivery.getDeliveryId(), is(equalTo(pDelivery.getId())));
 
         //verify other values
-        assertThat(oPDelivery.getTypeNm(), is(equalTo(pDelivery.getType())));
-        assertThat(oPDelivery.getDeliveryNm(), is(equalTo(pDelivery.getName())));
-        assertThat(oPDelivery.getPrice(), is(equalTo(pDelivery.getPrice())));
+        assertThat(oDelivery.getTypeNm(), is(equalTo(pDelivery.getType())));
+        assertThat(oDelivery.getDeliveryNm(), is(equalTo(pDelivery.getName())));
+        assertThat(oDelivery.getPrice(), is(equalTo(pDelivery.getPrice())));
     }
 
     @Test
-    public void removeOPDelivery(){
+    public void removeODelivery(){
         //create order
         OrderDTO order = mObj.order.any();
 
@@ -63,21 +64,21 @@ public class ServiceTest extends SpringConfig {
         int deliveryId = pDelivery.getId();
 
         //add order product delivery
-        oPDeliveryService.addOPDelivery(
+        oDeliveryService.addODelivery(
             orderId, deliveryId
         );
 
         //get order product delivery
-        OrderProductDeliveryDTO oPDelivery = new OrderProductDeliveryDTO(orderId, deliveryId);
-        oPDelivery = oPDeliveryService.getOPDeliveryNotNull(oPDelivery);
+        OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
+        oDelivery = oDeliveryService.getODeliveryNotNull(oDelivery);
 
-        boolean isRemoved = oPDeliveryService.removeOPDelivery(orderId, deliveryId);
+        boolean isRemoved = oDeliveryService.removeODelivery(orderId, deliveryId);
 
         //if there is no order products with this delivery id, then returns true
         assertThat(isRemoved, is(equalTo(true)));
 
-        //oPDelivery is deleted
-        oPDelivery = oPDeliveryService.getOPDelivery(oPDelivery);
-        assertThat(oPDelivery, is(nullValue()));
+        //oDelivery is deleted
+        oDelivery = oDeliveryService.getODelivery(oDelivery);
+        assertThat(oDelivery, is(nullValue()));
     }
 }

@@ -154,17 +154,17 @@ public class OrderServiceImpl implements OrderService {
         //get existing order
         OrderDTO order = this.getOrderNotNull(id);
 
-        //get tobe order status
-        OrderStatus orderStatus = oProductService.getProperOrderStatus(id);
-
         //default editor name is customer name
         if (ObjUtil.isEmpty(editorNm)) {
             editorNm = order.getUserNm();
         }
 
-        if(order.getOrderStatus() != orderStatus){
+        //get tobe order status
+        OrderStatus tobeStatus = oProductService.getProperOrderStatus(id);
+
+        if(order.getOrderStatus() != tobeStatus){
             //update only status is changed
-            order.setOrderStatus(orderStatus);
+            order.setOrderStatus(tobeStatus);
             order.setEditorNm(editorNm);
             orderDAO.updateOrderStatus(order);
         }

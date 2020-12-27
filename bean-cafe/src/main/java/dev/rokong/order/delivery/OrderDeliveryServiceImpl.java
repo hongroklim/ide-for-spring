@@ -1,104 +1,139 @@
 package dev.rokong.order.delivery;
 
+import java.util.List;
+
+import dev.rokong.dto.OrderDeliveryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import dev.rokong.dto.OrderDTO;
-import dev.rokong.dto.OrderDeliveryDTO;
+import dev.rokong.dto.ProductDeliveryDTO;
 import dev.rokong.exception.BusinessException;
 import dev.rokong.order.main.OrderService;
-import dev.rokong.util.ObjUtil;
+import dev.rokong.order.product.OrderProductService;
+import dev.rokong.product.delivery.ProductDeliveryService;
+import dev.rokong.product.main.ProductService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class OrderDeliveryServiceImpl implements OrderDeliveryService {
     
-    @Autowired OrderDeliveryDAO oDeliveryDAO;
+    @Autowired
+    OrderDeliveryDAO oDeliveryDAO;
 
     @Autowired OrderService oService;
+    @Autowired OrderProductService oProductService;
 
-    public OrderDeliveryDTO getODelivery(int orderId){
-        return oDeliveryDAO.selectOrderDelivery(orderId);
-    }
+    @Autowired ProductService pService;
+    @Autowired ProductDeliveryService pDeliveryService;
 
-    public OrderDeliveryDTO getODeliveryNotNull(int orderId){
-        OrderDeliveryDTO oDelivery = this.getODelivery(orderId);
+    private void verifyPrimaryDefined(OrderDeliveryDTO oDelivery){
+        //parameter object
         if(oDelivery == null){
-            throw new BusinessException(orderId + " : order delivery is not exists");
-        }
-        return oDelivery;
-    }
-
-    private OrderDeliveryDTO getODeliveryNotNull(OrderDeliveryDTO oDelivery){
-        return this.getODeliveryNotNull(oDelivery.getOrderId());
-    }
-    
-    public OrderDeliveryDTO createODelivery(OrderDeliveryDTO oDelivery){
-        //avoid primary constraint
-        if(this.getODelivery(oDelivery.getOrderId()) != null){
-            log.debug("order delivery parameter : "+oDelivery);
-            throw new BusinessException("order delivery already exists");
+            throw new BusinessException("order product delivery is null");
         }
 
-        //verify parameter
-        this.verifyParameter(oDelivery);
-
-        //if sender name is not defined, set user name
-        if(ObjUtil.isEmpty(oDelivery.getSenderNm())){
-            OrderDTO order = oService.getOrderNotNull(oDelivery.getOrderId());
-            oDelivery.setSenderNm(order.getUserNm());
+        //order id
+        if(oDelivery.getOrderId() == 0){
+            log.debug("oDelivery parameter :"+oDelivery.toString());
+            throw new BusinessException("order id is not defined in oDelivery");
         }
 
-        //insert
-        oDeliveryDAO.insertOrderDelivery(oDelivery);
-
-        return this.getODeliveryNotNull(oDelivery);
-    }
-    
-    public OrderDeliveryDTO updateODelivery(OrderDeliveryDTO oDelivery){
-        this.getODeliveryNotNull(oDelivery);
-
-        this.verifyParameter(oDelivery);
-
-        //update
-        oDeliveryDAO.updateOrderDelivery(oDelivery);
-
-        return this.getODeliveryNotNull(oDelivery);
-    }
-    
-    public void deleteODelivery(int orderId){
-        this.getODeliveryNotNull(orderId);
-
-        oDeliveryDAO.deleteOrderDelivery(orderId);
+        //delivery id
+        if(oDelivery.getDeliveryId() == 0){
+            log.debug("oDelivery parameter :"+oDelivery.toString());
+            throw new BusinessException("delivery id is not defined in oDelivery");
+        }
     }
 
-    private void verifyParameter(OrderDeliveryDTO oDelivery){
-        //order id exists in ord_main
+    public OrderDeliveryDTO getODelivery(OrderDeliveryDTO oDelivery){
+        this.verifyPrimaryDefined(oDelivery);
+        return oDeliveryDAO.select(oDelivery);
+    }
+
+    public OrderDeliveryDTO getODeliveryNotNull(OrderDeliveryDTO oDelivery){
+        OrderDeliveryDTO getObj = this.getODelivery(oDelivery);
+        if(getObj == null){
+            log.debug("oDelivery parameter :"+oDelivery.toString());
+            throw new BusinessException("oDelivery is not exists");
+        }
+        return getObj;
+    }
+
+    public OrderDeliveryDTO createoDelivery(OrderDeliveryDTO oDelivery){
+        //verify all values are defined
+        this.verifyPrimaryDefined(oDelivery);
+
+        //avoid duplicate in order product delivery
+        if(this.getODelivery(oDelivery) != null){
+            log.debug("oDelivery parameter :"+oDelivery.toString());
+            throw new BusinessException("oDelivery is already exists");
+        }
+
+        //is order exists
         oService.getOrderNotNull(oDelivery.getOrderId());
 
-        //recipient nm
-        if(ObjUtil.isEmpty(oDelivery.getRecipientNm())){
-            log.debug("order delivery parameter : "+oDelivery);
-            throw new BusinessException("recipient name is empty");
+        //is produt delivery exists
+        ProductDeliveryDTO pDelivery
+            = pDeliveryService.getPDeliveryNotNull(oDelivery.getDeliveryId());
+
+        //set values by product delivery
+        oDelivery.setSellerNm(pDelivery.getSellerNm());
+        oDelivery.setTypeNm(pDelivery.getType());
+        oDelivery.setDeliveryNm(pDelivery.getName());
+        oDelivery.setPrice(pDelivery.getPrice());
+
+        //insert
+        oDeliveryDAO.insert(oDelivery);
+
+        return this.getODeliveryNotNull(oDelivery);
+    }
+
+    public boolean addODelivery(int orderId, int deliveryId){
+        //search oDelivery whether it is already exists
+        OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
+        oDelivery = this.getODelivery(oDelivery);
+
+        if(oDelivery != null){
+            //oDelivery is already exists
+            return false;
+        }else{
+            //if not exists, create oDelivery
+            oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
+            this.createoDelivery(oDelivery);
+            return true;
+        }
+    }
+    
+    public boolean removeODelivery(int orderId, int deliveryId){
+        //verfiy all values are defined
+        OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
+        this.verifyPrimaryDefined(oDelivery);
+
+        //is oDelivery exists
+        this.getODeliveryNotNull(oDelivery);
+        
+        int oProductCnt = oProductService.countOProductsByDelivery(orderId, deliveryId);
+        if(oProductCnt > 0){
+            //order products are exists
+            log.debug("order products are exists : {}", oProductCnt);
+            return false;
+        }else{
+            //order products are not exists, then delete
+            oDeliveryDAO.delete(oDelivery);
+            return true;
+        }
+    }
+
+    public int totalDeliveryPrice(int orderId){
+        List<OrderDeliveryDTO> list = oDeliveryDAO.selectByOrder(orderId);
+
+        int totalPrice = 0;
+
+        for(OrderDeliveryDTO item : list){
+            totalPrice += item.getPrice();
         }
 
-        //zip cd
-        if(ObjUtil.isEmpty(oDelivery.getZipCd())){
-            log.debug("order delivery parameter : "+oDelivery);
-            throw new BusinessException("zip code is empty");
-        }
-
-        //address1
-        if(ObjUtil.isEmpty(oDelivery.getAddress1())){
-            log.debug("order delivery parameter : "+oDelivery);
-            throw new BusinessException("recipient name is empty");
-        }
-
-        //contact1
-        if(ObjUtil.isEmpty(oDelivery.getContact1())){
-            log.debug("order delivery parameter : "+oDelivery);
-            throw new BusinessException("recipient name is empty");
-        }
+        return totalPrice;
     }
 }

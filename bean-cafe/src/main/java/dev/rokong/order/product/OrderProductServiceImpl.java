@@ -6,7 +6,7 @@ import dev.rokong.dto.ProductDTO;
 import dev.rokong.dto.ProductDetailDTO;
 import dev.rokong.exception.BusinessException;
 import dev.rokong.order.main.OrderService;
-import dev.rokong.order.product.delivery.OrderProductDeliveryService;
+import dev.rokong.order.delivery.OrderDeliveryService;
 import dev.rokong.product.detail.ProductDetailService;
 import dev.rokong.product.main.ProductService;
 import dev.rokong.util.ObjUtil;
@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,13 +21,20 @@ import java.util.stream.Collectors;
 @Service
 public class OrderProductServiceImpl implements OrderProductService {
     
-    @Autowired OrderProductDAO oProductDAO;
+    @Autowired
+    private OrderProductDAO oProductDAO;
 
-    @Autowired OrderService orderService;
-    @Autowired OrderProductDeliveryService oPDeliveryService;
+    @Autowired
+    private OrderService orderService;
 
-    @Autowired ProductService pService;
-    @Autowired ProductDetailService pDetailService;
+    @Autowired
+    private OrderDeliveryService oDeliveryService;
+
+    @Autowired
+    private ProductService pService;
+
+    @Autowired
+    private ProductDetailService pDetailService;
 
     public List<OrderProductDTO> getOProducts(OrderProductDTO oProduct){
         return oProductDAO.selectList(oProduct);
@@ -83,7 +89,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 
         //add order product delivery
         boolean isDeliveryChanged
-            = oPDeliveryService.addOPDelivery(orderId, product.getDeliveryId());
+            = oDeliveryService.addODelivery(orderId, product.getDeliveryId());
 
         if(ObjUtil.isEmpty(oProduct.getOptionCd())
                 || OrderProductDTO.NULL_OPTION_CD.equals(oProduct.getOptionCd())){
@@ -146,7 +152,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         this.updateOrderPrice(oProduct.getOrderId());
         
         boolean isDeliveryChanged
-            = oPDeliveryService.removeOPDelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
+            = oDeliveryService.removeODelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
         if(isDeliveryChanged){
             //update order main delivery price
             this.updateOrderDeliveryPrice(oProduct.getOrderId());
@@ -181,7 +187,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 
     private void updateOrderDeliveryPrice(int orderId){
         //get total delivery price
-        int totalPrice = oPDeliveryService.totalDeliveryPrice(orderId);
+        int totalPrice = oDeliveryService.totalDeliveryPrice(orderId);
         
         //update
         orderService.updateOrderDeliveryPrice(orderId, totalPrice);
@@ -268,7 +274,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         //update order product
         oProductDAO.updateValidAndStatus(oProduct);
 
-        //find editor name
+        //figure out editor name (customer or seller)
         String editorName = this.isDoneByCustomer(orderStatus) ? "" : asisOProduct.getSellerNm();
 
         //update order (or not if unnecessary)
@@ -281,7 +287,7 @@ public class OrderProductServiceImpl implements OrderProductService {
             this.updateOrderPrice(oProduct.getOrderId());
 
             boolean isDeliveryChanged
-                    = oPDeliveryService.removeOPDelivery(asisOProduct.getOrderId(), asisOProduct.getDeliveryId());
+                    = oDeliveryService.removeODelivery(asisOProduct.getOrderId(), asisOProduct.getDeliveryId());
             if(isDeliveryChanged){
                 //update order main delivery price
                 this.updateOrderDeliveryPrice(oProduct.getOrderId());
@@ -290,17 +296,30 @@ public class OrderProductServiceImpl implements OrderProductService {
     }
 
     public void updateStatusByOrder(int orderId, OrderStatus orderStatus){
-        //update order status in order product
+        //referred by main order
+        //update order status in order product (which is valid)
 
         //check order exists
         orderService.getOrderNotNull(orderId);
 
-        //create order product parameter and update
+        //get order product list in order
         OrderProductDTO oProduct = new OrderProductDTO(orderId);
+        List<OrderProductDTO> oProdList = this.getOProducts(oProduct);
+
+        //create order product parameter and update
         boolean isValid = orderStatus.isProcess();
         oProduct.setIsValid(isValid);
         oProduct.setOrderStatus(orderStatus);
-        oProductDAO.updateValidAndStatus(oProduct);
+
+        //update valid and order status
+        for(OrderProductDTO p : oProdList.stream()
+                .filter(OrderProductDTO::getIsValid)    //valid order products
+                .collect(Collectors.toList())){
+            //set parameter and update
+            oProduct.setProductId(p.getProductId());
+            oProduct.setOptionCd(p.getOptionCd());
+            oProductDAO.updateValidAndStatus(oProduct);
+        }
 
         //if tobe order status is canceled
         if(!isValid){
@@ -309,10 +328,10 @@ public class OrderProductServiceImpl implements OrderProductService {
 
             //remove order product delivery for products in order
             boolean isDeliveryChanged = false;
-            List<OrderProductDTO> oProdList = this.getOProducts(oProduct);
+
             for(OrderProductDTO p : oProdList){
                 boolean isChanged
-                        = oPDeliveryService.removeOPDelivery(p.getOrderId(), p.getDeliveryId());
+                        = oDeliveryService.removeODelivery(p.getOrderId(), p.getDeliveryId());
                 //set is delivery changed
                 if (!isDeliveryChanged && isChanged) {
                     isDeliveryChanged = true;
@@ -321,7 +340,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 
             //update order main delivery price after loop
             if(isDeliveryChanged){
-                this.updateOrderDeliveryPrice(oProduct.getOrderId());
+                this.updateOrderDeliveryPrice(orderId);
             }
         }
     }
