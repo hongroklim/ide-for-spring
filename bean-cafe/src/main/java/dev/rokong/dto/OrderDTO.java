@@ -14,9 +14,8 @@ public class OrderDTO {
     private Integer payId;
     private String payNm;
     private String requestDt;
-    private OrderStatus orderStatus;
     private String lastEditDt;
-    private String editorNm;
+    private OrderStatus orderStatus;
 
     public void setStatusCd(Integer statusCd){
         if(statusCd == null){

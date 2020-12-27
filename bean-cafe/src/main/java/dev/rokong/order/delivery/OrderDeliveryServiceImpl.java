@@ -1,7 +1,9 @@
 package dev.rokong.order.delivery;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDeliveryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,15 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class OrderDeliveryServiceImpl implements OrderDeliveryService {
-    
+
     @Autowired
-    OrderDeliveryDAO oDeliveryDAO;
+    private OrderDeliveryDAO oDeliveryDAO;
 
-    @Autowired OrderService oService;
-    @Autowired OrderProductService oProductService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private OrderProductService oProductService;
 
-    @Autowired ProductService pService;
-    @Autowired ProductDeliveryService pDeliveryService;
+    @Autowired
+    private ProductService productService;
+    @Autowired
+    private ProductDeliveryService pDeliveryService;
 
     private void verifyPrimaryDefined(OrderDeliveryDTO oDelivery){
         //parameter object
@@ -60,7 +66,7 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         return getObj;
     }
 
-    public OrderDeliveryDTO createoDelivery(OrderDeliveryDTO oDelivery){
+    public OrderDeliveryDTO createODelivery(OrderDeliveryDTO oDelivery){
         //verify all values are defined
         this.verifyPrimaryDefined(oDelivery);
 
@@ -71,9 +77,9 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         }
 
         //is order exists
-        oService.getOrderNotNull(oDelivery.getOrderId());
+        orderService.getOrderNotNull(oDelivery.getOrderId());
 
-        //is produt delivery exists
+        //is product delivery exists
         ProductDeliveryDTO pDelivery
             = pDeliveryService.getPDeliveryNotNull(oDelivery.getDeliveryId());
 
@@ -81,7 +87,11 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         oDelivery.setSellerNm(pDelivery.getSellerNm());
         oDelivery.setTypeNm(pDelivery.getType());
         oDelivery.setDeliveryNm(pDelivery.getName());
-        oDelivery.setPrice(pDelivery.getPrice());
+        oDelivery.setDeliveryPrice(pDelivery.getPrice());
+
+        //set default value
+        oDelivery.setPrice(0);
+        oDelivery.setOrderStatus(OrderStatus.WRITING);
 
         //insert
         oDeliveryDAO.insert(oDelivery);
@@ -94,15 +104,22 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
         oDelivery = this.getODelivery(oDelivery);
 
-        if(oDelivery != null){
-            //oDelivery is already exists
-            return false;
-        }else{
+        //if order delivery not exists, it will be created
+        boolean tobeCreated = (oDelivery == null);
+
+        if (tobeCreated) {
             //if not exists, create oDelivery
             oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
-            this.createoDelivery(oDelivery);
-            return true;
+            this.createODelivery(oDelivery);
+
+            //update delivery price in order
+            orderService.updateOrderDeliveryPrice(orderId);
         }
+
+        //update price
+        this.updatePrice(orderId, deliveryId);
+
+        return tobeCreated;
     }
     
     public boolean removeODelivery(int orderId, int deliveryId){
@@ -112,28 +129,118 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
 
         //is oDelivery exists
         this.getODeliveryNotNull(oDelivery);
-        
+
         int oProductCnt = oProductService.countOProductsByDelivery(orderId, deliveryId);
         if(oProductCnt > 0){
             //order products are exists
             log.debug("order products are exists : {}", oProductCnt);
+
+            //update price
+            this.updatePrice(orderId, deliveryId);
+
             return false;
         }else{
             //order products are not exists, then delete
             oDeliveryDAO.delete(oDelivery);
+
+            //update delivery price in order
+            orderService.updateOrderDeliveryPrice(orderId);
+
             return true;
         }
+    }
+
+    private void updatePrice(int orderId, int deliveryId){
+        //check order delivery exists
+        OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
+        oDelivery = this.getODeliveryNotNull(oDelivery);
+
+        //get total price in order product
+        int price = oProductService.totalPriceByDelivery(orderId, deliveryId);
+        oDelivery.setPrice(price);
+
+        //update only price
+        oDelivery.setOrderStatus(null);
+        oDelivery.setShipCd(null);
+        oDeliveryDAO.update(oDelivery);
+
+        //update price in order
+        orderService.updateOrderPrice(orderId);
     }
 
     public int totalDeliveryPrice(int orderId){
         List<OrderDeliveryDTO> list = oDeliveryDAO.selectByOrder(orderId);
 
-        int totalPrice = 0;
+        int deliveryPrice = 0;
 
         for(OrderDeliveryDTO item : list){
-            totalPrice += item.getPrice();
+            if(item.getOrderStatus().isProcess()){
+                deliveryPrice += item.getDeliveryPrice();
+            }
+        }
+
+        return deliveryPrice;
+    }
+
+    public int totalPrice(int orderId){
+        List<OrderDeliveryDTO> list = oDeliveryDAO.selectByOrder(orderId);
+
+        int totalPrice = 0;
+        for(OrderDeliveryDTO item : list){
+            if(item.getOrderStatus().isProcess()){
+                totalPrice += item.getPrice();
+            }
         }
 
         return totalPrice;
+    }
+
+    public OrderDeliveryDTO updateShipCd(OrderDeliveryDTO oDelivery){
+        this.getODeliveryNotNull(oDelivery);
+
+        //update only ship cd
+        oDelivery.setPrice(null);
+        oDelivery.setOrderStatus(null);
+        oDeliveryDAO.update(oDelivery);
+
+        return this.getODeliveryNotNull(oDelivery);
+    }
+
+    public void updateStatusByOrder(int orderId, OrderStatus orderStatus){
+
+        //verify parameters
+        if (orderId == 0) {
+            throw new BusinessException("order id is not defined");
+        } else if (orderStatus == null) {
+            throw new BusinessException("order status is not defined");
+        }
+
+        //check order exists
+        orderService.getOrderNotNull(orderId);
+
+        //get order delivery list in order
+        List<OrderDeliveryDTO> oDlvrList = oDeliveryDAO.selectByOrder(orderId);
+
+        //prepare parameter
+        OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId);
+        oDelivery.setOrderStatus(orderStatus);
+        oDelivery.setPrice(null);
+        oDelivery.setOrderStatus(null);
+
+        //update order delivery (valid)
+        for(OrderDeliveryDTO d : oDlvrList.stream()
+                .filter(p -> p.getOrderStatus().isProcess())    //valid order delivery
+                .collect(Collectors.toList())){
+            //set parameter and update
+            oDelivery.setDeliveryId(d.getDeliveryId());
+            oDeliveryDAO.update(oDelivery);
+
+            //update products by order and delivery id
+            oProductService.updateStatusByDelivery(d.getOrderId(), d.getDeliveryId(), orderStatus);
+        }
+    }
+
+    public void updateStatus(int orderId, int deliveryId){
+        //TODO updateStatus
     }
 }

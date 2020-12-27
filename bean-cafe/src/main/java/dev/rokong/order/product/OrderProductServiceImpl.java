@@ -61,10 +61,11 @@ public class OrderProductServiceImpl implements OrderProductService {
         this.verifyCnt(oProduct.getCnt());
 
         //is order product already exists
+        oProduct.setDeliveryId(null);
         OrderProductDTO getOProduct = this.getOProduct(oProduct);
         if(getOProduct != null){
             log.debug("order product in table : "+getOProduct.toString());
-            throw new BusinessException("order porduct already exists");
+            throw new BusinessException("order product already exists");
         }
 
         int orderId = oProduct.getOrderId();
@@ -88,8 +89,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         oProduct.setDeliveryId(product.getDeliveryId());
 
         //add order product delivery
-        boolean isDeliveryChanged
-            = oDeliveryService.addODelivery(orderId, product.getDeliveryId());
+        oDeliveryService.addODelivery(orderId, product.getDeliveryId());
 
         if(ObjUtil.isEmpty(oProduct.getOptionCd())
                 || OrderProductDTO.NULL_OPTION_CD.equals(oProduct.getOptionCd())){
@@ -113,24 +113,15 @@ public class OrderProductServiceImpl implements OrderProductService {
         //set status
         oProduct.setOrderStatus(OrderStatus.WRITING);
 
-        //set isValid
-        oProduct.setIsValid(true);
-
         //insert
         oProductDAO.insert(oProduct);
-
-        //update order main price and delivery price
-        this.updateOrderPrice(orderId);
-        if(isDeliveryChanged){
-            this.updateOrderDeliveryPrice(orderId);
-        }
 
         return this.getOProductNotNull(oProduct);
     }
     
     public OrderProductDTO updateOProductCnt(OrderProductDTO oProduct){
         //update cnt
-        this.getOProductNotNull(oProduct);
+        OrderProductDTO getOProd = this.getOProductNotNull(oProduct);
         
         //verify cnt
         this.verifyCnt(oProduct.getCnt());
@@ -139,7 +130,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         oProductDAO.updateCnt(oProduct);
         
         //update order main price
-        this.updateOrderPrice(oProduct.getOrderId());
+        oDeliveryService.addODelivery(getOProd.getOrderId(), getOProd.getDeliveryId());
         
         return this.getOProductNotNull(oProduct);
     }
@@ -148,15 +139,8 @@ public class OrderProductServiceImpl implements OrderProductService {
         oProduct = this.getOProductNotNull(oProduct);
         
         oProductDAO.delete(oProduct);
-        //update order main price
-        this.updateOrderPrice(oProduct.getOrderId());
-        
-        boolean isDeliveryChanged
-            = oDeliveryService.removeODelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
-        if(isDeliveryChanged){
-            //update order main delivery price
-            this.updateOrderDeliveryPrice(oProduct.getOrderId());
-        }
+
+        oDeliveryService.removeODelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
     }
 
     public void updateOProductToNull(int productId, String optionCd){        
@@ -167,30 +151,26 @@ public class OrderProductServiceImpl implements OrderProductService {
         oProductDAO.updateToNull(oProduct);
     }
 
-    private void updateOrderPrice(int orderId){
-        List<OrderProductDTO> oProductList
-            = oProductDAO.selectList(new OrderProductDTO(orderId));
-        
+    private int totalPriceInList(List<? extends OrderProductDTO> list){
         int totalPrice = 0;
         int itemPrice = 0;
 
         //sum product's price
-        for(OrderProductDTO oProduct : oProductList){
-            if(oProduct.getOrderStatus().isProcess() && oProduct.getIsValid()){
+        for(OrderProductDTO oProduct : list){
+            if(oProduct.getOrderStatus().isProcess()){
                 itemPrice = oProduct.getPrice() + oProduct.getDiscountPrice();
                 totalPrice += oProduct.getCnt() * itemPrice;
             }
         }
 
-        orderService.updateOrderPrice(orderId, totalPrice);
+        return totalPrice;
     }
 
-    private void updateOrderDeliveryPrice(int orderId){
-        //get total delivery price
-        int totalPrice = oDeliveryService.totalDeliveryPrice(orderId);
-        
-        //update
-        orderService.updateOrderDeliveryPrice(orderId, totalPrice);
+    public int totalPrice(int orderId){
+        List<OrderProductDTO> oProductList
+                = oProductDAO.selectList(new OrderProductDTO(orderId));
+
+        return this.totalPriceInList(oProductList);
     }
     
     private void verifyPrimaryValuesDefined(OrderProductDTO oProduct){
@@ -227,32 +207,16 @@ public class OrderProductServiceImpl implements OrderProductService {
         return oProductDAO.countByDelivery(oProduct);
     }
 
-    /**
-     * from to be order status, guess who change order status
-     * between customer or seller
-     *
-     * @param status to be order status
-     * @return if true, customer did
-     */
-    private boolean isDoneByCustomer(OrderStatus status) {
-        if (status.isProcess()) {
-            //to be normal process
-            if (status == OrderStatus.CHECKING || status.isFormerThan(OrderStatus.CHECKING)) {
-                //former or equal than checking, customer did
-                return true;
-            } else {
-                //else, seller did
-                return false;
-            }
-        } else {
-            //to be canceled
-            if (status.isSellerCancel()) {
-                return false;
-            } else {
-                //customer includes CANCEL status
-                return true;
-            }
-        }
+    public int totalPriceByDelivery(int orderId, int deliveryId){
+        //create parameter
+        OrderProductDTO param = new OrderProductDTO();
+        param.setOrderId(orderId);
+        param.setDeliveryId(deliveryId);
+
+        //get list
+        List<OrderProductDTO> list = oProductDAO.selectList(param);
+
+        return this.totalPriceInList(list);
     }
 
     public void updateOProductStatus(OrderProductDTO oProduct){
@@ -267,32 +231,18 @@ public class OrderProductServiceImpl implements OrderProductService {
             throw new BusinessException("order status is not defined");
         }
 
-        //set is valid
-        boolean isValid = oProduct.getOrderStatus().isProcess();
-        oProduct.setIsValid(isValid);
-
         //update order product
-        oProductDAO.updateValidAndStatus(oProduct);
-
-        //figure out editor name (customer or seller)
-        String editorName = this.isDoneByCustomer(orderStatus) ? "" : asisOProduct.getSellerNm();
-
-        //update order (or not if unnecessary)
-        orderService.updateOrderStatus(oProduct.getOrderId(), editorName);
+        oProductDAO.updateStatus(oProduct);
 
         //status change from normal process to cancel
         if(asisOProduct.getOrderStatus().isProcess()
                 && oProduct.getOrderStatus().isCanceled()){
-            //update order price
-            this.updateOrderPrice(oProduct.getOrderId());
-
-            boolean isDeliveryChanged
-                    = oDeliveryService.removeODelivery(asisOProduct.getOrderId(), asisOProduct.getDeliveryId());
-            if(isDeliveryChanged){
-                //update order main delivery price
-                this.updateOrderDeliveryPrice(oProduct.getOrderId());
-            }
+            //remove order delivery
+            oDeliveryService.removeODelivery(asisOProduct.getOrderId(), asisOProduct.getDeliveryId());
         }
+
+        //update status
+        oDeliveryService.updateStatus(asisOProduct.getOrderId(), asisOProduct.getDeliveryId());
     }
 
     public void updateStatusByOrder(int orderId, OrderStatus orderStatus){
@@ -307,41 +257,52 @@ public class OrderProductServiceImpl implements OrderProductService {
         List<OrderProductDTO> oProdList = this.getOProducts(oProduct);
 
         //create order product parameter and update
-        boolean isValid = orderStatus.isProcess();
-        oProduct.setIsValid(isValid);
         oProduct.setOrderStatus(orderStatus);
 
         //update valid and order status
         for(OrderProductDTO p : oProdList.stream()
-                .filter(OrderProductDTO::getIsValid)    //valid order products
+                .filter(p -> p.getOrderStatus().isProcess())    //valid order products
                 .collect(Collectors.toList())){
             //set parameter and update
             oProduct.setProductId(p.getProductId());
             oProduct.setOptionCd(p.getOptionCd());
-            oProductDAO.updateValidAndStatus(oProduct);
+            oProductDAO.updateStatus(oProduct);
         }
 
         //if tobe order status is canceled
-        if(!isValid){
+        if(orderStatus.isCanceled()){
             //update order product's price
-            this.updateOrderPrice(orderId);
+            oDeliveryService.removeODelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
+        }
+    }
 
-            //remove order product delivery for products in order
-            boolean isDeliveryChanged = false;
+    public void updateStatusByDelivery(int orderId, int deliveryId, OrderStatus orderStatus){
+        //check order exists
+        orderService.getOrderNotNull(orderId);
 
-            for(OrderProductDTO p : oProdList){
-                boolean isChanged
-                        = oDeliveryService.removeODelivery(p.getOrderId(), p.getDeliveryId());
-                //set is delivery changed
-                if (!isDeliveryChanged && isChanged) {
-                    isDeliveryChanged = true;
-                }
-            }
+        //create param and get lists
+        OrderProductDTO oProduct = new OrderProductDTO();
+        oProduct.setOrderId(orderId);
+        oProduct.setDeliveryId(deliveryId);
+        List<OrderProductDTO> oProdList = this.getOProducts(oProduct);
 
-            //update order main delivery price after loop
-            if(isDeliveryChanged){
-                this.updateOrderDeliveryPrice(orderId);
-            }
+        //create order product parameter and update
+        oProduct.setOrderStatus(orderStatus);
+
+        //update valid and order status
+        for(OrderProductDTO p : oProdList.stream()
+                .filter(p -> p.getOrderStatus().isProcess())    //valid order products
+                .collect(Collectors.toList())){
+            //set parameter and update
+            oProduct.setProductId(p.getProductId());
+            oProduct.setOptionCd(p.getOptionCd());
+            oProductDAO.updateStatus(oProduct);
+        }
+
+        //if tobe order status is canceled
+        if(orderStatus.isCanceled()){
+            //update order product's price
+            oDeliveryService.removeODelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
         }
     }
 

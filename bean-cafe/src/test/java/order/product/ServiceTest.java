@@ -214,7 +214,6 @@ public class ServiceTest extends SpringConfig {
         assertThat(tobeCount, is(equalTo(asisCount-1)));
     }
 
-    //TODO updateOProductStatus
     @Test
     public void updateOProductStatus(){
         //create order products
@@ -231,9 +230,7 @@ public class ServiceTest extends SpringConfig {
 
         //check order main
         OrderDTO order = oService.getOrderNotNull(oProduct.getOrderId());
-        assertThat(order.getOrderStatus(), is(equalTo(OrderStatus.CANCEL)));
-        assertThat(order.getEditorNm(), is(equalTo(order.getUserNm())));
-    }
+        assertThat(order.getOrderStatus(), is(equalTo(OrderStatus.CANCEL))); }
 
     @Test
     public void updateOProductWithOrder(){
@@ -270,7 +267,6 @@ public class ServiceTest extends SpringConfig {
         assertThat(order.getOrderStatus(), is(equalTo(OrderStatus.CANCEL)));
     }
 
-    //TODO updateStatusByOrder
     @Test
     public void updateStatusByOrder(){
         //create list
@@ -282,6 +278,7 @@ public class ServiceTest extends SpringConfig {
         oProductService.updateOProductStatus(oProduct);
 
         //update order to payment ready
+        //TODO fix test into delivery
         oProductService.updateStatusByOrder(oProduct.getOrderId(), OrderStatus.PAYMENT_STANDBY);
 
         //refresh new lists in order

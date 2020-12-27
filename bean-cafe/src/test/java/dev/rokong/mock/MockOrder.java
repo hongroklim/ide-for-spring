@@ -25,7 +25,6 @@ public class MockOrder extends AbstractMockObject<OrderDTO> {
         
         UserDTO user = mUser.any();
         order.setUserNm(user.getUserNm());
-        order.setEditorNm(user.getUserNm());
 
         order.setPrice(0);
         order.setDeliveryPrice(0);

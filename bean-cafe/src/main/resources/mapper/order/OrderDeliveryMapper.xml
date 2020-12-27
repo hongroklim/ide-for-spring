@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dev.rokong.orderDelivery">
     <select id="select" parameterType="OrderDeliveryDTO" resultType="OrderDeliveryDTO">
-        SELECT order_id, delivery_id, seller_nm, type_nm, delivery_nm, price
+        SELECT order_id, delivery_id, seller_nm, type_nm, delivery_nm,
+               delivery_price, price, status_cd, ship_cd
           FROM ord_dlvr
          WHERE order_id = #{orderId}
            AND delivery_id = #{deliveryId}
@@ -10,9 +11,27 @@
 
     <insert id="insert" parameterType="OrderDeliveryDTO">
         INSERT INTO ord_dlvr
-               (order_id, delivery_id, seller_nm, type_nm, delivery_nm, price)
-        VALUES (#{orderId}, #{deliveryId}, #{sellerNm}, #{typeNm}, #{deliveryNm}, #{price})
+               (order_id, delivery_id, seller_nm, type_nm, delivery_nm,
+                delivery_price, price, status_cd, ship_cd)
+        VALUES (#{orderId}, #{deliveryId}, #{sellerNm}, #{typeNm}, #{deliveryNm},
+                #{deliveryPrice}, #{price}, #{statusCd}, #{shipCd})
     </insert>
+
+    <update id="update" parameterType="OrderDeliveryDTO">
+        UPDATE ord_dlvr
+           SET delivery_id = #{deliveryId}
+            <if test="price != null">
+                , price = #{price}
+            </if>
+            <if test="statusCd != null and statusCd != 0">
+                , status_cd = #{statusCd}
+            </if>
+            <if test="shipCd != null">
+                , ship_cd = #{shipCd}
+            </if>
+         WHERE order_id = #{orderId}
+           AND delivery_id = #{deliveryId}
+    </update>
 
     <delete id="delete" parameterType="OrderDeliveryDTO">
         DELETE
@@ -22,7 +41,8 @@
     </delete>
 
     <select id="selectByOrder" parameterType="int" resultType="OrderDeliveryDTO">
-        SELECT order_id, delivery_id, seller_nm, type_nm, delivery_nm, price
+        SELECT order_id, delivery_id, seller_nm, type_nm, delivery_nm,
+               delivery_price, price, status_cd, ship_cd
           FROM ord_dlvr
          WHERE order_id = #{orderId}
     </select>

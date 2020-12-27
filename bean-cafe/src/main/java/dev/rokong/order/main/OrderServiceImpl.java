@@ -1,7 +1,9 @@
 package dev.rokong.order.main;
 
 import com.sun.corba.se.impl.resolver.ORBDefaultInitRefResolverImpl;
+import dev.rokong.dto.OrderDeliveryDTO;
 import dev.rokong.dto.OrderProductDTO;
+import dev.rokong.order.delivery.OrderDeliveryService;
 import dev.rokong.order.product.OrderProductService;
 import dev.rokong.util.ObjUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +28,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     OrderProductService oProductService;
+
+    @Autowired
+    OrderDeliveryService oDeliverySerivce;
+
     @Autowired
     UserService userService;
+
     @Autowired
     PayTypeService pTypeService;
 
@@ -78,17 +85,21 @@ public class OrderServiceImpl implements OrderService {
         return this.getOrderNotNull(id);
     }
 
-    public void updateOrderPrice(int id, int price){
+    public void updateOrderPrice(int id){
         //used by order.product
         OrderDTO order = this.getOrderNotNull(id);
+
+        int price = oDeliverySerivce.totalPrice(id);
         order.setPrice(price);
 
         orderDAO.updateOrderPrice(order);
     }
 
-    public void updateOrderDeliveryPrice(int id, int deliveryPrice){
+    public void updateOrderDeliveryPrice(int id){
         //used by order.product
         OrderDTO order = this.getOrderNotNull(id);
+
+        int deliveryPrice = oDeliverySerivce.totalDeliveryPrice(id);
         order.setDeliveryPrice(deliveryPrice);
 
         orderDAO.updateOrderDeliveryPrice(order);
@@ -129,21 +140,20 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //check order exists
-        OrderDTO asisOrder = this.getOrderNotNull(order);
+        this.getOrderNotNull(order);
 
         //set editor name as customer and update
-        order.setEditorNm(asisOrder.getUserNm());
         orderDAO.updateOrderStatus(order);
 
         //update order product in specific status
         if(tobeStatus == OrderStatus.CHECKING || tobeStatus.isCanceled()){
-            oProductService.updateStatusByOrder(order.getId(), tobeStatus);
+            oDeliverySerivce.updateStatusByOrder(order.getId(), tobeStatus);
         }
 
         return this.getOrderNotNull(order);
     }
 
-    public void updateOrderStatus(int id, String editorNm){
+    public void updateOrderStatus(int id){
         //referred by order product
 
         //verify parameter
@@ -154,18 +164,12 @@ public class OrderServiceImpl implements OrderService {
         //get existing order
         OrderDTO order = this.getOrderNotNull(id);
 
-        //default editor name is customer name
-        if (ObjUtil.isEmpty(editorNm)) {
-            editorNm = order.getUserNm();
-        }
-
         //get tobe order status
         OrderStatus tobeStatus = oProductService.getProperOrderStatus(id);
 
         if(order.getOrderStatus() != tobeStatus){
             //update only status is changed
             order.setOrderStatus(tobeStatus);
-            order.setEditorNm(editorNm);
             orderDAO.updateOrderStatus(order);
         }
     }
@@ -185,7 +189,6 @@ public class OrderServiceImpl implements OrderService {
 
         //set status
         order.setOrderStatus(tobeStatus);
-        order.setEditorNm(user);
 
         orderDAO.updateOrderStatus(order);
     }

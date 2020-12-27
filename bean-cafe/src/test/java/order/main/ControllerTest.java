@@ -98,6 +98,5 @@ public class ControllerTest extends MvcUnitConfig {
         OrderDTO afterOrder = oService.getOrderNotNull(order.getId());
 
         assertThat(afterOrder.getOrderStatus(), is(equalTo(OrderStatus.CANCELED_WRITE)));
-        assertThat(afterOrder.getEditorNm(), is(equalTo(order.getUserNm())));
     }
 }

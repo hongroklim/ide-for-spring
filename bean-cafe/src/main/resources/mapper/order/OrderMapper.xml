@@ -3,7 +3,7 @@
 <mapper namespace="dev.rokong.order">
     <select id="selectOrder" parameterType="int" resultType="OrderDTO">
         SELECT id, user_nm, price, delivery_price, pay_id, pay_nm,
-               request_dt, status_cd, last_edit_dt, editor_nm
+               request_dt, last_edit_dt, status_cd
           FROM ord_main
          WHERE id = #{id}
     </select>
@@ -13,22 +13,22 @@
             SELECT nextval('ord_main_id_seq'::regclass)
         </selectKey>
         INSERT INTO ord_main
-               (id, user_nm, status_cd, last_edit_dt, editor_nm)
-        VALUES (#{id}, #{userNm}, #{statusCd}, now(), #{userNm})
+               (id, user_nm, status_cd, last_edit_dt)
+        VALUES (#{id}, #{userNm}, #{statusCd}, now())
     </insert>
 
     <update id="updateOrderPay" parameterType="OrderDTO">
         UPDATE ord_main
            SET pay_id = #{payId},
-               pay_nm = #{payNm}
+               pay_nm = #{payNm},
+               last_edit_dt = now()
          WHERE id = #{id}
     </update>
 
     <update id="updateOrderStatus" parameterType="OrderDTO">
         UPDATE ord_main
            SET status_cd = #{statusCd},
-               last_edit_dt = now(),
-               editor_nm = #{editorNm}
+               last_edit_dt = now()
          WHERE id = #{id}
     </update>
 

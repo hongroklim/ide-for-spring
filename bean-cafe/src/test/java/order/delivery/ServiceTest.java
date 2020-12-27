@@ -49,7 +49,7 @@ public class ServiceTest extends SpringConfig {
         //verify other values
         assertThat(oDelivery.getTypeNm(), is(equalTo(pDelivery.getType())));
         assertThat(oDelivery.getDeliveryNm(), is(equalTo(pDelivery.getName())));
-        assertThat(oDelivery.getPrice(), is(equalTo(pDelivery.getPrice())));
+        assertThat(oDelivery.getDeliveryPrice(), is(equalTo(pDelivery.getPrice())));
     }
 
     @Test

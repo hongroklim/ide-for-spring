@@ -123,7 +123,7 @@ public class HamcrestTest {
     public void relfectWithoutParameter() throws NoSuchMethodException {
         Method method = null;
 
-        method = PayApiService.class.getMethod("getPayTypeId", null);
+        method = PayApiService.class.getMethod("getPayTypeId");
         assertThat(method, is(notNullValue()));
 
         method = PayApiService.class.getMethod("preparePay", int.class);

@@ -4,7 +4,7 @@
     <select id="select" parameterType="OrderProductDTO" resultType="OrderProductDTO">
         SELECT order_id, product_id, option_cd, seller_nm, cnt,
                price, discount_price, product_nm, option_nm,
-               status_cd, delivery_id, is_valid
+               status_cd, delivery_id
           FROM ord_prod
          WHERE order_id = #{orderId}
         <if test='productId != null and productId != 0'>
@@ -13,16 +13,19 @@
                 AND option_cd LIKE #{optionCd}
             </if>
         </if>
+        <if test='deliveryId != null and deliveryId != 0'>
+            AND delivery_id = #{deliveryId}
+        </if>
     </select>
 
     <insert id="insert" parameterType="OrderProductDTO">
         INSERT INTO ord_prod
                (order_id, product_id, option_cd, seller_nm, cnt,
                 price, discount_price, product_nm, option_nm, status_cd,
-                delivery_id, is_valid)
+                delivery_id)
         VALUES (#{orderId}, #{productId}, #{optionCd}, #{sellerNm}, #{cnt},
                 #{price}, #{discountPrice}, #{productNm}, #{optionNm}, #{statusCd},
-                #{deliveryId}, #{isValid})
+                #{deliveryId})
     </insert>
 
     <delete id="delete" parameterType="OrderProductDTO">
@@ -62,13 +65,12 @@
           FROM ord_prod
          WHERE order_id = #{orderId}
            AND delivery_id = #{deliveryId}
-           AND is_valid = true
+           AND status_cd <![CDATA[ > ]]> 0
     </select>
 
-    <update id="updateValidAndStatus" parameterType="OrderProductDTO">
+    <update id="updateStatus" parameterType="OrderProductDTO">
         UPDATE ord_prod
-           SET status_cd = #{statusCd},
-               is_valid = #{isValid}
+           SET status_cd = #{statusCd}
         WHERE order_id = #{orderId}
          <if test='productId != null and productId != 0'>
             AND product_id = #{productId}

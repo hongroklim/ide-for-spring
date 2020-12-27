@@ -26,6 +26,10 @@ public class OrderDeliveryDAOImpl implements OrderDeliveryDAO {
         sqlSession.delete(PREFIX+"delete", oDelivery);
     }
 
+    public void update(OrderDeliveryDTO oDelivery){
+        sqlSession.update(PREFIX + "update", oDelivery);
+    }
+
     public List<OrderDeliveryDTO> selectByOrder(int orderId){
         return sqlSession.selectList(PREFIX+"selectByOrder", orderId);
     }

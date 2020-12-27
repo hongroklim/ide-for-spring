@@ -22,7 +22,7 @@ public class OrderProductDAOImpl implements OrderProductDAO {
     public OrderProductDTO select(OrderProductDTO oProduct){
         return sqlSession.selectOne(PREFIX+"select", oProduct);
     }
-    
+
     public void insert(OrderProductDTO oProduct){
         sqlSession.insert(PREFIX+"insert", oProduct);
     }
@@ -43,7 +43,7 @@ public class OrderProductDAOImpl implements OrderProductDAO {
         return sqlSession.selectOne(PREFIX+"countByDelivery", oProduct);
     }
 
-    public void updateValidAndStatus(OrderProductDTO oProduct){
-        sqlSession.update(PREFIX+"updateValidAndStatus", oProduct);
+    public void updateStatus(OrderProductDTO oProduct){
+        sqlSession.update(PREFIX+"updateStatus", oProduct);
     }
 }

@@ -1,5 +1,6 @@
 package dev.rokong.order.delivery;
 
+import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDeliveryDTO;
 
 public interface OrderDeliveryService {
@@ -26,10 +27,16 @@ public interface OrderDeliveryService {
     public boolean removeODelivery(int orderId, int deliveryId);
 
     /**
-     * calculate 
+     * calculate total delivery price in order
      * 
-     * @param orderId
-     * @return
+     * @param orderId to calculate order
+     * @return sum of delivery price
      */
     public int totalDeliveryPrice(int orderId);
+
+    public int totalPrice(int orderId);
+
+    public OrderDeliveryDTO updateShipCd(OrderDeliveryDTO oDelivery);
+    public void updateStatusByOrder(int orderId, OrderStatus orderStatus);
+    public void updateStatus(int orderId, int deliveryId);
 }

@@ -140,6 +140,7 @@ public class ControllerTest extends MvcUnitConfig {
         String url = this.createURL(oProduct);
         this.reqAndResBody(url, RequestMethod.DELETE, null, null);
 
+        oProduct.setDeliveryId(null);
         OrderProductDTO afterDelete = oProductService.getOProduct(oProduct);
 
         assertThat(afterDelete, is(nullValue()));

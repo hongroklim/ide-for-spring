@@ -12,5 +12,5 @@ public interface OrderProductDAO {
     public void updateCnt(OrderProductDTO oProduct);
     public void updateToNull(OrderProductDTO oProduct);
     public int countByDelivery(OrderProductDTO oProduct);
-    public void updateValidAndStatus(OrderProductDTO oProduct);
+    public void updateStatus(OrderProductDTO oProduct);
 }

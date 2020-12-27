@@ -25,7 +25,22 @@ public interface OrderProductService {
     public void deleteOProduct(OrderProductDTO oProduct);
     public void updateOProductToNull(int productId, String optionCd);
     public int countOProductsByDelivery(int orderId, int deliveryId);
+    public int totalPriceByDelivery(int orderId, int deliveryId);
+    public int totalPrice(int orderId);
     public void updateOProductStatus(OrderProductDTO oProduct);
+
+    /**
+     * product can not access order main directly.
+     * alternatively, invoke {@link dev.rokong.order.delivery.OrderDeliveryService} methods
+     * to change order main's values.
+     *
+     * @param orderId
+     * @param orderStatus
+     * @deprecated {@link #updateStatusByDelivery(int, int, OrderStatus)} is alternative
+     */
     public void updateStatusByOrder(int orderId, OrderStatus orderStatus);
+
+    public void updateStatusByDelivery(int orderId, int deliveryId, OrderStatus orderStatus);
+
     public OrderStatus getProperOrderStatus(int orderId);
 }
