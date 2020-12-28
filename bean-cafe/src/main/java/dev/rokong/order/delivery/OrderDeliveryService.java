@@ -39,4 +39,5 @@ public interface OrderDeliveryService {
     public OrderDeliveryDTO updateShipCd(OrderDeliveryDTO oDelivery);
     public void updateStatusByOrder(int orderId, OrderStatus orderStatus);
     public void updateStatus(int orderId, int deliveryId);
+    public OrderStatus getProperOrderStatus(int orderId);
 }

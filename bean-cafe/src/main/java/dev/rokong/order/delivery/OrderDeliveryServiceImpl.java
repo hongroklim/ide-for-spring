@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDeliveryDTO;
+import dev.rokong.dto.OrderProductDTO;
+import dev.rokong.util.ObjUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -156,7 +158,7 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         oDelivery = this.getODeliveryNotNull(oDelivery);
 
         //get total price in order product
-        int price = oProductService.totalPriceByDelivery(orderId, deliveryId);
+        int price = oProductService.totalPrice(orderId, deliveryId);
         oDelivery.setPrice(price);
 
         //update only price
@@ -241,6 +243,41 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
     }
 
     public void updateStatus(int orderId, int deliveryId){
-        //TODO updateStatus
+        //create parameter and get order delivery (with verifying)
+        OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
+        oDelivery = this.getODelivery(oDelivery);
+
+        //if order delivery is not exists, return
+        if(oDelivery == null){
+            return;
+        }
+
+        //get proper status in order products
+        OrderStatus tobeStatus = oProductService.getProperOrderStatus(orderId, deliveryId);
+
+        //if tobe order product is different, update
+        if(oDelivery.getOrderStatus() != tobeStatus){
+            oDelivery.setOrderStatus(tobeStatus);
+            oDelivery.setPrice(null);
+            oDelivery.setShipCd(null);
+            oDeliveryDAO.update(oDelivery);
+        }
+
+        //also update order's status
+        orderService.updateOrderStatus(orderId);
+    }
+
+    public OrderStatus getProperOrderStatus(int orderId){
+        //calculate the proper product status
+
+        //get order deliveries
+        List<OrderDeliveryDTO> list = oDeliveryDAO.selectByOrder(orderId);
+
+        if(ObjUtil.isEmpty(list)){
+            //check order products
+            return oProductService.getProperOrderStatus(orderId);
+        }
+
+        return orderService.getProperOrderStatus(list);
     }
 }

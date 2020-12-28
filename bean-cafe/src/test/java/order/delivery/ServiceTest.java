@@ -81,4 +81,6 @@ public class ServiceTest extends SpringConfig {
         oDelivery = oDeliveryService.getODelivery(oDelivery);
         assertThat(oDelivery, is(nullValue()));
     }
+
+    //TODO update order status and check delivery and products
 }

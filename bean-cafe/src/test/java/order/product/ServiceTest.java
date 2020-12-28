@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.rokong.annotation.OrderStatus;
-import dev.rokong.util.ObjUtil;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -181,7 +180,7 @@ public class ServiceTest extends SpringConfig {
 
         //set order status and invalidate
         oProduct.setOrderStatus(OrderStatus.CANCELED_WRITE);
-        oProductService.updateOProductStatus(oProduct);
+        oProductService.updateStatus(oProduct);
 
         int priceDiff = oProduct.getCnt() * (oProduct.getPrice()+oProduct.getDiscountPrice());
 
@@ -204,7 +203,7 @@ public class ServiceTest extends SpringConfig {
 
         //update invalid one
         oProduct.setOrderStatus(OrderStatus.CANCELED_WRITE);
-        oProductService.updateOProductStatus(oProduct);
+        oProductService.updateStatus(oProduct);
 
         //get tobe count
         int tobeCount = oProductService.countOProductsByDelivery(
@@ -222,7 +221,7 @@ public class ServiceTest extends SpringConfig {
         //update status
         OrderStatus tobeStatus = OrderStatus.CANCELED_WRITE;
         oProduct.setOrderStatus(tobeStatus);
-        oProductService.updateOProductStatus(oProduct);
+        oProductService.updateStatus(oProduct);
 
         //check order product
         OrderProductDTO getOProduct = oProductService.getOProductNotNull(oProduct);
@@ -240,7 +239,7 @@ public class ServiceTest extends SpringConfig {
         //get one and update status
         OrderProductDTO oProduct = list.get(1);
         oProduct.setOrderStatus(OrderStatus.CANCELED_WRITE);
-        oProductService.updateOProductStatus(oProduct);
+        oProductService.updateStatus(oProduct);
 
         //others are not changed
         assertThat(list.get(0).getOrderStatus(), is(equalTo(OrderStatus.WRITING)));
@@ -254,11 +253,11 @@ public class ServiceTest extends SpringConfig {
         //update others
         oProduct = list.get(0);
         oProduct.setOrderStatus(OrderStatus.CANCELED_WRITE);
-        oProductService.updateOProductStatus(oProduct);
+        oProductService.updateStatus(oProduct);
 
         oProduct = list.get(2);
         oProduct.setOrderStatus(OrderStatus.CANCELED_WRITE);
-        oProductService.updateOProductStatus(oProduct);
+        oProductService.updateStatus(oProduct);
 
         //check order main
         order = oService.getOrderNotNull(oProduct.getOrderId());
@@ -275,7 +274,7 @@ public class ServiceTest extends SpringConfig {
         //update one product invalid
         OrderProductDTO oProduct = oProdList.get(0);
         oProduct.setOrderStatus(OrderStatus.CANCELED_WRITE);
-        oProductService.updateOProductStatus(oProduct);
+        oProductService.updateStatus(oProduct);
 
         //update order to payment ready
         //TODO fix test into delivery
@@ -286,7 +285,7 @@ public class ServiceTest extends SpringConfig {
         List<OrderProductDTO> newList = oProductService.getOProducts(param);
 
         for(OrderProductDTO p : newList){
-            if(p.getProductId() == oProduct.getProductId()
+            if(p.getProductId().equals(oProduct.getProductId())
                     && p.getOptionCd().equals(oProduct.getOptionCd())){
                 //canceled product remains
                 assertThat(p.getOrderStatus(), is(equalTo(oProduct.getOrderStatus())));
@@ -298,70 +297,5 @@ public class ServiceTest extends SpringConfig {
 
     }
 
-    @Test
-    public void getProperOrderStatus(){
-        //create new order
-        OrderDTO order = mockObj.order.any();
-
-        //order status lists
-        List<OrderStatus> statusList = new ArrayList<>();
-        statusList.add(OrderStatus.CHECKING);
-        statusList.add(OrderStatus.PRODUCT_READY);
-        statusList.add(OrderStatus.CANCEL_CHECK);
-        statusList.add(OrderStatus.CANCELED_WRITE);
-
-        //add products
-        List<OrderProductDTO> oProdList = mockObj.oProduct.anyList(4);
-
-        //update status
-        OrderProductDTO oProduct;
-        for(int i=0; i<oProdList.size(); i++){
-            //set parameter from order product and status list
-            oProduct = oProdList.get(i);
-            oProduct.setOrderStatus(statusList.get(i));
-
-            oProductService.updateOProductStatus(oProduct);
-        }
-
-        OrderStatus properStatus = oProductService.getProperOrderStatus(order.getId());
-        /*
-        * (o) checking
-        * ( ) product ready     - later than check
-        * ( ) cancel check      - cancel
-        * ( ) canceled write    - cancel
-        * */
-        assertThat(properStatus, is(equalTo(OrderStatus.CHECKING)));
-
-        //update checking -> product ready
-        oProduct = oProdList.get(0);
-        oProduct.setOrderStatus(OrderStatus.PRODUCT_READY);
-        oProductService.updateOProductStatus(oProduct);
-
-        properStatus = oProductService.getProperOrderStatus(order.getId());
-        /*
-         * (o) product ready
-         * (o) product ready
-         * ( ) cancel check      - cancel
-         * ( ) canceled write    - cancel
-         * */
-        assertThat(properStatus, is(equalTo(OrderStatus.PRODUCT_READY)));
-
-        //update all canceled
-        oProduct = oProdList.get(0);
-        oProduct.setOrderStatus(OrderStatus.CANCEL_PRODUCT);
-        oProductService.updateOProductStatus(oProduct);
-
-        oProduct = oProdList.get(1);
-        oProduct.setOrderStatus(OrderStatus.CANCELED_PRODUCT);
-        oProductService.updateOProductStatus(oProduct);
-
-        properStatus = oProductService.getProperOrderStatus(order.getId());
-        /*
-         * ( ) cancel product    - cancel
-         * ( ) canceled product  - cancel
-         * ( ) cancel check      - cancel
-         * ( ) canceled write    - cancel
-         * */
-        assertThat(properStatus, is(equalTo(OrderStatus.CANCEL)));
-    }
+    //TODO update order status and check delivery and products
 }

@@ -88,9 +88,6 @@ public class OrderProductServiceImpl implements OrderProductService {
         //set delivery id
         oProduct.setDeliveryId(product.getDeliveryId());
 
-        //add order product delivery
-        oDeliveryService.addODelivery(orderId, product.getDeliveryId());
-
         if(ObjUtil.isEmpty(oProduct.getOptionCd())
                 || OrderProductDTO.NULL_OPTION_CD.equals(oProduct.getOptionCd())){
             //is only product (not with option cd) exists
@@ -116,6 +113,9 @@ public class OrderProductServiceImpl implements OrderProductService {
         //insert
         oProductDAO.insert(oProduct);
 
+        //after insert order product, update order delivery
+        oDeliveryService.addODelivery(orderId, product.getDeliveryId());
+
         return this.getOProductNotNull(oProduct);
     }
     
@@ -129,7 +129,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         //update
         oProductDAO.updateCnt(oProduct);
         
-        //update order main price
+        //update price in order delivery
         oDeliveryService.addODelivery(getOProd.getOrderId(), getOProd.getDeliveryId());
         
         return this.getOProductNotNull(oProduct);
@@ -195,7 +195,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         //verify parameter
         if(orderId == 0){
             throw new BusinessException("order id is not defined");
-            
+
         }else if(deliveryId == 0){
             throw new BusinessException("delivery id is not defined");
         }
@@ -207,7 +207,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         return oProductDAO.countByDelivery(oProduct);
     }
 
-    public int totalPriceByDelivery(int orderId, int deliveryId){
+    public int totalPrice(int orderId, int deliveryId){
         //create parameter
         OrderProductDTO param = new OrderProductDTO();
         param.setOrderId(orderId);
@@ -219,7 +219,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         return this.totalPriceInList(list);
     }
 
-    public void updateOProductStatus(OrderProductDTO oProduct){
+    public void updateStatus(OrderProductDTO oProduct){
         //parameter : orderId, productId, optionCd, statusCd
 
         //get asis one (also verify parameter)
@@ -313,28 +313,20 @@ public class OrderProductServiceImpl implements OrderProductService {
         OrderProductDTO param = new OrderProductDTO(orderId);
         List<OrderProductDTO> oProducts = this.getOProducts(param);
 
-        //if no product, return writing
-        if (ObjUtil.isEmpty(oProducts)) {
-            return OrderStatus.WRITING;
-        }
-
-        //get last process
-        List<OrderStatus> orderStatuses
-                = oProducts.stream()
-                .map(OrderProductDTO::getOrderStatus)
-                .collect(Collectors.toList());
-        OrderStatus lastProcess = null;
-        for (OrderStatus status : orderStatuses) {
-            if (status.isProcess()) {
-                //set last process when first or get former one
-                if (lastProcess == null || status.isFormerThan(lastProcess)) {
-                    lastProcess = status;
-                }
-            }
-        }
-
-        //if last process is null, all products are canceled
-        return (lastProcess != null) ? lastProcess : OrderStatus.CANCEL;
+        return orderService.getProperOrderStatus(oProducts);
     }
+
+    public OrderStatus getProperOrderStatus(int orderId, int deliveryId){
+        //calculate the proper product status
+
+        //get order products
+        OrderProductDTO param = new OrderProductDTO();
+        param.setOrderId(orderId);
+        param.setDeliveryId(deliveryId);
+        List<OrderProductDTO> oProducts = this.getOProducts(param);
+
+        return orderService.getProperOrderStatus(oProducts);
+    }
+
 
 }

@@ -3,6 +3,8 @@ package dev.rokong.order.main;
 import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDTO;
 
+import java.util.List;
+
 public interface OrderService {
     public OrderDTO getOrder(int id);
     public OrderDTO getOrderNotNull(int id);
@@ -20,4 +22,5 @@ public interface OrderService {
      */
     public void cancelOrder(int id, String user);
     public String getOrderDesc(int id);
+    public OrderStatus getProperOrderStatus(List<?> list);
 }

@@ -25,9 +25,9 @@ public interface OrderProductService {
     public void deleteOProduct(OrderProductDTO oProduct);
     public void updateOProductToNull(int productId, String optionCd);
     public int countOProductsByDelivery(int orderId, int deliveryId);
-    public int totalPriceByDelivery(int orderId, int deliveryId);
+    public int totalPrice(int orderId, int deliveryId);
     public int totalPrice(int orderId);
-    public void updateOProductStatus(OrderProductDTO oProduct);
+    public void updateStatus(OrderProductDTO oProduct);
 
     /**
      * product can not access order main directly.
@@ -42,5 +42,14 @@ public interface OrderProductService {
 
     public void updateStatusByDelivery(int orderId, int deliveryId, OrderStatus orderStatus);
 
+    /**
+     * referred by order delivery when order delivery is empty
+     * decide whether it is writing or canceled
+     *
+     * @param orderId
+     * @return
+     */
     public OrderStatus getProperOrderStatus(int orderId);
+
+    public OrderStatus getProperOrderStatus(int orderId, int deliveryId);
 }

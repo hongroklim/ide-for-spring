@@ -1,22 +1,19 @@
 package dev.rokong.order.main;
 
-import com.sun.corba.se.impl.resolver.ORBDefaultInitRefResolverImpl;
-import dev.rokong.dto.OrderDeliveryDTO;
-import dev.rokong.dto.OrderProductDTO;
-import dev.rokong.order.delivery.OrderDeliveryService;
-import dev.rokong.order.product.OrderProductService;
-import dev.rokong.util.ObjUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Service;
-
 import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDTO;
+import dev.rokong.dto.OrderProductDTO;
 import dev.rokong.exception.BusinessException;
+import dev.rokong.order.delivery.OrderDeliveryService;
+import dev.rokong.order.product.OrderProductService;
 import dev.rokong.pay.type.PayTypeService;
 import dev.rokong.user.UserService;
+import dev.rokong.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 @Slf4j
@@ -165,7 +162,7 @@ public class OrderServiceImpl implements OrderService {
         OrderDTO order = this.getOrderNotNull(id);
 
         //get tobe order status
-        OrderStatus tobeStatus = oProductService.getProperOrderStatus(id);
+        OrderStatus tobeStatus = oDeliverySerivce.getProperOrderStatus(id);
 
         if(order.getOrderStatus() != tobeStatus){
             //update only status is changed
@@ -214,5 +211,46 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return sbuf.toString();
+    }
+
+    public OrderStatus getProperOrderStatus(List<?> list){
+        //if list is empty, return WRITING
+        if(ObjUtil.isEmpty(list)){
+            return OrderStatus.WRITING;
+        }
+
+        //verify list object's class
+        Class<?> clazz = list.get(0).getClass();
+        Method m = null;
+        try {
+            m = clazz.getMethod("getOrderStatus");
+        } catch (NoSuchMethodException e) {
+            log.debug("class : {}, method name : {}", clazz.toString(), "getOrderStatus");
+            throw new RuntimeException("class does not have method");
+        }
+
+        //the result of method
+        OrderStatus lastProcess = null;
+
+        OrderStatus status = null;
+        for(Object o : list){
+            try {
+                status = (OrderStatus) m.invoke(o);
+            } catch (ReflectiveOperationException e) {
+                log.debug("method name : {}, object : {}", m.toString(), o.toString());
+                throw new RuntimeException("can not invoke method");
+            }
+
+            if(status != null && status.isProcess()){
+                //set last process when first or get former one
+                if (lastProcess == null || status.isFormerThan(lastProcess)) {
+                    log.debug("status : {}", status.name());
+                    lastProcess = status;
+                }
+            }
+        }
+
+        //if last process is null, all products are canceled
+        return (lastProcess != null) ? lastProcess : OrderStatus.CANCEL;
     }
 }

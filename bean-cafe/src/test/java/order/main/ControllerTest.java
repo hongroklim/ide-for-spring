@@ -48,7 +48,7 @@ public class ControllerTest extends MvcUnitConfig {
     }
     
     @Test
-    public void getorder() throws Exception {
+    public void getOrder() throws Exception {
         OrderDTO order = mockObj.order.any();
 
         OrderDTO res = this.reqAndResBody(
@@ -57,7 +57,7 @@ public class ControllerTest extends MvcUnitConfig {
         );
 
         assertThat(res, is(notNullValue()));
-        assertThat(ObjUtil.isNotEmpty(res.getId()), is(equalTo(true)));
+        assertThat(res.getId() != 0, is(equalTo(true)));
     }
 
     @Test
