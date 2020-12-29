@@ -2,16 +2,22 @@ package order.main;
 
 import config.SpringConfig;
 import dev.rokong.annotation.OrderStatus;
-import dev.rokong.dto.OrderDTO;
-import dev.rokong.dto.OrderProductDTO;
+import dev.rokong.dto.*;
 import dev.rokong.mock.MockObjects;
+import dev.rokong.order.delivery.OrderDeliveryDAO;
 import dev.rokong.order.delivery.OrderDeliveryService;
+import dev.rokong.order.main.OrderDAO;
+import dev.rokong.order.main.OrderService;
+import dev.rokong.order.product.OrderProductDAO;
 import dev.rokong.order.product.OrderProductService;
+import dev.rokong.product.main.ProductService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -23,10 +29,25 @@ public class ServiceTest extends SpringConfig {
     private MockObjects mockObj;
 
     @Autowired
+    private OrderService orderService;
+
+    @Autowired
     private OrderProductService oProductService;
 
     @Autowired
     private OrderDeliveryService oDeliveryService;
+
+    @Autowired
+    private OrderDAO orderDAO;
+
+    @Autowired
+    private OrderProductDAO oProductDAO;
+
+    @Autowired
+    private OrderDeliveryDAO oDeliveryDAO;
+
+    @Autowired
+    private ProductService productService;
 
     @Test
     public void getProperOrderStatus() {
@@ -96,5 +117,84 @@ public class ServiceTest extends SpringConfig {
         assertThat(properStatus, is(equalTo(OrderStatus.CANCEL)));
     }
 
-    //TODO update order status and check delivery and products
+    /**
+     * preapre order status
+     * "order" : OrderDTO, "oDelivery" : List(OrderDeliveryDTO), "oProduct" : List(OrderProductDTO)
+     * <pre>
+     *main             *
+     *delivery     *       *
+     *product    * * *     *
+     * </pre>
+     * @return hashMap includes order ,oDelivery, oProduct
+     */
+    public Map<String, Object> prepareOrderStatus() {
+        Map<String, Object> result = new HashMap<>();
+
+        OrderDTO order = mockObj.order.any();
+        result.put("order", order);
+
+        List<OrderProductDTO> oProdList = mockObj.oProduct.anyList(3);
+
+        //get another product
+        ProductDTO product = mockObj.product.temp();
+        product.setDeliveryId(null);
+        product = productService.createProduct(product);
+
+        //insert another order product
+        OrderProductDTO oProduct = new OrderProductDTO();
+        oProduct.setOrderId(order.getId());
+        oProduct.setProductId(product.getId());
+        oProduct.setCnt(1);
+        oProduct = oProductService.addOProduct(oProduct);
+
+        oProdList.add(oProduct);
+        result.put("oProduct", oProdList);
+
+        List<OrderDeliveryDTO> oDlvrList = new ArrayList<>();
+
+        //add order delivery from mock objects
+        OrderDeliveryDTO oDelivery = new OrderDeliveryDTO();
+        oDelivery.setOrderId(oProdList.get(0).getOrderId());
+        oDelivery.setDeliveryId(oProdList.get(0).getDeliveryId());
+        oDelivery = oDeliveryService.getODeliveryNotNull(oDelivery);
+        oDlvrList.add(oDelivery);
+
+        //add order delivery from created product
+        oDelivery.setDeliveryId(product.getDeliveryId());
+        oDelivery = oDeliveryService.getODeliveryNotNull(oDelivery);
+        oDlvrList.add(oDelivery);
+
+        result.put("oDelivery", oDlvrList);
+
+        return result;
+    }
+
+    @Test
+    public void updateOrderStatus(){
+        Map<String, Object> map = this.prepareOrderStatus();
+        OrderDTO order = (OrderDTO) map.get("order");
+
+        OrderStatus tobeStatus = OrderStatus.CHECKING;
+
+        //update status
+        order.setOrderStatus(tobeStatus);
+        orderService.updateOrderStatus(order);
+
+        //order main
+        order = orderDAO.selectOrder(order.getId());
+        assertThat(order.getOrderStatus(), is(equalTo(tobeStatus)));
+
+        //order delivery
+        List<OrderDeliveryDTO> oDlvrList = oDeliveryDAO.selectByOrder(order.getId());
+        oDlvrList.forEach(d -> {
+            assertThat(d.getOrderStatus(), is(equalTo(tobeStatus)));
+        });
+
+        //order product
+        OrderProductDTO param = new OrderProductDTO(order.getId());
+        List<OrderProductDTO> oProdList = oProductDAO.selectList(param);
+        oProdList.forEach(p -> {
+            assertThat(p.getOrderStatus(), is(equalTo(tobeStatus)));
+        });
+    }
 }

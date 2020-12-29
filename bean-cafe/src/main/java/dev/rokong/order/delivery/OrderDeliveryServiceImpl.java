@@ -101,18 +101,27 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         return this.getODeliveryNotNull(oDelivery);
     }
 
-    public boolean addODelivery(int orderId, int deliveryId){
+    public void addODelivery(int orderId, int deliveryId){
         //search oDelivery whether it is already exists
         OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
         oDelivery = this.getODelivery(oDelivery);
 
         //if order delivery not exists, it will be created
-        boolean tobeCreated = (oDelivery == null);
+        boolean tobeCreated = (oDelivery == null || oDelivery.getOrderStatus().isCanceled());
 
-        if (tobeCreated) {
-            //if not exists, create oDelivery
-            oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
-            this.createODelivery(oDelivery);
+        if(tobeCreated){
+            OrderDeliveryDTO param = new OrderDeliveryDTO(orderId, deliveryId);
+
+            if(oDelivery == null){
+                //if not exists, create oDelivery
+                this.createODelivery(param);
+
+            }else if(oDelivery.getOrderStatus().isCanceled()){
+                //if existing one is canceled, update status
+                OrderStatus orderStatus = oProductService.getProperOrderStatus(orderId, deliveryId);
+                param.setOrderStatus(orderStatus);
+                oDeliveryDAO.update(param);
+            }
 
             //update delivery price in order
             orderService.updateOrderDeliveryPrice(orderId);
@@ -120,12 +129,10 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
 
         //update price
         this.updatePrice(orderId, deliveryId);
-
-        return tobeCreated;
     }
     
-    public boolean removeODelivery(int orderId, int deliveryId){
-        //verfiy all values are defined
+    public void removeODelivery(int orderId, int deliveryId){
+        //verify all values are defined
         OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
         this.verifyPrimaryDefined(oDelivery);
 
@@ -140,15 +147,14 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
             //update price
             this.updatePrice(orderId, deliveryId);
 
-            return false;
         }else{
-            //order products are not exists, then delete
-            oDeliveryDAO.delete(oDelivery);
+            //order products are not exists, then cancel
+            oDelivery.setOrderStatus(OrderStatus.CANCEL);
+            oDeliveryDAO.update(oDelivery);
 
             //update delivery price in order
             orderService.updateOrderDeliveryPrice(orderId);
 
-            return true;
         }
     }
 
@@ -227,7 +233,7 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId);
         oDelivery.setOrderStatus(orderStatus);
         oDelivery.setPrice(null);
-        oDelivery.setOrderStatus(null);
+        oDelivery.setShipCd(null);
 
         //update order delivery (valid)
         for(OrderDeliveryDTO d : oDlvrList.stream()

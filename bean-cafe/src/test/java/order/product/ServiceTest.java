@@ -267,9 +267,15 @@ public class ServiceTest extends SpringConfig {
     }
 
     @Test
-    public void updateStatusByOrder(){
+    public void updateStatusByOrderDelivery(){
         //create list
         List<OrderProductDTO> oProdList = mockObj.oProduct.anyList(4);
+
+        //all order products are same order and delivery id
+        for(int i = 0; i<oProdList.size()-1; i++){
+            assertThat(oProdList.get(i).getOrderId(), is(equalTo(oProdList.get(i + 1).getOrderId())));
+            assertThat(oProdList.get(i).getDeliveryId(), is(equalTo(oProdList.get(i + 1).getDeliveryId())));
+        }
 
         //update one product invalid
         OrderProductDTO oProduct = oProdList.get(0);
@@ -277,11 +283,13 @@ public class ServiceTest extends SpringConfig {
         oProductService.updateStatus(oProduct);
 
         //update order to payment ready
-        //TODO fix test into delivery
-        oProductService.updateStatusByOrder(oProduct.getOrderId(), OrderStatus.PAYMENT_STANDBY);
+        oProductService.updateStatusByDelivery(oProduct.getOrderId(), oProduct.getDeliveryId(),
+                OrderStatus.PAYMENT_STANDBY);
 
         //refresh new lists in order
-        OrderProductDTO param = new OrderProductDTO(oProduct.getOrderId());
+        OrderProductDTO param = new OrderProductDTO();
+        param.setOrderId(oProduct.getOrderId());
+        param.setDeliveryId(oProduct.getDeliveryId());
         List<OrderProductDTO> newList = oProductService.getOProducts(param);
 
         for(OrderProductDTO p : newList){
@@ -298,4 +306,7 @@ public class ServiceTest extends SpringConfig {
     }
 
     //TODO update order status and check delivery and products
+    public void changeOrderStatus(){
+
+    }
 }

@@ -1,8 +1,10 @@
 package dev.rokong.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class ProductDTO {
     private int id;
     private String name;
@@ -14,6 +16,10 @@ public class ProductDTO {
     private Integer deliveryId;
     private Integer deliveryPrice;
     private Integer discountPrice;
+
+    public ProductDTO(int id){
+        this.id = id;
+    }
 
     public int getStockCntInt(){
         return (this.stockCnt != null) ? this.stockCnt : 0;

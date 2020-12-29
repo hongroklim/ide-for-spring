@@ -1,12 +1,13 @@
 package order.delivery;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
+import dev.rokong.annotation.OrderStatus;
 import dev.rokong.dto.OrderDeliveryDTO;
+import dev.rokong.dto.OrderProductDTO;
 import dev.rokong.order.delivery.OrderDeliveryService;
+import dev.rokong.order.product.OrderProductService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,10 +16,15 @@ import dev.rokong.dto.OrderDTO;
 import dev.rokong.dto.ProductDeliveryDTO;
 import dev.rokong.mock.MockObjects;
 
+import java.util.List;
+
 public class ServiceTest extends SpringConfig {
 
     @Autowired
     OrderDeliveryService oDeliveryService;
+
+    @Autowired
+    OrderProductService oProductService;
 
     @Autowired MockObjects mObj;
 
@@ -31,12 +37,8 @@ public class ServiceTest extends SpringConfig {
         ProductDeliveryDTO pDelivery = mObj.pDelivery.any();
 
         //add order product delivery
-        boolean isAdded = oDeliveryService.addODelivery(
-            order.getId(), pDelivery.getId()
-        );
-
-        //if oDelivery doesn't already exists, then return true
-        assertThat(isAdded, is(equalTo(true)));
+        oDeliveryService.addODelivery(order.getId(), pDelivery.getId());
+        //if oDelivery doesn't already exists, then it will insert
 
         //get order product delivery
         OrderDeliveryDTO param = new OrderDeliveryDTO(order.getId(), pDelivery.getId());
@@ -64,22 +66,51 @@ public class ServiceTest extends SpringConfig {
         int deliveryId = pDelivery.getId();
 
         //add order product delivery
-        oDeliveryService.addODelivery(
-            orderId, deliveryId
-        );
+        oDeliveryService.addODelivery(orderId, deliveryId);
 
         //get order product delivery
         OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
         oDelivery = oDeliveryService.getODeliveryNotNull(oDelivery);
 
-        boolean isRemoved = oDeliveryService.removeODelivery(orderId, deliveryId);
-
-        //if there is no order products with this delivery id, then returns true
-        assertThat(isRemoved, is(equalTo(true)));
+        oDeliveryService.removeODelivery(orderId, deliveryId);
+        //if there is no order products with this delivery id, then it will be removed
 
         //oDelivery is deleted
         oDelivery = oDeliveryService.getODelivery(oDelivery);
         assertThat(oDelivery, is(nullValue()));
+    }
+
+    @Test
+    public void updateODeliveryStatus(){
+        //create order products
+        List<OrderProductDTO> oProdList = mObj.oProduct.anyList(3);
+        OrderProductDTO oProduct = oProdList.get(0);
+
+        OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(oProduct.getOrderId(), oProduct.getDeliveryId());
+        oDelivery = oDeliveryService.getODelivery(oDelivery);
+
+        //at first, order delivery status is writing
+        assertThat(oDelivery.getOrderStatus(), is(equalTo(OrderStatus.WRITING)));
+
+        //update one product
+        oProduct.setOrderStatus(OrderStatus.CANCELED_WRITE);
+        oProductService.updateStatus(oProduct);
+
+        //the other products are writing, so order delivery's status is not changed
+        oDelivery = oDeliveryService.getODelivery(oDelivery);
+        assertThat(oDelivery.getOrderStatus(), is(equalTo(OrderStatus.WRITING)));
+
+        //update all product
+        for(OrderProductDTO p : oProdList){
+            p.setOrderStatus(OrderStatus.CANCELED_WRITE);
+            oProductService.updateStatus(p);
+        }
+
+        oDelivery = oDeliveryService.getODelivery(oDelivery);
+
+        //after cancel all products, order delivery is still remains
+        assertThat(oDelivery, is(notNullValue()));
+        assertThat(oDelivery.getOrderStatus(), is(equalTo(OrderStatus.CANCEL)));
     }
 
     //TODO update order status and check delivery and products

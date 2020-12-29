@@ -29,17 +29,6 @@ public interface OrderProductService {
     public int totalPrice(int orderId);
     public void updateStatus(OrderProductDTO oProduct);
 
-    /**
-     * product can not access order main directly.
-     * alternatively, invoke {@link dev.rokong.order.delivery.OrderDeliveryService} methods
-     * to change order main's values.
-     *
-     * @param orderId
-     * @param orderStatus
-     * @deprecated {@link #updateStatusByDelivery(int, int, OrderStatus)} is alternative
-     */
-    public void updateStatusByOrder(int orderId, OrderStatus orderStatus);
-
     public void updateStatusByDelivery(int orderId, int deliveryId, OrderStatus orderStatus);
 
     /**

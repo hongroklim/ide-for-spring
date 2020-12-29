@@ -8,23 +8,9 @@ public interface OrderDeliveryService {
     public OrderDeliveryDTO getODelivery(OrderDeliveryDTO oDelivery);
     public OrderDeliveryDTO getODeliveryNotNull(OrderDeliveryDTO oPDelivery);
 
-    /**
-     * 
-     * 
-     * @param orderId
-     * @param deliveryId
-     * @return if true, delivery is added
-     */
-    public boolean addODelivery(int orderId, int deliveryId);
-    
-    /**
-     * 
-     * 
-     * @param orderId
-     * @param deliveryId
-     * @return if true, delivery is removed
-     */
-    public boolean removeODelivery(int orderId, int deliveryId);
+    public void addODelivery(int orderId, int deliveryId);
+
+    public void removeODelivery(int orderId, int deliveryId);
 
     /**
      * calculate total delivery price in order

@@ -222,13 +222,22 @@ public class OrderProductServiceImpl implements OrderProductService {
     public void updateStatus(OrderProductDTO oProduct){
         //parameter : orderId, productId, optionCd, statusCd
 
-        //get asis one (also verify parameter)
-        OrderProductDTO asisOProduct = this.getOProductNotNull(oProduct);
+        if(oProduct == null){
+            throw new IllegalArgumentException("order product is null");
+        }
 
         //verify tobe order status
         OrderStatus orderStatus = oProduct.getOrderStatus();
         if(orderStatus == null){
             throw new BusinessException("order status is not defined");
+        }
+
+        //get asis one (also verify parameter)
+        OrderProductDTO asisOProduct = this.getOProductNotNull(oProduct);
+
+        if (asisOProduct.getOrderStatus().equals(orderStatus)) {
+            log.debug("asis and tobe order status are equal. not to be updated");
+            return;
         }
 
         //update order product
@@ -243,37 +252,6 @@ public class OrderProductServiceImpl implements OrderProductService {
 
         //update status
         oDeliveryService.updateStatus(asisOProduct.getOrderId(), asisOProduct.getDeliveryId());
-    }
-
-    public void updateStatusByOrder(int orderId, OrderStatus orderStatus){
-        //referred by main order
-        //update order status in order product (which is valid)
-
-        //check order exists
-        orderService.getOrderNotNull(orderId);
-
-        //get order product list in order
-        OrderProductDTO oProduct = new OrderProductDTO(orderId);
-        List<OrderProductDTO> oProdList = this.getOProducts(oProduct);
-
-        //create order product parameter and update
-        oProduct.setOrderStatus(orderStatus);
-
-        //update valid and order status
-        for(OrderProductDTO p : oProdList.stream()
-                .filter(p -> p.getOrderStatus().isProcess())    //valid order products
-                .collect(Collectors.toList())){
-            //set parameter and update
-            oProduct.setProductId(p.getProductId());
-            oProduct.setOptionCd(p.getOptionCd());
-            oProductDAO.updateStatus(oProduct);
-        }
-
-        //if tobe order status is canceled
-        if(orderStatus.isCanceled()){
-            //update order product's price
-            oDeliveryService.removeODelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
-        }
     }
 
     public void updateStatusByDelivery(int orderId, int deliveryId, OrderStatus orderStatus){
