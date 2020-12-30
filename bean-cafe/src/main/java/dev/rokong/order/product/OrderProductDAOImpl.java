@@ -23,24 +23,28 @@ public class OrderProductDAOImpl implements OrderProductDAO {
         return sqlSession.selectOne(PREFIX+"select", oProduct);
     }
 
+    public int count(OrderProductDTO oProduct){
+        return sqlSession.selectOne(PREFIX + "count", oProduct);
+    }
+
+    public int countByDelivery(OrderProductDTO oProduct){
+        return sqlSession.selectOne(PREFIX+"countByDelivery", oProduct);
+    }
+
     public void insert(OrderProductDTO oProduct){
         sqlSession.insert(PREFIX+"insert", oProduct);
     }
-    
+
     public void delete(OrderProductDTO oProduct){
         sqlSession.delete(PREFIX+"delete", oProduct);
     }
-    
+
     public void updateCnt(OrderProductDTO oProduct){
         sqlSession.update(PREFIX+"updateCnt", oProduct);
     }
 
     public void updateToNull(OrderProductDTO oProduct){
         sqlSession.update(PREFIX+"updateToNull", oProduct);
-    }
-
-    public int countByDelivery(OrderProductDTO oProduct){
-        return sqlSession.selectOne(PREFIX+"countByDelivery", oProduct);
     }
 
     public void updateStatus(OrderProductDTO oProduct){

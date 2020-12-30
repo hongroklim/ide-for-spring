@@ -48,6 +48,16 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
+    public void checkOrderExist(int id){
+        if(id == 0){
+            throw new IllegalArgumentException("order id is not defined");
+        }
+
+        if (orderDAO.count(id) == 0) {
+            throw new BusinessException(id+" order is not exists");
+        }
+    }
+
     public OrderDTO getOrderNotNull(OrderDTO order){
         return this.getOrderNotNull(order.getId());
     }
@@ -84,8 +94,9 @@ public class OrderServiceImpl implements OrderService {
 
     public void updateOrderPrice(int id){
         //used by order.product
-        OrderDTO order = this.getOrderNotNull(id);
+        this.checkOrderExist(id);
 
+        OrderDTO order = new OrderDTO(id);
         int price = oDeliverySerivce.totalPrice(id);
         order.setPrice(price);
 
@@ -94,8 +105,9 @@ public class OrderServiceImpl implements OrderService {
 
     public void updateOrderDeliveryPrice(int id){
         //used by order.product
-        OrderDTO order = this.getOrderNotNull(id);
+        this.checkOrderExist(id);
 
+        OrderDTO order = new OrderDTO(id);
         int deliveryPrice = oDeliverySerivce.totalDeliveryPrice(id);
         order.setDeliveryPrice(deliveryPrice);
 
@@ -172,7 +184,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public String getOrderDesc(int id){
-        this.getOrderNotNull(id);
+        this.checkOrderExist(id);
 
         List<OrderProductDTO> list
                 = oProductService.getOProducts(new OrderProductDTO(id));

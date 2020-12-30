@@ -113,7 +113,7 @@ public class TossService extends AbstractPayApiService {
     @Override
     protected ObjectNode paramToQuery(int orderId) {
         //get order
-        orderService.getOrderNotNull(orderId);
+        orderService.checkOrderExist(orderId);
 
         ObjectNode json = this.objectMapper.createObjectNode();
         json.put("apiKey", this.API_KEY);

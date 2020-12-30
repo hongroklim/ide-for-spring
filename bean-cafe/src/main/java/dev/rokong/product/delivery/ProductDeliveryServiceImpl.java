@@ -14,14 +14,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ProductDeliveryServiceImpl implements ProductDeliveryService {
-    
-    @Autowired ProductDeliveryDAO pDeliveryDAO;
 
-    @Autowired UserService uService;
-    @Autowired ProductService pService;
+    @Autowired
+    private ProductDeliveryDAO pDeliveryDAO;
+    @Autowired
+    private UserService uService;
+    @Autowired
+    private ProductService pService;
 
     public ProductDeliveryDTO getPDelivery(int id){
-        return pDeliveryDAO.selectPDelivery(id);
+        return pDeliveryDAO.select(id);
     }
 
     public ProductDeliveryDTO getPDeliveryNotNull(int id){
@@ -31,13 +33,19 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
         }
         return pDelivery;
     }
+
+    public void checkPDeliveryExist(int id){
+        if(id == 0){
+            throw new IllegalArgumentException("product delivery id is not defined");
+        }
+
+        if(pDeliveryDAO.count(id) == 0){
+            throw new BusinessException(id+" product delivery is not exists");
+        }
+    }
     
     private ProductDeliveryDTO getPDeliveryNotNull(ProductDeliveryDTO pDelivery){
         return this.getPDeliveryNotNull(pDelivery.getId());
-    }
-
-    public ProductDeliveryDTO getPDeliveryByProduct(int productId){
-        return pDeliveryDAO.selectPDeliveryByProductId(productId);
     }
 
     public ProductDeliveryDTO initDefaultPDelivery(String sellerNm, int price){
@@ -62,7 +70,7 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
         this.verifyPDeliveryParameter(pDelivery);
 
         //insert
-        pDeliveryDAO.insertPDelivery(pDelivery);
+        pDeliveryDAO.insert(pDelivery);
 
         return this.getPDeliveryNotNull(pDelivery);
     }
@@ -71,7 +79,7 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
         this.verifyPDeliveryParameter(pDelivery);
 
         //update
-        pDeliveryDAO.updatePDelivery(pDelivery);
+        pDeliveryDAO.update(pDelivery);
 
         return this.getPDeliveryNotNull(pDelivery);
     }
@@ -82,7 +90,7 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
             throw new BusinessException(id+" delivery id has product(s)");
         }
 
-        pDeliveryDAO.deletePDelivery(id);
+        pDeliveryDAO.delete(id);
     }
 
     private void verifyPDeliveryParameter(ProductDeliveryDTO pDelivery){

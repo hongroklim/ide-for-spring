@@ -2,6 +2,7 @@ package dev.rokong.cart;
 
 import java.util.List;
 
+import dev.rokong.dto.ProductDetailDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,10 +69,11 @@ public class CartServiceImpl implements CartService {
         uService.getUserNotNull(cart.getUserNm());
 
         //product is exists
-        pService.checkProductExists(cart.getProductId());
+        pService.checkProductExist(cart.getProductId());
 
         //product cd is exists
-        pDetailService.getDetailNotNull(cart.getProductId(), cart.getOptionCd());
+        ProductDetailDTO pDetail = new ProductDetailDTO(cart.getProductId(), cart.getOptionCd());
+        pDetailService.checkDetailExist(pDetail);
 
         //insert
         cartDAO.insert(cart);

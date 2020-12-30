@@ -139,7 +139,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public void deleteProduct(int id){
-        this.checkProductExists(id);
+        this.checkProductExist(id);
 
         pOptionService.deletePOptionByProduct(id);
 
@@ -154,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
-    public void checkProductExists(int id){
+    public void checkProductExist(int id){
         if(id == 0){
             throw new IllegalArgumentException("product id parameter is not defined");
         }
@@ -187,10 +187,8 @@ public class ProductServiceImpl implements ProductService {
 
         //category
         if(ObjUtil.isNotEmpty(product.getCategoryId())){
-            cService.getCategoryNotNull(product.getCategoryId());
+            cService.checkCategoryExist(product.getCategoryId());
         }
-
-        //enabled
 
         //seller
         if(ObjUtil.isNotEmpty(product.getSellerNm())){
@@ -206,7 +204,7 @@ public class ProductServiceImpl implements ProductService {
 
         //deliveryId
         if(ObjUtil.isNotEmpty(product.getDeliveryId())){
-            pDeliveryService.getPDeliveryNotNull(product.getDeliveryId());
+            pDeliveryService.checkPDeliveryExist(product.getDeliveryId());
         }
 
         //delivery_price

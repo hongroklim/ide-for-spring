@@ -15,28 +15,32 @@ public class ProductDetailDAOImpl implements ProductDetailDAO {
 
     @Autowired SqlSessionTemplate sqlSession;
 
-    public List<ProductDetailDTO> selectDetailList(ProductDetailDTO pDetail){
-        return sqlSession.selectList(PREFIX+"selectDetailList", pDetail);
+    public List<ProductDetailDTO> selectList(ProductDetailDTO pDetail){
+        return sqlSession.selectList(PREFIX+"selectList", pDetail);
     }
 
-    public ProductDetailDTO selectDetail(ProductDetailDTO pDetail){
-        return sqlSession.selectOne(PREFIX+"selectDetail", pDetail);
-    }
-    
-    public void insertDetail(ProductDetailDTO pDetail){
-        sqlSession.insert(PREFIX+"insertDetail", pDetail);
-    }
-    
-    public void deleteDetail(ProductDetailDTO pDetail){
-        sqlSession.delete(PREFIX+"deleteDetail", pDetail);
+    public ProductDetailDTO select(ProductDetailDTO pDetail){
+        return sqlSession.selectOne(PREFIX+"select", pDetail);
     }
 
-    public void deleteDetailList(ProductDetailDTO pDetail){
-        sqlSession.delete(PREFIX+"deleteDetailList", pDetail);
+    public int count(ProductDetailDTO pDetail){
+        return sqlSession.selectOne(PREFIX + "count", pDetail);
     }
     
-    public void updateDetail(ProductDetailDTO pDetail){
-        sqlSession.update(PREFIX+"updateDetail", pDetail);
+    public void insert(ProductDetailDTO pDetail){
+        sqlSession.insert(PREFIX+"insert", pDetail);
+    }
+    
+    public void delete(ProductDetailDTO pDetail){
+        sqlSession.delete(PREFIX+"delete", pDetail);
+    }
+
+    public void deleteList(ProductDetailDTO pDetail){
+        sqlSession.delete(PREFIX+"deleteList", pDetail);
+    }
+    
+    public void update(ProductDetailDTO pDetail){
+        sqlSession.update(PREFIX+"update", pDetail);
     }
     
 }

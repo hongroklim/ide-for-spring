@@ -17,33 +17,28 @@ public class ProductOptionDAOImpl implements ProductOptionDAO {
 
     @Autowired SqlSessionTemplate sqlSession;
 
-    public List<ProductOptionDTO> selectProductOptionList(ProductOptionDTO pOption){
-        return sqlSession.selectList(PREFIX+"selectProductOption", pOption);
+    public List<ProductOptionDTO> selectList(ProductOptionDTO pOption){
+        return sqlSession.selectList(PREFIX+"select", pOption);
     }
     
-    public ProductOptionDTO selectProductOption(ProductOptionDTO pOption){
-        return sqlSession.selectOne(PREFIX+"selectProductOption", pOption);
+    public ProductOptionDTO select(ProductOptionDTO pOption){
+        return sqlSession.selectOne(PREFIX+"select", pOption);
     }
 
-    public void insertProductOption(ProductOptionDTO pOption){
-        sqlSession.insert(PREFIX+"insertProductOption", pOption);
+    public void insert(ProductOptionDTO pOption){
+        sqlSession.insert(PREFIX+"insert", pOption);
     }
 
-    public void deleteProductOption(ProductOptionDTO pOption){
-        sqlSession.delete(PREFIX+"deleteProductOption", pOption);
+    public void delete(ProductOptionDTO pOption){
+        sqlSession.delete(PREFIX+"delete", pOption);
     }
 
-    public void updateProductOption(ProductOptionDTO asisPOption, String name, int ord){
-        Map<String, Object> hm = new HashMap<String, Object>();
-        hm.put("pOption", asisPOption);
-        hm.put("name", name);
-        hm.put("ord", ord);
-
-        sqlSession.update(PREFIX+"updateProductOption", hm);
+    public void update(ProductOptionDTO pOption){
+        sqlSession.update(PREFIX+"update", pOption);
     }
 
     public void backwardOptionOrder(ProductOptionDTO pOption, int startOrder, int endOrder){
-        Map<String, Object> hm = new HashMap<String, Object>();
+        Map<String, Object> hm = new HashMap<>();
         hm.put("pOption", pOption);
         hm.put("startOrder", startOrder);
         hm.put("endOrder", endOrder);
@@ -51,7 +46,7 @@ public class ProductOptionDAOImpl implements ProductOptionDAO {
     }
 
     public void forwardOptionOrder(ProductOptionDTO pOption, int startOrder, int endOrder){
-        Map<String, Object> hm = new HashMap<String, Object>();
+        Map<String, Object> hm = new HashMap<>();
         hm.put("pOption", pOption);
         hm.put("startOrder", startOrder);
         hm.put("endOrder", endOrder);
@@ -59,14 +54,14 @@ public class ProductOptionDAOImpl implements ProductOptionDAO {
     }
 
     public void updateOptionGroup(ProductOptionDTO pOption, int tobeGroup){
-        Map<String, Object> hm = new HashMap<String, Object>();
+        Map<String, Object> hm = new HashMap<>();
         hm.put("pOption", pOption);
         hm.put("tobeGroup", tobeGroup);
         sqlSession.update(PREFIX+"updateOptionGroup", hm);
     }
 
     public void backwardOptionGroup(int productId, int startGroup, int endGroup){
-        Map<String, Integer> hm = new HashMap<String, Integer>();
+        Map<String, Integer> hm = new HashMap<>();
         hm.put("productId", productId);
         hm.put("startGroup", startGroup);
         hm.put("endGroup", endGroup);
@@ -74,7 +69,7 @@ public class ProductOptionDAOImpl implements ProductOptionDAO {
     }
 
     public void forwardOptionGroup(int productId, int startGroup, int endGroup){
-        Map<String, Integer> hm = new HashMap<String, Integer>();
+        Map<String, Integer> hm = new HashMap<>();
         hm.put("productId", productId);
         hm.put("startGroup", startGroup);
         hm.put("endGroup", endGroup);

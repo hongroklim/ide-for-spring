@@ -31,6 +31,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         return delivery;
     }
 
+    public void checkDeliveryExist(int orderId){
+        if(orderId == 0){
+            throw new IllegalArgumentException("order id is not defined");
+        }
+
+        if (deliveryDAO.count(orderId) == 0) {
+            throw new BusinessException(orderId + " delivery is not exists");
+        }
+    }
+
     private DeliveryDTO getDeliveryNotNull(DeliveryDTO delivery){
         return this.getDeliveryNotNull(delivery.getOrderId());
     }
@@ -69,14 +79,14 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
     
     public void deleteDelivery(int orderId){
-        this.getDeliveryNotNull(orderId);
+        this.checkDeliveryExist(orderId);
 
         deliveryDAO.delete(orderId);
     }
 
     private void verifyParameter(DeliveryDTO delivery){
         //order id exists in ord_main
-        oService.getOrderNotNull(delivery.getOrderId());
+        oService.checkOrderExist(delivery.getOrderId());
 
         //recipient nm
         if(ObjUtil.isEmpty(delivery.getRecipientNm())){

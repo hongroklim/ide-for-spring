@@ -62,10 +62,11 @@ public class CommitTest {
         OrderDTO order = orderService.getOrderNotNull(2);
 
         //get product detail
-        ProductDetailDTO product = pDetailService.getDetailNotNull(3, "0101");
+        ProductDetailDTO pDetail = new ProductDetailDTO(3, "0101");
+        pDetail = pDetailService.getDetailNotNull(pDetail);
 
         OrderProductDTO oProduct = new OrderProductDTO(
-                order.getId(), product.getProductId(), product.getOptionCd()
+                order.getId(), pDetail.getProductId(), pDetail.getOptionCd()
         );
         oProduct.setCnt(1);
 

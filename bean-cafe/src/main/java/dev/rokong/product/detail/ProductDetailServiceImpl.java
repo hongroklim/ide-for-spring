@@ -20,12 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ProductDetailServiceImpl implements ProductDetailService {
     
-    @Autowired ProductDetailDAO pDetailDAO;
+    @Autowired private ProductDetailDAO pDetailDAO;
     
-    @Autowired ProductService pService;
-    @Autowired ProductOptionService pOptionService;
-    @Autowired CartService cartService;
-    @Autowired OrderProductService oProductService;
+    @Autowired private ProductService pService;
+    @Autowired private ProductOptionService pOptionService;
+    @Autowired private CartService cartService;
+    @Autowired private OrderProductService oProductService;
 
     public List<ProductDetailDTO> getDetails(ProductDetailDTO pDetail){
         ProductDetailDTO param = new ProductDetailDTO(pDetail);
@@ -34,19 +34,26 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         if(optionCd != null && !"".equals(optionCd)){
             param.setOptionCd(optionCd+"%");
         }
-        return pDetailDAO.selectDetailList(param);
+        return pDetailDAO.selectList(param);
     }
 
-    public ProductDetailDTO getDetail(ProductDetailDTO pDetail){
-        if(pDetail.getProductId() == 0){
+    private void verifyPrimaryValuesDefined(ProductDetailDTO pDetail){
+        if(pDetail == null){
+            throw new BusinessException("product detail is not defined");
+
+        }else if(pDetail.getProductId() == 0){
             log.debug("product detail parameter : "+pDetail.toString());
             throw new BusinessException("product detail's product id is not exists");
+
         }else if(pDetail.getOptionCd() == null || "".equals(pDetail.getOptionCd())){
             log.debug("product detail parameter : "+pDetail.toString());
             throw new BusinessException("product detail's option code is not exists");
         }
+    }
 
-        return pDetailDAO.selectDetail(pDetail);
+    public ProductDetailDTO getDetail(ProductDetailDTO pDetail){
+        this.verifyPrimaryValuesDefined(pDetail);
+        return pDetailDAO.select(pDetail);
     }
 
     public ProductDetailDTO getDetailNotNull(ProductDetailDTO pDetail){
@@ -60,9 +67,13 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         return result;
     }
 
-    public ProductDetailDTO getDetailNotNull(int productId, String optionCd){
-        ProductDetailDTO param = new ProductDetailDTO(productId, optionCd);
-        return this.getDetailNotNull(param);
+    public void checkDetailExist(ProductDetailDTO pDetail){
+        this.verifyPrimaryValuesDefined(pDetail);
+
+        if(pDetailDAO.count(pDetail) == 0){
+            log.debug("product detail parameter : "+pDetail.toString());
+            throw new BusinessException("product detail is not exists");
+        }
     }
 
     public ProductDetailDTO createDetail(ProductDetailDTO pDetail){
@@ -87,13 +98,13 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         String name = this.createFullName(pDetail);
         pDetail.setFullNm(name);
 
-        pDetailDAO.insertDetail(pDetail);
+        pDetailDAO.insert(pDetail);
 
         return this.getDetailNotNull(pDetail);
     }
 
     public void deleteDetail(ProductDetailDTO pDetail){
-        this.getDetailNotNull(pDetail);
+        this.checkDetailExist(pDetail);
 
         //set null option cd in order product
         oProductService.updateOProductToNull(pDetail.getProductId(), pDetail.getOptionCd());
@@ -101,12 +112,12 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         //delete cart
         cartService.deleteCarts(pDetail.getProductId(), pDetail.getOptionCd());
 
-        pDetailDAO.deleteDetail(pDetail);
+        pDetailDAO.delete(pDetail);
     }
 
     public ProductDetailDTO updateDetail(ProductDetailDTO pDetail){
         //update price change, stock cnt, enabled
-        this.getDetailNotNull(pDetail);
+        this.checkDetailExist(pDetail);
 
         //compare price with original product
         ProductDTO product = pService.getProductNotNull(pDetail.getProductId());
@@ -119,13 +130,13 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         //set null option cd in order product
         oProductService.updateOProductToNull(pDetail.getProductId(), pDetail.getOptionCd());
 
-        pDetailDAO.updateDetail(pDetail);
+        pDetailDAO.update(pDetail);
         return this.getDetailNotNull(pDetail);
     }
 
     public List<ProductDetailDTO> getDetailsByOption(ProductOptionDTO pOption){
         ProductDetailDTO pDetail = this.paramByOption(pOption);
-        return pDetailDAO.selectDetailList(pDetail);
+        return pDetailDAO.selectList(pDetail);
     }
 
     public void deleteDetailByOption(ProductOptionDTO pOption){
@@ -137,14 +148,14 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         //delete cart
         cartService.deleteCarts(pDetail.getProductId(), pDetail.getOptionCd());
 
-        pDetailDAO.deleteDetailList(pDetail);
+        pDetailDAO.deleteList(pDetail);
     }
 
     public void updateNameByOption(ProductOptionDTO pOption){
         ProductDetailDTO param = this.paramByOption(pOption);
         //set null code in order product
         //need to be changed name
-        List<ProductDetailDTO> list = pDetailDAO.selectDetailList(param);
+        List<ProductDetailDTO> list = pDetailDAO.selectList(param);
 
         for(ProductDetailDTO pDetail : list){
             pDetail.setFullNm(this.createFullName(pDetail));

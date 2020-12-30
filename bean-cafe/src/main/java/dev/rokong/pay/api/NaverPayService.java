@@ -20,7 +20,7 @@ public class NaverPayService {
     OrderService orderService;
 
     public void insertPayApi(int orderId, String paymentId){
-        orderService.getOrderNotNull(orderId);
+        orderService.checkOrderExist(orderId);
 
         //create dto
         PayApiDTO payApi = new PayApiDTO();

@@ -23,14 +23,14 @@ public class DaoTest extends SpringConfig {
     
     @Test
     public void getCategoryList(){
-        List<CategoryDTO> cList = cDAO.selectCategoryList();
+        List<CategoryDTO> cList = cDAO.selectList();
         log.debug(cList.toString());
     }
 
     @Test
     public void selectKey(){
         //get category list to extract upId
-        List<CategoryDTO> cList = cDAO.selectCategoryList();
+        List<CategoryDTO> cList = cDAO.selectList();
         assertThat(cList, is(notNullValue()));
         assertThat(cList.size(), is(greaterThan(1)));
 
@@ -40,8 +40,8 @@ public class DaoTest extends SpringConfig {
         category.setUpId(cList.get(2).getId());
 
         //compare returned id with select one
-        int selectKey = cDAO.insertCategory(category);
-        CategoryDTO getCategory = cDAO.selectCategory(selectKey);
+        int selectKey = cDAO.insert(category);
+        CategoryDTO getCategory = cDAO.select(selectKey);
         assertThat(getCategory, is(notNullValue()));
         assertThat(getCategory.getId(), is(equalTo(selectKey)));
     }

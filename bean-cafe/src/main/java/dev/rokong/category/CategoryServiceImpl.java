@@ -20,13 +20,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired ProductDAO pDAO;
 
     public List<CategoryDTO> getCategoryList(){
-        return cDAO.selectCategoryList();
+        return cDAO.selectList();
     };
 
     public CategoryDTO createCategory(CategoryDTO category){
         if(category.getUpId() != 0){
             //check upId category exists
-            this.getCategoryNotNull(category.getUpId());
+            this.checkCategoryExist(category.getUpId());
         }
 
         //avoid duplicate order with same level
@@ -43,29 +43,29 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         //insert new category and return id
-        int createdId = cDAO.insertCategory(category);
+        int createdId = cDAO.insert(category);
         category.setId(createdId);
 
         return this.getCategoryNotNull(category);
     };
 
     public void deleteCategory(int id){
-        CategoryDTO category = this.getCategoryNotNull(id);
+        this.checkCategoryExist(id);
 
-        List<CategoryDTO> subList = this.getCategoryChildren(category.getId());
+        List<CategoryDTO> subList = this.getCategoryChildren(id);
         if(subList != null && subList.size() > 0){
             //if there are children to be deleted one,
             //throw exception and return
-            throw new BusinessException(category.getId()+"'s children are exists");
+            throw new BusinessException(id+"'s children are exists");
         }
 
         pDAO.updateCategory(id, CategoryDTO.ETC_ID);
 
-        cDAO.deleteCategory(category.getId());
+        cDAO.delete(id);
     };
     
     public CategoryDTO getCategory(int id){
-        return cDAO.selectCategory(id);
+        return cDAO.select(id);
     };
     
     public CategoryDTO updateCategory(CategoryDTO category){
@@ -82,7 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         if(category.getUpId() != 0){
             //check upId category exists
-            this.getCategoryNotNull(category.getUpId());
+            this.checkCategoryExist(category.getUpId());
 
             //prevent nested hierarchy
             if(asisCategory.getUpId() == category.getUpId()){
@@ -119,13 +119,23 @@ public class CategoryServiceImpl implements CategoryService {
         //set name
         tobeCategory.setName(category.getName());
 
-        cDAO.updateCategory(tobeCategory);
+        cDAO.update(tobeCategory);
 
         return this.getCategoryNotNull(tobeCategory);
     };
-    
+
+    public void checkCategoryExist(int id){
+        if(id == 0){
+            throw new IllegalArgumentException("category id is not defined");
+        }
+
+        if (cDAO.count(id) == 0) {
+            throw new BusinessException(id+" category is not exists");
+        }
+    }
+
     public List<CategoryDTO> getCategoryChildren(int upId){
-        return cDAO.selectCategoryChildren(upId);
+        return cDAO.selectChildren(upId);
     };
     
     public CategoryDTO updateCategoryOrder(CategoryDTO category){
@@ -159,7 +169,7 @@ public class CategoryServiceImpl implements CategoryService {
             }
 
             //execute update only order
-            cDAO.updateCategoryOrder(category);
+            cDAO.updateOrder(category);
         }else{
             log.debug("tobe order exceed the max order. it will be appended last");
         }
@@ -168,7 +178,7 @@ public class CategoryServiceImpl implements CategoryService {
     };
     
     public CategoryDTO getCategoryNotNull(int id){
-        CategoryDTO category = cDAO.selectCategory(id);
+        CategoryDTO category = cDAO.select(id);
         if(category == null){
             throw new BusinessException(id+" category is not exists");
         }
@@ -198,7 +208,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private int maxOrdOfCategory(int upId){
-        return cDAO.selectMaxCategoryOrder(upId);
+        return cDAO.selectMaxOrder(upId);
     }
 
     private void appendLastCategoryOrder(CategoryDTO category){
@@ -207,6 +217,6 @@ public class CategoryServiceImpl implements CategoryService {
         //set order max(ord)+1 value
         getCategory.setOrd(this.maxOrdOfCategory(getCategory.getUpId())+1);
 
-        cDAO.updateCategoryOrder(getCategory);
+        cDAO.updateOrder(getCategory);
     }
 }

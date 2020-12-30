@@ -18,6 +18,10 @@ public class OrderDeliveryDAOImpl implements OrderDeliveryDAO {
         return sqlSession.selectOne(PREFIX+"select", oDelivery);
     }
 
+    public int count(OrderDeliveryDTO oDelivery){
+        return sqlSession.selectOne(PREFIX + "count", oDelivery);
+    }
+
     public void insert(OrderDeliveryDTO oDelivery){
         sqlSession.insert(PREFIX+"insert", oDelivery);
     }

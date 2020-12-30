@@ -11,10 +11,15 @@ public class OrderDAOImpl implements OrderDAO {
     
     public static final String PREFIX = "dev.rokong.order.";
 
-    @Autowired SqlSessionTemplate sqlSession;
+    @Autowired
+    private SqlSessionTemplate sqlSession;
     
     public OrderDTO select(int id){
         return sqlSession.selectOne(PREFIX+"select", id);
+    }
+
+    public int count(int id){
+        return sqlSession.selectOne(PREFIX+"count", id);
     }
 
     public int insert(OrderDTO order){

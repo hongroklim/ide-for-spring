@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dev.rokong.category">
-    <select id="selectCategoryList" resultType="CategoryDTO">
+    <select id="selectList" resultType="CategoryDTO">
         WITH RECURSIVE rc_category
              (id, name, up_id, ord, depth, path, sort, cycle)
           AS (SELECT A.id, A.name, A.up_id, A.ord,
-                     1                AS depth,
-                     ARRAY[id::text]  AS path,
-                     ARRAY[ord::text]	AS sort,
-                     false			      AS cycle
+                     1                  AS depth,
+                     ARRAY[id::text]    AS path,
+                     ARRAY[ord::text]   AS sort,
+                     false              AS cycle
                 FROM category A
                WHERE up_id = 0
                UNION ALL
               SELECT A.id, A.name, A.up_id, A.ord,
-                     B.depth+1 							            AS depth,
-                     ARRAY_APPEND(B.path, A.id::text)	  AS path,
-                     ARRAY_APPEND(B.sort, A.ord::text)	AS sort,
-                     A.id::text = ANY(B.path)			      AS cycle
+                     B.depth+1                          AS depth,
+                     ARRAY_APPEND(B.path, A.id::text)   AS path,
+                     ARRAY_APPEND(B.sort, A.ord::text)  AS sort,
+                     A.id::text = ANY(B.path)           AS cycle
                 FROM category A,
                      rc_category B
                WHERE A.up_id = B.id
@@ -26,7 +26,13 @@
        ORDER BY sort
     </select>
 
-    <insert id="insertCategory" parameterType="CategoryDTO">
+    <select id="count" parameterType="int" resultType="int">
+        SELECT count(*)
+          FROM category
+         WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="CategoryDTO">
         <selectKey keyProperty="id" resultType="int" order="BEFORE">
             SELECT nextval('category_id_seq'::regclass)
         </selectKey>
@@ -35,26 +41,26 @@
         VALUES (#{id}, #{name}, #{upId}, #{ord})
     </insert>
 
-    <delete id="deleteCategory" parameterType="int">
+    <delete id="delete" parameterType="int">
         DELETE
           FROM category
          WHERE id = #{id}
     </delete>
 
-    <select id="selectCategory" parameterType="int" resultType="CategoryDTO">
+    <select id="select" parameterType="int" resultType="CategoryDTO">
         SELECT id, name, up_id, ord
           FROM category
          WHERE id = #{id}
     </select>
 
-    <select id="selectCategoryChildren" parameterType="int" resultType="CategoryDTO">
+    <select id="selectChildren" parameterType="int" resultType="CategoryDTO">
         SELECT id, name, up_id, ord
           FROM category
          WHERE up_id = #{upId}
          ORDER BY ord
     </select>
 
-    <update id="updateCategory" parameterType="CategoryDTO">
+    <update id="update" parameterType="CategoryDTO">
         UPDATE category
            SET name = #{name},
                up_id = #{upId},
@@ -62,7 +68,7 @@
          WHERE id = #{id}
     </update>
 
-    <update id="updateCategoryOrder" parameterType="CategoryDTO">
+    <update id="updateOrder" parameterType="CategoryDTO">
         UPDATE category
            SET ord = #{ord}
          WHERE id = #{id}
@@ -117,7 +123,7 @@
 	     AND id != #{childId}
     </select>
 
-    <select id="selectMaxCategoryOrder" parameterType="int" resultType="int">
+    <select id="selectMaxOrder" parameterType="int" resultType="int">
         SELECT MAX(ord)
           FROM category
          WHERE up_id = #{upId}

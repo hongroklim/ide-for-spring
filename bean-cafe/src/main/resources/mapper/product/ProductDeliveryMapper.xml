@@ -1,27 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dev.rokong.productDelivery">
-    <select id="selectPDelivery" parameterType="int" resultType="ProductDeliveryDTO">
+    <select id="select" parameterType="int" resultType="ProductDeliveryDTO">
         SELECT id, seller_nm, type, name, price
           FROM prod_dlvr
          WHERE id = #{id}
     </select>
 
-    <select id="selectPDeliveryBySeller" parameterType="string" resultType="ProductDeliveryDTO">
-        SELECT id, seller_nm, type, name, price
+    <select id="count" parameterType="int" resultType="int">
+        SELECT count(*)
           FROM prod_dlvr
-         WHERE seller_nm = #{sellerNm}
+         WHERE id = #{id}
     </select>
 
-    <select id="selectPDeliveryByProductId" parameterType="int" resultType="ProductDeliveryDTO">
-        SELECT B.id, B.seller_nm, B.type, B.name, B.price
-          FROM prod_main A,
-               prod_dlvr B
-         WHERE A.id = #{id}
-           AND A.delivery_id = B.id
-    </select>
-
-    <insert id="insertPDelivery" parameterType="ProductDeliveryDTO">
+    <insert id="insert" parameterType="ProductDeliveryDTO">
         <selectKey keyProperty="id" resultType="int" order="BEFORE">
             SELECT nextval('prod_dlvr_id_seq'::regclass)
         </selectKey>
@@ -30,7 +22,7 @@
         VALUES (#{id}, #{sellerNm}, #{type}, #{name}, #{price})
     </insert>
 
-    <update id="updatePDelivery" parameterType="ProductDeliveryDTO">
+    <update id="update" parameterType="ProductDeliveryDTO">
         UPDATE prod_dlvr
            SET id = #{id}
         <if test='type != null and !"".equals(type)'>
@@ -45,7 +37,7 @@
          WHERE id = #{id}
     </update>
 
-    <delete id="deletePDelivery" parameterType="int">
+    <delete id="delete" parameterType="int">
         DELETE
           FROM prod_dlvr
          WHERE id = #{id}

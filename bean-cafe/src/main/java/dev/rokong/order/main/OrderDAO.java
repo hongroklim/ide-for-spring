@@ -4,6 +4,7 @@ import dev.rokong.dto.OrderDTO;
 
 public interface OrderDAO {
     public OrderDTO select(int id);
+    public int count(int id);
     public int insert(OrderDTO order);
     public void updatePay(OrderDTO order);
     public void updateOrderStatus(OrderDTO order);

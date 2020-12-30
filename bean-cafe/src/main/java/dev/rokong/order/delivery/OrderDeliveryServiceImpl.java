@@ -68,6 +68,15 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         return getObj;
     }
 
+    public void checkODeliveryExist(OrderDeliveryDTO oDelivery){
+        this.verifyPrimaryDefined(oDelivery);
+
+        if(oDeliveryDAO.count(oDelivery) == 0){
+            log.debug("oDelivery parameter :"+oDelivery.toString());
+            throw new BusinessException("oDelivery is not exists");
+        }
+    }
+
     public OrderDeliveryDTO createODelivery(OrderDeliveryDTO oDelivery){
         //verify all values are defined
         this.verifyPrimaryDefined(oDelivery);
@@ -79,7 +88,7 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         }
 
         //is order exists
-        orderService.getOrderNotNull(oDelivery.getOrderId());
+        orderService.checkOrderExist(oDelivery.getOrderId());
 
         //is product delivery exists
         ProductDeliveryDTO pDelivery
@@ -137,7 +146,7 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         this.verifyPrimaryDefined(oDelivery);
 
         //is oDelivery exists
-        this.getODeliveryNotNull(oDelivery);
+        this.checkODeliveryExist(oDelivery);
 
         int oProductCnt = oProductService.countOProductsByDelivery(orderId, deliveryId);
         if(oProductCnt > 0){
@@ -161,15 +170,13 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
     private void updatePrice(int orderId, int deliveryId){
         //check order delivery exists
         OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
-        oDelivery = this.getODeliveryNotNull(oDelivery);
+        this.checkODeliveryExist(oDelivery);
 
         //get total price in order product
         int price = oProductService.totalPrice(orderId, deliveryId);
         oDelivery.setPrice(price);
 
         //update only price
-        oDelivery.setOrderStatus(null);
-        oDelivery.setShipCd(null);
         oDeliveryDAO.update(oDelivery);
 
         //update price in order
@@ -204,7 +211,7 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
     }
 
     public OrderDeliveryDTO updateShipCd(OrderDeliveryDTO oDelivery){
-        this.getODeliveryNotNull(oDelivery);
+        this.checkODeliveryExist(oDelivery);
 
         //update only ship cd
         oDelivery.setPrice(null);
@@ -224,7 +231,7 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
         }
 
         //check order exists
-        orderService.getOrderNotNull(orderId);
+        orderService.checkOrderExist(orderId);
 
         //get order delivery list in order
         List<OrderDeliveryDTO> oDlvrList = oDeliveryDAO.selectByOrder(orderId);
@@ -278,11 +285,6 @@ public class OrderDeliveryServiceImpl implements OrderDeliveryService {
 
         //get order deliveries
         List<OrderDeliveryDTO> list = oDeliveryDAO.selectByOrder(orderId);
-
-        if(ObjUtil.isEmpty(list)){
-            //check order products
-            return oProductService.getProperOrderStatus(orderId);
-        }
 
         return orderService.getProperOrderStatus(list);
     }

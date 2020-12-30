@@ -6,11 +6,8 @@ import dev.rokong.dto.OrderDeliveryDTO;
 public interface OrderDeliveryService {
     
     public OrderDeliveryDTO getODelivery(OrderDeliveryDTO oDelivery);
-    public OrderDeliveryDTO getODeliveryNotNull(OrderDeliveryDTO oPDelivery);
-
-    public void addODelivery(int orderId, int deliveryId);
-
-    public void removeODelivery(int orderId, int deliveryId);
+    public OrderDeliveryDTO getODeliveryNotNull(OrderDeliveryDTO oDelivery);
+    public void checkODeliveryExist(OrderDeliveryDTO oDelivery);
 
     /**
      * calculate total delivery price in order
@@ -19,8 +16,10 @@ public interface OrderDeliveryService {
      * @return sum of delivery price
      */
     public int totalDeliveryPrice(int orderId);
-
     public int totalPrice(int orderId);
+
+    public void addODelivery(int orderId, int deliveryId);
+    public void removeODelivery(int orderId, int deliveryId);
 
     public OrderDeliveryDTO updateShipCd(OrderDeliveryDTO oDelivery);
     public void updateStatusByOrder(int orderId, OrderStatus orderStatus);

@@ -37,6 +37,6 @@ public class CartDAOImpl implements CartDAO {
     }
     
     public void updateCnt(CartDTO cart){
-        sqlSession.update("updateCnt", cart);
+        sqlSession.update(PREFIX+"updateCnt", cart);
     }
 }

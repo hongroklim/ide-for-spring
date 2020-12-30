@@ -53,6 +53,15 @@ public class OrderProductServiceImpl implements OrderProductService {
         }
         return result;
     }
+
+    public void checkOProductExist(OrderProductDTO oProduct){
+        this.verifyPrimaryValuesDefined(oProduct);
+
+        if (oProductDAO.count(oProduct) == 0) {
+            log.debug("order product parameter : "+oProduct.toString());
+            throw new BusinessException("order product is not exists");
+        }
+    }
     
     public OrderProductDTO addOProduct(OrderProductDTO oProduct){
         this.verifyPrimaryValuesDefined(oProduct);
@@ -72,7 +81,7 @@ public class OrderProductServiceImpl implements OrderProductService {
         int productId = oProduct.getProductId();
 
         //is order exists
-        orderService.getOrderNotNull(orderId);
+        orderService.checkOrderExist(orderId);
 
         //is product exists
         ProductDTO product = pService.getProductNotNull(productId);
@@ -120,7 +129,7 @@ public class OrderProductServiceImpl implements OrderProductService {
     }
     
     public OrderProductDTO updateOProductCnt(OrderProductDTO oProduct){
-        //update cnt
+
         OrderProductDTO getOProd = this.getOProductNotNull(oProduct);
         
         //verify cnt
@@ -164,13 +173,6 @@ public class OrderProductServiceImpl implements OrderProductService {
         }
 
         return totalPrice;
-    }
-
-    public int totalPrice(int orderId){
-        List<OrderProductDTO> oProductList
-                = oProductDAO.selectList(new OrderProductDTO(orderId));
-
-        return this.totalPriceInList(oProductList);
     }
     
     private void verifyPrimaryValuesDefined(OrderProductDTO oProduct){
@@ -256,7 +258,7 @@ public class OrderProductServiceImpl implements OrderProductService {
 
     public void updateStatusByDelivery(int orderId, int deliveryId, OrderStatus orderStatus){
         //check order exists
-        orderService.getOrderNotNull(orderId);
+        orderService.checkOrderExist(orderId);
 
         //create param and get lists
         OrderProductDTO oProduct = new OrderProductDTO();
@@ -282,16 +284,6 @@ public class OrderProductServiceImpl implements OrderProductService {
             //update order product's price
             oDeliveryService.removeODelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
         }
-    }
-
-    public OrderStatus getProperOrderStatus(int orderId) {
-        //calculate the proper product status
-
-        //get order products
-        OrderProductDTO param = new OrderProductDTO(orderId);
-        List<OrderProductDTO> oProducts = this.getOProducts(param);
-
-        return orderService.getProperOrderStatus(oProducts);
     }
 
     public OrderStatus getProperOrderStatus(int orderId, int deliveryId){

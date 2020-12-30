@@ -8,6 +8,12 @@
          WHERE id = #{id}
     </select>
 
+    <select id="count" parameterType="int" resultType="int">
+        SELECT count(*)
+          FROM ord_main
+         WHERE id = #{id}
+    </select>
+
     <insert id="insert" parameterType="OrderDTO">
         <selectKey keyProperty="id" resultType="int" order="BEFORE">
             SELECT nextval('ord_main_id_seq'::regclass)

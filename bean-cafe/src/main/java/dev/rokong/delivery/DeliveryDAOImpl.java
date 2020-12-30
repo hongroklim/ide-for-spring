@@ -17,6 +17,10 @@ public class DeliveryDAOImpl implements DeliveryDAO {
         return sqlSession.selectOne(PREFIX+"select", orderId);
     }
 
+    public int count(int orderId){
+        return sqlSession.selectOne(PREFIX + "count", orderId);
+    }
+
     public void insert(DeliveryDTO delivery){
         sqlSession.insert(PREFIX+"insert", delivery);
     }

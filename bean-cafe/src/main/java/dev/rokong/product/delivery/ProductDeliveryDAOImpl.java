@@ -15,28 +15,24 @@ public class ProductDeliveryDAOImpl implements ProductDeliveryDAO {
 
     public static final String PREFIX = "dev.rokong.productDelivery.";
 
-    public ProductDeliveryDTO selectPDelivery(int id){
-        return sqlSession.selectOne(PREFIX+"selectPDelivery", id);
+    public ProductDeliveryDTO select(int id){
+        return sqlSession.selectOne(PREFIX+"select", id);
     }
 
-    public List<ProductDeliveryDTO> selectPDeliveryBySeller(String sellerNm){
-        return sqlSession.selectList(PREFIX+"selectPDeliveryBySellerNm", sellerNm);
+    public int count(int id){
+        return sqlSession.selectOne(PREFIX+"count", id);
     }
 
-    public ProductDeliveryDTO selectPDeliveryByProductId(int productId){
-        return sqlSession.selectOne(PREFIX+"selectPDeliveryByProductId", productId);
-    }
-
-    public int insertPDelivery(ProductDeliveryDTO pDelivery){
-        sqlSession.insert(PREFIX+"insertPDelivery", pDelivery);
+    public int insert(ProductDeliveryDTO pDelivery){
+        sqlSession.insert(PREFIX+"insert", pDelivery);
         return pDelivery.getId();
     }
 
-    public void updatePDelivery(ProductDeliveryDTO pDelivery){
-        sqlSession.update(PREFIX+"updatePDelivery", pDelivery);
+    public void update(ProductDeliveryDTO pDelivery){
+        sqlSession.update(PREFIX+"update", pDelivery);
     }
 
-    public void deletePDelivery(int id){
-        sqlSession.delete(PREFIX+"deletePDelivery", id);
+    public void delete(int id){
+        sqlSession.delete(PREFIX+"delete", id);
     }
 }

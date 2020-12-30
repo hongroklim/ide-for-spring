@@ -17,37 +17,41 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     @Autowired SqlSessionTemplate sqlSession;
 
-    public List<CategoryDTO> selectCategoryList(){
-        return sqlSession.selectList(PREFIX+"selectCategoryList");
+    public List<CategoryDTO> selectList(){
+        return sqlSession.selectList(PREFIX+"selectList");
     };
     
-    public int insertCategory(CategoryDTO category){
-        sqlSession.insert(PREFIX+"insertCategory", category);
+    public int insert(CategoryDTO category){
+        sqlSession.insert(PREFIX+"insert", category);
         return category.getId();
     };
 
-    public void deleteCategory(int id){
-        sqlSession.delete(PREFIX+"deleteCategory", id);
+    public void delete(int id){
+        sqlSession.delete(PREFIX+"delete", id);
     };
 
-    public CategoryDTO selectCategory(int id){
-        return sqlSession.selectOne(PREFIX+"selectCategory", id);
+    public CategoryDTO select(int id){
+        return sqlSession.selectOne(PREFIX+"select", id);
     };
 
-    public List<CategoryDTO> selectCategoryChildren(int upId){
-        return sqlSession.selectList(PREFIX+"selectCategoryChildren", upId);
+    public List<CategoryDTO> selectChildren(int upId){
+        return sqlSession.selectList(PREFIX+"selectChildren", upId);
     };
 
-    public void updateCategory(CategoryDTO category){
-        sqlSession.update(PREFIX+"updateCategory", category);
+    public int count(int id){
+        return sqlSession.selectOne(PREFIX+"count", id);
     }
 
-    public void updateCategoryOrder(CategoryDTO category){
-        sqlSession.update(PREFIX+"updateCategoryOrder", category);
+    public void update(CategoryDTO category){
+        sqlSession.update(PREFIX+"update", category);
+    }
+
+    public void updateOrder(CategoryDTO category){
+        sqlSession.update(PREFIX+"updateOrder", category);
     }
 
     public void backwardChildrenOrder(int upId, int startOrder, int endOrder){
-        Map<String, Integer> hm = new HashMap<String, Integer>();
+        Map<String, Integer> hm = new HashMap<>();
         hm.put("upId", upId);
         hm.put("startOrder", startOrder);
         hm.put("endOrder", endOrder);
@@ -67,13 +71,13 @@ public class CategoryDAOImpl implements CategoryDAO {
     }
 
     public boolean isParentAndChild(int parentId, int ChildId){
-        Map<String, Integer> hm = new HashMap<String, Integer>();
+        Map<String, Integer> hm = new HashMap<>();
         hm.put("parentId", parentId);
         hm.put("ChildId", ChildId);
         return sqlSession.selectOne(PREFIX+"isParentAndChild", hm);
     }
 
-    public int selectMaxCategoryOrder(int upId){
-        return sqlSession.selectOne(PREFIX+"selectMaxCategoryOrder", upId);
+    public int selectMaxOrder(int upId){
+        return sqlSession.selectOne(PREFIX+"selectMaxOrder", upId);
     }
 }

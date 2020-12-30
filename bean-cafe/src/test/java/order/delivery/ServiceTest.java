@@ -70,7 +70,7 @@ public class ServiceTest extends SpringConfig {
 
         //get order product delivery
         OrderDeliveryDTO oDelivery = new OrderDeliveryDTO(orderId, deliveryId);
-        oDelivery = oDeliveryService.getODeliveryNotNull(oDelivery);
+        oDeliveryService.checkODeliveryExist(oDelivery);
 
         oDeliveryService.removeODelivery(orderId, deliveryId);
         //if there is no order products with this delivery id, then it will be removed

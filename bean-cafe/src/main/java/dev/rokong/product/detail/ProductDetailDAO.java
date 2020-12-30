@@ -5,10 +5,11 @@ import java.util.List;
 import dev.rokong.dto.ProductDetailDTO;
 
 public interface ProductDetailDAO {
-    public List<ProductDetailDTO> selectDetailList(ProductDetailDTO pDetail);
-    public ProductDetailDTO selectDetail(ProductDetailDTO pDetail);
-    public void insertDetail(ProductDetailDTO pDetail);
-    public void deleteDetail(ProductDetailDTO pDetail);
-    public void deleteDetailList(ProductDetailDTO pDetail);
-    public void updateDetail(ProductDetailDTO pDetail);
+    public List<ProductDetailDTO> selectList(ProductDetailDTO pDetail);
+    public ProductDetailDTO select(ProductDetailDTO pDetail);
+    public int count(ProductDetailDTO pDetail);
+    public void insert(ProductDetailDTO pDetail);
+    public void delete(ProductDetailDTO pDetail);
+    public void deleteList(ProductDetailDTO pDetail);
+    public void update(ProductDetailDTO pDetail);
 }

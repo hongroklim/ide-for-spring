@@ -8,6 +8,12 @@
          WHERE order_id = #{orderId}
     </select>
 
+    <select id="count" parameterType="int" resultType="int">
+        SELECT count(*)
+          FROM dlvr_main
+         WHERE order_id = #{orderId}
+    </select>
+
     <insert id="insert" parameterType="DeliveryDTO">
         INSERT INTO dlvr_main
                (order_id, user_nm, sender_nm, recipient_nm, zip_cd,

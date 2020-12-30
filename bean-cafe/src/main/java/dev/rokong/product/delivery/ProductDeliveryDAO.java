@@ -5,10 +5,9 @@ import java.util.List;
 import dev.rokong.dto.ProductDeliveryDTO;
 
 public interface ProductDeliveryDAO {
-    public ProductDeliveryDTO selectPDelivery(int id);
-    public List<ProductDeliveryDTO> selectPDeliveryBySeller(String sellerNm);
-    public ProductDeliveryDTO selectPDeliveryByProductId(int productId);
-    public int insertPDelivery(ProductDeliveryDTO pDelivery);
-    public void updatePDelivery(ProductDeliveryDTO pDelivery);
-    public void deletePDelivery(int id);
+    public ProductDeliveryDTO select(int id);
+    public int count(int id);
+    public int insert(ProductDeliveryDTO pDelivery);
+    public void update(ProductDeliveryDTO pDelivery);
+    public void delete(int id);
 }

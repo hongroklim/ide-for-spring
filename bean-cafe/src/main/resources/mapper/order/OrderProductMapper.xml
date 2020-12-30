@@ -18,6 +18,29 @@
         </if>
     </select>
 
+    <select id="count" parameterType="OrderProductDTO" resultType="int">
+        SELECT count(*)
+          FROM ord_prod
+         WHERE order_id = #{orderId}
+        <if test='productId != null and productId != 0'>
+            AND product_id = #{productId}
+            <if test='optionCd != null and !"".equals(optionCd)'>
+                AND option_cd LIKE #{optionCd}
+            </if>
+        </if>
+        <if test='deliveryId != null and deliveryId != 0'>
+            AND delivery_id = #{deliveryId}
+        </if>
+    </select>
+
+    <select id="countByDelivery" parameterType="OrderProductDTO" resultType="int">
+        SELECT count(*)
+          FROM ord_prod
+         WHERE order_id = #{orderId}
+           AND delivery_id = #{deliveryId}
+           AND status_cd <![CDATA[ > ]]> 0
+    </select>
+
     <insert id="insert" parameterType="OrderProductDTO">
         INSERT INTO ord_prod
                (order_id, product_id, option_cd, seller_nm, cnt,
@@ -59,14 +82,6 @@
             AND option_cd like #{optionCd}
         </if>
     </update>
-
-    <select id="countByDelivery" parameterType="OrderProductDTO" resultType="int">
-        SELECT count(*)
-          FROM ord_prod
-         WHERE order_id = #{orderId}
-           AND delivery_id = #{deliveryId}
-           AND status_cd <![CDATA[ > ]]> 0
-    </select>
 
     <update id="updateStatus" parameterType="OrderProductDTO">
         UPDATE ord_prod
