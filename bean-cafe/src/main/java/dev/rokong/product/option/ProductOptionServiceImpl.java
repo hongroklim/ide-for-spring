@@ -61,7 +61,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         }
 
         //is product id exists
-        pService.getProductNotNull(pOption.getProductId());
+        pService.checkProductExists(pOption.getProductId());
 
         //get list of option group
         ProductOptionDTO param = new ProductOptionDTO(pOption.getProductId());

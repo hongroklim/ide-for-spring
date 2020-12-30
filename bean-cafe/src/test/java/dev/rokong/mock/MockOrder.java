@@ -41,7 +41,7 @@ public class MockOrder extends AbstractMockObject<OrderDTO> {
 
     @Override
     protected OrderDTO createObjService(OrderDTO obj) {
-        return oService.initOrder(obj);
+        return oService.createOrder(obj);
     }
 
     @Override

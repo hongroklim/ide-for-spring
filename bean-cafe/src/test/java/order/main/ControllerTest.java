@@ -79,24 +79,23 @@ public class ControllerTest extends MvcUnitConfig {
     }
 
     @Test
-    public void cancelOrderByCustomer() throws Exception {
+    public void updateOrderStatus() throws Exception {
+        //create order and url
         OrderDTO order = mockObj.order.any();
-
         String url = "/order/"+order.getId()+"/status";
-        
-        //this.reqAndResBody(url, RequestMethod.DELETE, order.getUserNm(), null);
-        
-        MockHttpServletRequestBuilder mockReqMethod = this.initMockRequest(url, RequestMethod.DELETE);
 
-        this.mvc.perform(mockReqMethod
-                    .contentType(MediaType.TEXT_PLAIN)  //because of contentType
-                    .content(order.getUserNm()))
-                .andDo(log())
-                .andExpect(status().isOk())
-                .andReturn();
+        //payment ready
+        OrderDTO resp = this.reqAndResBody(url, RequestMethod.POST,
+                OrderStatus.PAYMENT_STANDBY.name(), OrderDTO.class);
 
-        OrderDTO afterOrder = oService.getOrderNotNull(order.getId());
+        assertThat(resp, is(notNullValue()));
+        assertThat(resp.getOrderStatus(), is(equalTo(OrderStatus.PAYMENT_STANDBY)));
 
-        assertThat(afterOrder.getOrderStatus(), is(equalTo(OrderStatus.CANCELED_WRITE)));
+        //cancel order
+        resp = this.reqAndResBody(url, RequestMethod.POST,
+                OrderStatus.CANCELED_PAYMENT.name(), OrderDTO.class);
+
+        assertThat(resp, is(notNullValue()));
+        assertThat(resp.getOrderStatus(), is(equalTo(OrderStatus.CANCELED_PAYMENT)));
     }
 }

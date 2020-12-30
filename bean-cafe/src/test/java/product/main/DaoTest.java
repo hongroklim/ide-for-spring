@@ -19,7 +19,7 @@ public class DaoTest extends SpringConfig {
 
     @Test
     public void updateColumn(){
-        pDAO.updateProductColumn(2, "price", 1111);
+        pDAO.updateColumn(2, "price", 1111);
     }
 
     @Test
@@ -28,6 +28,6 @@ public class DaoTest extends SpringConfig {
         assertThat(product.getStockCnt(), is(nullValue()));
         assertThat(product.getEnabled(), is(nullValue()));
 
-        pDAO.updateProduct(product);
+        pDAO.update(product);
     }
 }

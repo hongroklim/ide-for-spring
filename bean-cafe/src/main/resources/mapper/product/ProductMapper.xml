@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dev.rokong.product">
-    <select id="selectProductList" resultType="ProductDTO">
+    <select id="select" parameterType="int" resultType="ProductDTO">
         SELECT id, name, price, category_id, enabled, seller_nm,
                stock_cnt, delivery_id, delivery_price, discount_price
           FROM prod_main
+        <if test='value != null and value != 0'>
+            WHERE id = #{id}
+        </if>
     </select>
 
-    <select id="selectProduct" parameterType="int" resultType="ProductDTO">
-        SELECT id, name, price, category_id, enabled, seller_nm,
-               stock_cnt, delivery_id, delivery_price, discount_price
-          FROM prod_main
-         WHERE id = #{id}
-    </select>
-
-    <select id="selectProductsByDelivery" parameterType="int" resultType="ProductDTO">
+    <select id="selectByDelivery" parameterType="int" resultType="ProductDTO">
         SELECT id, name, price, category_id, enabled, seller_nm,
                stock_cnt, delivery_id, delivery_price, discount_price
           FROM prod_main
          WHERE delivery_id = #{deliveryId}
     </select>
 
-    <insert id="insertProduct" parameterType="ProductDTO">
+    <select id="count" parameterType="int" resultType="int">
+        SELECT count(*)
+          FROM prod_main
+         WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="ProductDTO">
         <selectKey keyProperty="id" resultType="int" order="BEFORE">
             SELECT nextval('prod_id_seq'::regclass)
         </selectKey>
@@ -32,13 +34,13 @@
                 #{sellerNm}, #{stockCnt}, #{deliveryId}, #{deliveryPrice}, #{discountPrice})
     </insert>
 
-    <delete id="deleteProduct" parameterType="int">
+    <delete id="delete" parameterType="int">
         DELETE
           FROM prod_main
          WHERE id = #{id}
     </delete>
 
-    <update id="updateProduct" parameterType="ProductDTO">
+    <update id="update" parameterType="ProductDTO">
         UPDATE prod_main
            SET id = #{id}
                <if test='name != null and !"".equals(name)'>
@@ -71,13 +73,13 @@
          WHERE id = #{id}
     </update>
 
-    <update id="updateProductColumn" parameterType="hashmap">
+    <update id="updateColumn" parameterType="hashmap">
         UPDATE prod_main
            SET ${column} = #{value}
          WHERE id = #{id}
     </update>
 
-    <update id="updateProductCategory" parameterType="hashmap">
+    <update id="updateCategory" parameterType="hashmap">
         UPDATE prod_main
            SET category_id = #{tobeCategory}
          WHERE category_id = #{asisCategory}

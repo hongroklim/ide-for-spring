@@ -17,11 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CartServiceImpl implements CartService {
     
-    @Autowired CartDAO cartDAO;
-
-    @Autowired UserService uService;
-    @Autowired ProductService pService;
-    @Autowired ProductDetailService pDetailService;
+    @Autowired
+    private CartDAO cartDAO;
+    @Autowired
+    private UserService uService;
+    @Autowired
+    private ProductService pService;
+    @Autowired
+    private ProductDetailService pDetailService;
 
     public List<CartDTO> getCarts(CartDTO cart){
         CartDTO param = new CartDTO(cart);
@@ -30,12 +33,12 @@ public class CartServiceImpl implements CartService {
         if(ObjUtil.isNotEmpty(optionCd)){
             param.setOptionCd(optionCd+"%");
         }
-        return cartDAO.selectCarts(param);
+        return cartDAO.selectList(param);
     }
 
     public CartDTO getCart(CartDTO cart){
         this.verifyPrimaryParameter(cart);
-        return cartDAO.selectCart(cart);
+        return cartDAO.select(cart);
     }
     
     public CartDTO getCartNotNull(CartDTO cart){
@@ -45,6 +48,15 @@ public class CartServiceImpl implements CartService {
             throw new BusinessException("cart is not exists");
         }
         return result;
+    }
+
+    public void checkCartExists(CartDTO cart){
+        this.verifyPrimaryParameter(cart);
+
+        if (cartDAO.count(cart) == 0) {
+            log.debug("cart parameter : {}", cart.toString());
+            throw new BusinessException("cart is not exists");
+        }
     }
     
     public CartDTO createCart(CartDTO cart){
@@ -56,13 +68,13 @@ public class CartServiceImpl implements CartService {
         uService.getUserNotNull(cart.getUserNm());
 
         //product is exists
-        pService.getProductNotNull(cart.getProductId());
+        pService.checkProductExists(cart.getProductId());
 
         //product cd is exists
         pDetailService.getDetailNotNull(cart.getProductId(), cart.getOptionCd());
 
         //insert
-        cartDAO.insertCart(cart);
+        cartDAO.insert(cart);
 
         return this.getCartNotNull(cart);
     }
@@ -74,7 +86,7 @@ public class CartServiceImpl implements CartService {
         if(ObjUtil.isNotEmpty(optionCd)){
             param.setOptionCd(optionCd+"%");
         }
-        cartDAO.deleteCart(cart);
+        cartDAO.delete(cart);
     }
 
     public void deleteCarts(int productId, String optionCd){
@@ -83,16 +95,16 @@ public class CartServiceImpl implements CartService {
     }
 
     public void deleteCart(CartDTO cart){
-        this.getCartNotNull(cart);
-        cartDAO.deleteCart(cart);
+        this.checkCartExists(cart);
+        cartDAO.delete(cart);
     }
     
     public CartDTO updateCartCnt(CartDTO cart){
-        this.getCartNotNull(cart);
+        this.checkCartExists(cart);
         
         this.verifyCnt(cart.getCnt());
 
-        cartDAO.updateCartCnt(cart);
+        cartDAO.updateCnt(cart);
         return this.getCartNotNull(cart);
     }
 

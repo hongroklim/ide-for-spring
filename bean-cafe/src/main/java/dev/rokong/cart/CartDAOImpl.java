@@ -13,25 +13,30 @@ public class CartDAOImpl implements CartDAO {
     
     public static final String PREFIX = "dev.rokong.cart.";
 
-    @Autowired SqlSessionTemplate sqlSession;
+    @Autowired
+    private SqlSessionTemplate sqlSession;
 
-    public List<CartDTO> selectCarts(CartDTO cart){
-        return sqlSession.selectList(PREFIX+"selectCart", cart);
+    public List<CartDTO> selectList(CartDTO cart){
+        return sqlSession.selectList(PREFIX+"select", cart);
     }
 
-    public CartDTO selectCart(CartDTO cart){
-        return sqlSession.selectOne(PREFIX+"selectCart", cart);
+    public CartDTO select(CartDTO cart){
+        return sqlSession.selectOne(PREFIX+"select", cart);
+    }
+
+    public int count(CartDTO cart){
+        return sqlSession.selectOne(PREFIX + "count", cart);
+    }
+
+    public void insert(CartDTO cart){
+        sqlSession.insert(PREFIX+"insert", cart);
     }
     
-    public void insertCart(CartDTO cart){
-        sqlSession.insert(PREFIX+"insertCart", cart);
+    public void delete(CartDTO cart){
+        sqlSession.delete(PREFIX+"delete", cart);
     }
     
-    public void deleteCart(CartDTO cart){
-        sqlSession.delete(PREFIX+"deleteCart", cart);
-    }
-    
-    public void updateCartCnt(CartDTO cart){
-        sqlSession.update("updateCartCnt", cart);
+    public void updateCnt(CartDTO cart){
+        sqlSession.update("updateCnt", cart);
     }
 }

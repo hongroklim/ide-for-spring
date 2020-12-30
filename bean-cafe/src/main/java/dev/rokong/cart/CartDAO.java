@@ -5,9 +5,10 @@ import java.util.List;
 import dev.rokong.dto.CartDTO;
 
 public interface CartDAO {
-    public List<CartDTO> selectCarts(CartDTO cart);
-    public CartDTO selectCart(CartDTO cart);
-    public void insertCart(CartDTO cart);
-    public void deleteCart(CartDTO cart);
-    public void updateCartCnt(CartDTO cart);
+    public List<CartDTO> selectList(CartDTO cart);
+    public CartDTO select(CartDTO cart);
+    public int count(CartDTO cart);
+    public void insert(CartDTO cart);
+    public void delete(CartDTO cart);
+    public void updateCnt(CartDTO cart);
 }

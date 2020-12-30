@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     PayTypeService pTypeService;
 
     public OrderDTO getOrder(int id){
-        return orderDAO.selectOrder(id);
+        return orderDAO.select(id);
     }
 
     public OrderDTO getOrderNotNull(int id){
@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
         return this.getOrderNotNull(order.getId());
     }
 
-    public OrderDTO initOrder(OrderDTO order) {
+    public OrderDTO createOrder(OrderDTO order) {
         //initialize order
 
         /*
@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.WRITING);
 
         //insert
-        int id = orderDAO.insertOrder(order);
+        int id = orderDAO.insert(order);
 
         //if payId exists, update it
         if (order.getPayId() != null) {
@@ -89,7 +89,7 @@ public class OrderServiceImpl implements OrderService {
         int price = oDeliverySerivce.totalPrice(id);
         order.setPrice(price);
 
-        orderDAO.updateOrderPrice(order);
+        orderDAO.updatePrice(order);
     }
 
     public void updateOrderDeliveryPrice(int id){
@@ -99,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
         int deliveryPrice = oDeliverySerivce.totalDeliveryPrice(id);
         order.setDeliveryPrice(deliveryPrice);
 
-        orderDAO.updateOrderDeliveryPrice(order);
+        orderDAO.updateDeliveryPrice(order);
     }
 
     public void updateOrderPay(OrderDTO order){
@@ -110,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
         String payNm = pTypeService.getPayTypeFullNm(order.getPayId());
         order.setPayNm(payNm);
 
-        orderDAO.updateOrderPay(order);
+        orderDAO.updatePay(order);
     }
 
     public OrderDTO updateOrderStatus(OrderDTO order){
@@ -169,25 +169,6 @@ public class OrderServiceImpl implements OrderService {
             order.setOrderStatus(tobeStatus);
             orderDAO.updateOrderStatus(order);
         }
-    }
-
-    public void cancelOrder(int id, String user){
-        OrderDTO order = this.getOrderNotNull(id);
-
-        OrderStatus tobeStatus;
-
-        if(order.getUserNm().equals(user)){
-            //if editor is user
-            tobeStatus = order.getOrderStatus().getCustomerCancel();
-        }else{
-            //if editor is seller
-            tobeStatus = order.getOrderStatus().getSellerCancel();
-        }
-
-        //set status
-        order.setOrderStatus(tobeStatus);
-
-        orderDAO.updateOrderStatus(order);
     }
 
     public String getOrderDesc(int id){

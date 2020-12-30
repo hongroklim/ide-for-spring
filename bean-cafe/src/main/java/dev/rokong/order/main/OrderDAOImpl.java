@@ -13,28 +13,28 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Autowired SqlSessionTemplate sqlSession;
     
-    public OrderDTO selectOrder(int id){
-        return sqlSession.selectOne(PREFIX+"selectOrder", id);
+    public OrderDTO select(int id){
+        return sqlSession.selectOne(PREFIX+"select", id);
     }
 
-    public int insertOrder(OrderDTO order){
-        sqlSession.insert(PREFIX+"insertOrder", order);
+    public int insert(OrderDTO order){
+        sqlSession.insert(PREFIX+"insert", order);
         return order.getId();
     }
 
-    public void updateOrderPay(OrderDTO order){
-        sqlSession.update(PREFIX+"updateOrderPay", order);
+    public void updatePay(OrderDTO order){
+        sqlSession.update(PREFIX+"updatePay", order);
     }
 
     public void updateOrderStatus(OrderDTO order){
         sqlSession.update(PREFIX+"updateOrderStatus", order);
     }
 
-    public void updateOrderPrice(OrderDTO order){
-        sqlSession.update(PREFIX+"updateOrderPrice", order);
+    public void updatePrice(OrderDTO order){
+        sqlSession.update(PREFIX+"updatePrice", order);
     }
 
-    public void updateOrderDeliveryPrice(OrderDTO order){
-        sqlSession.update(PREFIX+"updateOrderDeliveryPrice", order);
+    public void updateDeliveryPrice(OrderDTO order){
+        sqlSession.update(PREFIX+"updateDeliveryPrice", order);
     }
 }

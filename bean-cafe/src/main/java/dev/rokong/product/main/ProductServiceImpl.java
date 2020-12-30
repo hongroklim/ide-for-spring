@@ -22,15 +22,23 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class ProductServiceImpl implements ProductService {
     
-    @Autowired UserService uService;
-    @Autowired CategoryService cService;
-    @Autowired ProductOptionService pOptionService;
-    @Autowired ProductDeliveryService pDeliveryService;
+    @Autowired
+    private UserService uService;
 
-    @Autowired ProductDAO pDAO;
+    @Autowired
+    private CategoryService cService;
+
+    @Autowired
+    private ProductOptionService pOptionService;
+
+    @Autowired
+    private ProductDeliveryService pDeliveryService;
+
+    @Autowired
+    private ProductDAO pDAO;
 
     public List<ProductDTO> getProductList(){
-        return pDAO.selectProductList();
+        return pDAO.selectList();
     }
 
     private void initDefaultParameter(ProductDTO product){
@@ -101,17 +109,21 @@ public class ProductServiceImpl implements ProductService {
         this.verifyParameter(product);
 
         //insert product
-        pDAO.insertProduct(product);
+        pDAO.insert(product);
 
         return this.getProductNotNull(product);
     }
 
     public ProductDTO getProduct(int id){
-        return pDAO.selectProduct(id);
+        if(id == 0){
+            throw new IllegalArgumentException("product id is not defined");
+        }
+
+        return pDAO.select(id);
     }
 
     public List<ProductDTO> getProductsByDelivery(int deliveryId){
-        return pDAO.selectProductsByDelivery(deliveryId);
+        return pDAO.selectByDelivery(deliveryId);
     }
 
     public ProductDTO updateProduct(ProductDTO product){
@@ -121,40 +133,46 @@ public class ProductServiceImpl implements ProductService {
         this.verifyParameter(product);
 
         //null value will not be updated
-        pDAO.updateProduct(product);
+        pDAO.update(product);
 
         return this.getProductNotNull(product);
     }
 
     public void deleteProduct(int id){
-        ProductDTO getProduct = this.getProductNotNull(id);
+        this.checkProductExists(id);
 
         pOptionService.deletePOptionByProduct(id);
 
-        pDAO.deleteProduct(getProduct.getId());
+        pDAO.delete(id);
     }
 
     public ProductDTO getProductNotNull(int id){
-        if(id == 0){
-            throw new IllegalArgumentException("product id is not defined");
-        }
-
         ProductDTO product = this.getProduct(id);
         if(product == null){
-            throw new IllegalArgumentException("product is not exists");
+            throw new BusinessException("product is not exists");
         }
         return product;
     }
 
+    public void checkProductExists(int id){
+        if(id == 0){
+            throw new IllegalArgumentException("product id parameter is not defined");
+        }
+
+        if(pDAO.count(id) == 0){
+            throw new BusinessException(id+" product is not exists");
+        }
+    }
+
     private ProductDTO getProductNotNull(ProductDTO product){
-        if(ObjUtil.isEmpty(product.getId())){
-            throw new IllegalArgumentException("product id is not defined");
+        if(product == null){
+            throw new IllegalArgumentException("product is not defined");
         }
         return this.getProductNotNull(product.getId());
     }
 
     /**
-     * verfiy {@link dev.rokong.dto.ProductDTO#ProductDTO() ProductDTO}
+     * verify {@link ProductDTO}
      * only defined values
      * 
      * @param product to be verified

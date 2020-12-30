@@ -304,9 +304,4 @@ public class ServiceTest extends SpringConfig {
         }
 
     }
-
-    //TODO update order status and check delivery and products
-    public void changeOrderStatus(){
-
-    }
 }

@@ -75,9 +75,10 @@ public class ServiceTest extends SpringConfig {
         oDeliveryService.removeODelivery(orderId, deliveryId);
         //if there is no order products with this delivery id, then it will be removed
 
-        //oDelivery is deleted
+        //oDelivery is not deleted, but status is changed to cancel
         oDelivery = oDeliveryService.getODelivery(oDelivery);
-        assertThat(oDelivery, is(nullValue()));
+        assertThat(oDelivery, is(notNullValue()));
+        assertThat(oDelivery.getOrderStatus(), is(equalTo(OrderStatus.CANCEL)));
     }
 
     @Test
@@ -112,6 +113,4 @@ public class ServiceTest extends SpringConfig {
         assertThat(oDelivery, is(notNullValue()));
         assertThat(oDelivery.getOrderStatus(), is(equalTo(OrderStatus.CANCEL)));
     }
-
-    //TODO update order status and check delivery and products
 }

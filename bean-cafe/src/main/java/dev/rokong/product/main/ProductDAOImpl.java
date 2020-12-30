@@ -17,45 +17,49 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Autowired SqlSessionTemplate sqlSession;
 
-    public List<ProductDTO> selectProductList() {
-        return sqlSession.selectList(PREFIX+"selectProductList");
+    public List<ProductDTO> selectList() {
+        return sqlSession.selectList(PREFIX+"select", null);
     }
 
-    public ProductDTO selectProduct(int id) {
-        return sqlSession.selectOne(PREFIX+"selectProduct", id);
+    public ProductDTO select(int id) {
+        return sqlSession.selectOne(PREFIX+"select", id);
     }
 
-    public List<ProductDTO> selectProductsByDelivery(int deliveryId){
-        return sqlSession.selectList(PREFIX+"selectProductsByDelivery", deliveryId);
+    public List<ProductDTO> selectByDelivery(int deliveryId){
+        return sqlSession.selectList(PREFIX+"selectByDelivery", deliveryId);
     }
 
-    public int insertProduct(ProductDTO product) {
-        sqlSession.insert(PREFIX+"insertProduct", product);
+    public int count(int id){
+        return sqlSession.selectOne(PREFIX+"count", id);
+    }
+
+    public int insert(ProductDTO product) {
+        sqlSession.insert(PREFIX+"insert", product);
         return product.getId();
     }
 
-    public void deleteProduct(int id) {
-        sqlSession.delete(PREFIX+"deleteProduct", id);
+    public void delete(int id) {
+        sqlSession.delete(PREFIX+"delete", id);
     }
 
-    public void updateProduct(ProductDTO product) {
-        sqlSession.update(PREFIX+"updateProduct", product);
+    public void update(ProductDTO product) {
+        sqlSession.update(PREFIX+"update", product);
     }
 
-    public void updateProductColumn(int id, String column, Object value) {
+    public void updateColumn(int id, String column, Object value) {
         Map<String, Object> hm = new HashMap<String, Object>();
         hm.put("id", id);
         hm.put("column", column);
         hm.put("value", value);
 
-        sqlSession.update(PREFIX+"updateProductColumn", hm);
+        sqlSession.update(PREFIX+"updateColumn", hm);
     }
 
-    public void updateProductCategory(int asisCategory, int tobeCategory){
-        Map<String, Integer> hm = new HashMap<String, Integer>();
+    public void updateCategory(int asisCategory, int tobeCategory){
+        Map<String, Integer> hm = new HashMap<>();
         hm.put("asisCategory", asisCategory);
         hm.put("tobeCategory", tobeCategory);
 
-        sqlSession.update(PREFIX+"updateProductCategory", hm);
+        sqlSession.update(PREFIX+"updateCategory", hm);
     }
 }

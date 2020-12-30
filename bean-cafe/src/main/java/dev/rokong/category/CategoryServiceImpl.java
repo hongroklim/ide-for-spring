@@ -59,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new BusinessException(category.getId()+"'s children are exists");
         }
 
-        pDAO.updateProductCategory(id, CategoryDTO.ETC_ID);
+        pDAO.updateCategory(id, CategoryDTO.ETC_ID);
 
         cDAO.deleteCategory(category.getId());
     };

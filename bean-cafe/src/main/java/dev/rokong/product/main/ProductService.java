@@ -6,11 +6,11 @@ import dev.rokong.dto.ProductDTO;
 
 public interface ProductService {
     public List<ProductDTO> getProductList();
-    public ProductDTO createProduct(ProductDTO product);
     public ProductDTO getProduct(int id);
     public ProductDTO getProductNotNull(int id);
+    public void checkProductExists(int id);
+    public ProductDTO createProduct(ProductDTO product);
     public List<ProductDTO> getProductsByDelivery(int deliveryId);
-    // TODO public boolean isProductExists(int id);
     public ProductDTO updateProduct(ProductDTO product);
     public void deleteProduct(int id);
 }

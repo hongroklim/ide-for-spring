@@ -170,7 +170,7 @@ public class ServiceTest extends SpringConfig {
     }
 
     @Test
-    public void updateOrderStatus(){
+    public void updateOrderStatusByMain(){
         Map<String, Object> map = this.prepareOrderStatus();
         OrderDTO order = (OrderDTO) map.get("order");
 
@@ -181,7 +181,7 @@ public class ServiceTest extends SpringConfig {
         orderService.updateOrderStatus(order);
 
         //order main
-        order = orderDAO.selectOrder(order.getId());
+        order = orderDAO.select(order.getId());
         assertThat(order.getOrderStatus(), is(equalTo(tobeStatus)));
 
         //order delivery
@@ -196,5 +196,53 @@ public class ServiceTest extends SpringConfig {
         oProdList.forEach(p -> {
             assertThat(p.getOrderStatus(), is(equalTo(tobeStatus)));
         });
+    }
+
+    @Test
+    public void updateOrderStatusByProduct(){
+        Map<String, Object> map = this.prepareOrderStatus();
+        List<OrderProductDTO> oProdList = (List<OrderProductDTO>) map.get("oProduct");
+
+        //canceled write
+        oProdList.subList(0, 3).forEach(p -> {
+            p.setOrderStatus(OrderStatus.CANCELED_WRITE);
+            oProductService.updateStatus(p);
+        });
+
+        //get order delivery
+        OrderDeliveryDTO oDelivery = new OrderDeliveryDTO();
+        oDelivery.setOrderId(oProdList.get(0).getOrderId());
+        oDelivery.setDeliveryId(oProdList.get(0).getDeliveryId());
+        oDelivery = oDeliveryService.getODeliveryNotNull(oDelivery);
+
+        //all order products are updated, so it will be canceled
+        assertThat(oDelivery.getOrderStatus(), is(equalTo(OrderStatus.CANCEL)));
+
+        //get order
+        OrderDTO order = orderService.getOrderNotNull(oProdList.get(0).getOrderId());
+
+        //one order delivery is canceled, but another delivery is still writing
+        assertThat(order.getOrderStatus(), is(equalTo(OrderStatus.WRITING)));
+
+        //canceled write
+        oProdList.subList(3, 4).forEach(p -> {
+            p.setOrderStatus(OrderStatus.CANCELED_WRITE);
+            oProductService.updateStatus(p);
+        });
+
+        //get order delivery
+        oDelivery = new OrderDeliveryDTO();
+        oDelivery.setOrderId(oProdList.get(3).getOrderId());
+        oDelivery.setDeliveryId(oProdList.get(3).getDeliveryId());
+        oDelivery = oDeliveryService.getODeliveryNotNull(oDelivery);
+
+        //all order products are updated, so it will be canceled
+        assertThat(oDelivery.getOrderStatus(), is(equalTo(OrderStatus.CANCEL)));
+
+        //get order
+        order = orderService.getOrderNotNull(oProdList.get(0).getOrderId());
+
+        //all order deliveries are canceled
+        assertThat(order.getOrderStatus(), is(equalTo(OrderStatus.CANCEL)));
     }
 }
