@@ -5,55 +5,61 @@
         SELECT TO_CHAR(now(), 'YYYYMMDD')
     </select>
 
-    <select id="selectUserList" resultType="UserDTO">
+    <select id="selectList" resultType="UserDTO">
         SELECT user_nm, pwd, enabled
           FROM user_main
     </select>
 
-    <select id="selectUser" resultType="UserDTO" parameterType="String">
+    <select id="select" resultType="UserDTO" parameterType="String">
         SELECT user_nm, pwd, enabled
           FROM user_main
          WHERE user_nm = #{userNm}
     </select>
 
-    <insert id="insertUser" parameterType="UserDTO">
+    <select id="count" parameterType="String" resultType="int">
+        SELECT count(*)
+          FROM user_main
+         WHERE user_nm = #{userNm}
+    </select>
+
+    <insert id="insert" parameterType="UserDTO">
         INSERT INTO user_main
                (user_nm, pwd, enabled)
         VALUES (#{userNm}, #{pwd}, #{enabled})
     </insert>
 
-    <update id="updateUserPassword" parameterType="UserDTO">
+    <update id="update" parameterType="UserDTO">
         UPDATE user_main
-           SET pwd = #{pwd}
+           SET user_nm = #{userNm}
+            <if test='pwd != null and !"".equals(pwd)'>
+                , pwd = #{pwd}
+            </if>
+            <if test='enabled != null'>
+                , enabled = #{enabled}
+            </if>
          WHERE user_nm = #{userNm}
     </update>
 
-    <update id="updateUserEnabled" parameterType="UserDTO">
-        UPDATE user_main
-           SET enabled = #{enabled}
-         WHERE user_nm = #{userNm}
-    </update>
+    <delete id="delete" parameterType="String">
+        DELETE
+          FROM user_main
+        WHERE user_nm = #{userNm}
+    </delete>
 
-    <insert id="insertUserAuthorities" parameterType="UserDTO">
+    <insert id="insertAuths" parameterType="UserDTO">
         INSERT INTO user_auth
         <foreach collection="authority" item="auth" separator="UNION ALL">
             SELECT #{userNm} AS user_nm, #{auth} as authority
         </foreach>
     </insert>
 
-    <select id="selectUserAuthorities" resultType="String" parameterType="String">
+    <select id="selectAuths" resultType="String" parameterType="String">
         SELECT authority
           FROM user_auth
          WHERE user_nm = #{userNm}
     </select>
 
-    <delete id="deleteUser" parameterType="String">
-        DELETE
-          FROM user_main
-        WHERE user_nm = #{userNm}
-    </delete>
-
-    <delete id="deleteUserAuthorities" parameterType="UserDTO">
+    <delete id="deleteAuths" parameterType="UserDTO">
         DELETE
           FROM user_auth
          WHERE user_nm = #{userNm}

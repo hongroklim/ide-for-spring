@@ -66,7 +66,7 @@ public class CartServiceImpl implements CartService {
         this.verifyCnt(cart.getCnt());
 
         //user name is exists
-        uService.getUserNotNull(cart.getUserNm());
+        uService.checkUserExist(cart.getUserNm());
 
         //product is exists
         pService.checkProductExist(cart.getProductId());

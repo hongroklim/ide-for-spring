@@ -19,53 +19,74 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class UserServiceImpl implements UserService {
 
-    @Autowired UserDAO userDAO;
+    @Autowired
+    private UserDAO userDAO;
 
     public List<UserDTO> getUsers() {
-        log.debug("get user list");
-        return userDAO.selectUserList();
+        return userDAO.selectList();
+    }
+
+    private void verifyUserNmDefined(String userNm){
+        if(ObjUtil.isEmpty(userNm)){
+            throw new IllegalArgumentException("user name is not defined");
+        }
+    }
+
+    private void verifyUserNmDefined(UserDTO user){
+        if(user == null){
+            throw new IllegalArgumentException("user is not defined");
+        }
+        this.verifyUserNmDefined(user.getUserNm());
     }
 
     public UserDTO getUser(String userNm) {
-        if(ObjUtil.isEmpty(userNm)){
-            throw new BusinessException("user name is not defined");
+        this.verifyUserNmDefined(userNm);
+        return userDAO.select(userNm);
+    }
+
+    public UserDTO getUserNotNull(String userNm){
+        UserDTO user = this.getUser(userNm);
+        if(user == null){
+            throw new BusinessException(userNm+" user is not exists");
         }
-        return userDAO.selectUser(userNm);
+        return user;
+    }
+
+    private UserDTO getUserNotNull(UserDTO user){
+        this.verifyUserNmDefined(user);
+        return this.getUserNotNull(user.getUserNm());
     }
 
     public UserDTO createUser(UserDTO user) {
-        UserDTO getUser = userDAO.selectUser(user.getUserNm());
+        UserDTO getUser = this.getUser(user.getUserNm());
         
         if(getUser != null){
-            log.warn(user.getUserNm()+"already exists");
-            throw new BusinessException("");
+            throw new BusinessException(user.getUserNm()+" user is already exists");
         }
 
-        try{
-            userDAO.insertUser(user);
-        }catch(DataAccessException e){
-            log.error(e.getMessage());
-            throw new ApplicationException("", e);
-        }
-        
+        //insert user
+        userDAO.insert(user);
+
         return this.getUser(user.getUserNm());
     }
 
-    public UserDTO updateUserPassword(UserDTO user) {
-        UserDTO getUser = this.getUserNotNull(user);
-        userDAO.updateUserPassword(user);
-        return this.getUser(getUser.getUserNm());
-    }
-    
-    public UserDTO updateUserEnabled(UserDTO user) {
-        UserDTO getUser = this.getUserNotNull(user);
-        userDAO.updateUserEnabled(user);
-        return this.getUser(getUser.getUserNm());
+    public UserDTO updateUser(UserDTO user){
+        this.checkUserExist(user.getUserNm());
+
+        if(ObjUtil.isEmpty(user.getPwd()) && user.getEnabled() == null){
+            //if nothing to change, return
+            return this.getUserNotNull(user);
+        }
+
+        //update
+        userDAO.update(user);
+
+        return this.getUserNotNull(user);
     }
 
     public void deleteUser(String userNm) {
-        UserDTO getUser = this.getUserNotNull(userNm);
-        userDAO.deleteUser(getUser.getUserNm());
+        this.checkUserExist(userNm);
+        userDAO.delete(userNm);
     }
 
     public List<GrantedAuthority> addUserAuthorities(UserDTO user){
@@ -82,20 +103,16 @@ public class UserServiceImpl implements UserService {
         }
         user.setAuthorities(addAuthorities);
 
-        userDAO.insertUserAuthorities(user);
+        userDAO.insertAuths(user);
         return this.getUserAuthorities(user);
     }
 
-    public UserDTO getUserNotNull(String userNm){
-        UserDTO user = this.getUser(userNm);
-        if(user == null){
-            throw new BusinessException(userNm+" user is not exists");
-        }
-        return user;
-    }
+    public void checkUserExist(String userNm){
+        this.verifyUserNmDefined(userNm);
 
-    private UserDTO getUserNotNull(UserDTO user){
-        return this.getUser(user.getUserNm());
+        if (userDAO.count(userNm) == 0) {
+            throw new BusinessException(userNm + " user is not exists");
+        }
     }
 
     private UserDTO getUserWithAuthorities(UserDTO user){
@@ -106,7 +123,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<GrantedAuthority> getUserAuthorities(final UserDTO user){
-        List<String> authList = userDAO.selectUserAuthorities(user.getUserNm());
+        List<String> authList = userDAO.selectAuths(user.getUserNm());
         UserDTO tempUser = new UserDTO();
         tempUser.setAuthority(authList);
         return tempUser.getAuthorities();
@@ -126,6 +143,6 @@ public class UserServiceImpl implements UserService {
         }
         user.setAuthorities(deleteAuthorities);
 
-        userDAO.deleteUserAuthorities(user);
+        userDAO.deleteAuths(user);
     }
 }

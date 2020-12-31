@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,24 +15,12 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties({"authorities", "username", "password"})
-@SuppressWarnings("serial")
-public class UserDTO implements UserDetails {
+public class UserDTO {
     private String userNm;
     private String pwd;
-    private boolean enabled;
+    private Boolean enabled;
     private List<String> authority;
 
-    @Override
-    public String getPassword() {
-        return this.pwd;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.userNm;
-    }
-
-    @Override
     public List<GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
@@ -50,23 +40,4 @@ public class UserDTO implements UserDetails {
         }
     }
 
-    @Override
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
 }

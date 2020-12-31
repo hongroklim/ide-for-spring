@@ -43,8 +43,8 @@ public class OrderProductDAOImpl implements OrderProductDAO {
         sqlSession.update(PREFIX+"updateCnt", oProduct);
     }
 
-    public void updateToNull(OrderProductDTO oProduct){
-        sqlSession.update(PREFIX+"updateToNull", oProduct);
+    public void updateToInvalid(OrderProductDTO oProduct){
+        sqlSession.update(PREFIX+"updateToInvalid", oProduct);
     }
 
     public void updateStatus(OrderProductDTO oProduct){

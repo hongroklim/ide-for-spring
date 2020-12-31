@@ -192,7 +192,7 @@ public class ProductServiceImpl implements ProductService {
 
         //seller
         if(ObjUtil.isNotEmpty(product.getSellerNm())){
-            uService.getUserNotNull(product.getSellerNm());
+            uService.checkUserExist(product.getSellerNm());
         }
 
         //stock cnt

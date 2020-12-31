@@ -26,12 +26,12 @@ public class DaoTest extends SpringConfig {
 
     @Test
     public void selectUserListAndUser(){
-        List<UserDTO> userList = userDAO.selectUserList();
+        List<UserDTO> userList = userDAO.selectList();
         log.debug(userList.toString());
         
         if(userList!=null && userList.size()>0){
             UserDTO user1 = userList.get(0);
-            UserDTO user2 = userDAO.selectUser(user1.getUserNm());
+            UserDTO user2 = userDAO.select(user1.getUserNm());
     
             assertThat(user1, equalTo(user2));
         }
@@ -39,7 +39,7 @@ public class DaoTest extends SpringConfig {
 
     @Test
     public void createUser(){
-        List<UserDTO> prevList = userDAO.selectUserList();
+        List<UserDTO> prevList = userDAO.selectList();
         
         int prevSize = 0;
         if(prevList!=null && prevList.size()>0){
@@ -51,9 +51,9 @@ public class DaoTest extends SpringConfig {
         newUser.setPwd("testUser");
         newUser.setEnabled(true);
 
-        userDAO.insertUser(newUser);
+        userDAO.insert(newUser);
 
-        List<UserDTO> nextList = userDAO.selectUserList();
+        List<UserDTO> nextList = userDAO.selectList();
 
         assertThat(nextList.size(), equalTo(prevSize+1));
     }
@@ -65,12 +65,12 @@ public class DaoTest extends SpringConfig {
         newUser.setPwd("testUser");
         newUser.setEnabled(true);
 
-        userDAO.insertUser(newUser);
+        userDAO.insert(newUser);
 
-        assertThat(userDAO.selectUser(newUser.getUserNm()),
+        assertThat(userDAO.select(newUser.getUserNm()),
             equalTo(newUser));
 
-        userDAO.insertUser(newUser);    //DuplicateKeyException!
+        userDAO.insert(newUser);    //DuplicateKeyException!
     }
 
     @Test(expected=DataIntegrityViolationException.class)
@@ -80,7 +80,7 @@ public class DaoTest extends SpringConfig {
         newUser.setPwd(null);
         newUser.setEnabled(true);
 
-        userDAO.insertUser(newUser);
+        userDAO.insert(newUser);
     }
 
     @Test(expected=DataIntegrityViolationException.class)
@@ -94,12 +94,12 @@ public class DaoTest extends SpringConfig {
         newUser.setPwd("testUser");
         newUser.setEnabled(true);
 
-        userDAO.insertUser(newUser);
+        userDAO.insert(newUser);
     }
 
     @Test
     public void insertUserAuth(){
-        List<UserDTO> userList = userDAO.selectUserList();
+        List<UserDTO> userList = userDAO.selectList();
 
         assertThat(userList, is(notNullValue()));
         assertThat(userList.size(), is(greaterThan(1)));
@@ -110,12 +110,12 @@ public class DaoTest extends SpringConfig {
         authList.add("buyer");
         insertUser.setAuthority(authList);
 
-        userDAO.insertUserAuthorities(insertUser);
+        userDAO.insertAuths(insertUser);
 
-        UserDTO getUser = userDAO.selectUser(insertUser.getUserNm());
+        UserDTO getUser = userDAO.select(insertUser.getUserNm());
         assertThat(getUser, is(notNullValue()));
 
-        List<String> getAuthList = userDAO.selectUserAuthorities(getUser.getUserNm());
+        List<String> getAuthList = userDAO.selectAuths(getUser.getUserNm());
         assertThat(getAuthList, is(notNullValue()));
         log.debug(getAuthList.toString());
         assertThat(getAuthList, is(equalTo(authList)));

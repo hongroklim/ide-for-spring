@@ -108,7 +108,7 @@ public class ProductDeliveryServiceImpl implements ProductDeliveryService {
 
         //is seller exists
         if(ObjUtil.isNotEmpty(pDelivery.getSellerNm())){
-            uService.getUserNotNull(pDelivery.getSellerNm());
+            uService.checkUserExist(pDelivery.getSellerNm());
         }
         
     }

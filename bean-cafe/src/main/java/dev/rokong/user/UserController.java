@@ -41,13 +41,13 @@ public class UserController {
     @RequestMapping(value="/{userNm}/pwd", method=RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public UserDTO updateUserPassword(@RequestBody UserDTO user){
-        return userService.updateUserPassword(user);
+        return userService.updateUser(user);
     }
 
     @RequestMapping(value="/{userNm}/enabled", method=RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public UserDTO updateUserEnabled(@RequestBody UserDTO user){
-        return userService.updateUserEnabled(user);
+        return userService.updateUser(user);
     }
 
     @RequestMapping(value="/{userNm}/authority", method=RequestMethod.PATCH)

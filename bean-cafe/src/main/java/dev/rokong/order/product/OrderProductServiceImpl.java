@@ -152,12 +152,12 @@ public class OrderProductServiceImpl implements OrderProductService {
         oDeliveryService.removeODelivery(oProduct.getOrderId(), oProduct.getDeliveryId());
     }
 
-    public void updateOProductToNull(int productId, String optionCd){        
+    public void updateOProductInvalid(int productId, String optionCd){
         OrderProductDTO oProduct = new OrderProductDTO();
         oProduct.setProductId(productId);
         oProduct.setOptionCd(optionCd);
 
-        oProductDAO.updateToNull(oProduct);
+        oProductDAO.updateToInvalid(oProduct);
     }
 
     private int totalPriceInList(List<? extends OrderProductDTO> list){

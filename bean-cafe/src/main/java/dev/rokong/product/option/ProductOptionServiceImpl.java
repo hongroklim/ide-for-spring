@@ -18,18 +18,21 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class ProductOptionServiceImpl implements ProductOptionService {
     
-    @Autowired ProductOptionDAO pOptionDAO;
+    @Autowired
+    private ProductOptionDAO pOptionDAO;
 
-    @Autowired ProductService pService;
-    @Autowired ProductDetailService pDetailService;
+    @Autowired
+    private ProductService pService;
+    @Autowired
+    private ProductDetailService pDetailService;
 
     public List<ProductOptionDTO> getPOptionList(ProductOptionDTO pOption){
         if(pOption.getProductId() == 0){
-            log.debug("product option paramerter : "+pOption.toString());
+            log.debug("product option parameter : "+pOption.toString());
             throw new BusinessException("product id must be declared");
         }else if(pOption.getOptionGroup() == null){
             if(pOption.getOptionId() != null && !"".equals(pOption.getOptionId())){
-                log.debug("product option paramerter : "+pOption.toString());
+                log.debug("product option parameter : "+pOption.toString());
                 throw new BusinessException("option id should be empty until option group is not null");
             }
         }
@@ -44,7 +47,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
     public ProductOptionDTO getPOptionNotNull(ProductOptionDTO pOption){
         ProductOptionDTO getPOption = pOptionDAO.select(pOption);
         if(getPOption == null){
-            log.debug("product option paramerter : "+pOption.toString());
+            log.debug("product option parameter : "+pOption.toString());
             throw new BusinessException("product option is not exists");
         }
         return getPOption;
@@ -71,7 +74,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         for(ProductOptionDTO p : resultList){
             if(ProductOptionDTO.TITLE_ID.equals(p.getOptionId())
                     && p.getName().equals(pOption.getName())){
-                log.debug("product option paramerter : "+pOption.toString());
+                log.debug("product option parameter : "+pOption.toString());
                 log.debug("duplicate product option : "+p.toString());
                 throw new BusinessException("option group's name is duplicated");
             }
@@ -111,7 +114,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
             pOption.getProductId(), pOption.getOptionGroup());
         List<ProductOptionDTO> optionList = this.getPOptionList(param);
         if(optionList == null || optionList.size() == 0){
-            log.debug("product option paramerter : "+pOption.toString());
+            log.debug("product option parameter : "+pOption.toString());
             throw new BusinessException("product & option group is not exists");
         }
 
@@ -120,7 +123,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         String tobeId = ProductOptionDTO.nextId(lastId);
 
         if(ProductOptionDTO.TITLE_ID.equals(tobeId)){
-            log.debug("product option paramerter : "+pOption.toString());
+            log.debug("product option parameter : "+pOption.toString());
             throw new BusinessException("option Id exceed the limit");
         }
         
@@ -144,7 +147,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
 
             if(optionsInGrp != null && optionsInGrp.size() > 1){
                 //if there is the other option, throw exception
-                log.debug("product option paramerter : "+pOption.toString());
+                log.debug("product option parameter : "+pOption.toString());
                 log.debug("the size of options in group : "+optionsInGrp.size()+" (this size should be 1)");
                 throw new BusinessException("other option in same group exists");
             }
@@ -155,7 +158,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
             
             if(lowerOptions != null && lowerOptions.size() > 0){
                 //if lower group exists, throw exception
-                log.debug("product option paramerter : "+pOption.toString());
+                log.debug("product option parameter : "+pOption.toString());
                 log.debug("lower option's option group : "+lowerOptions.get(0).getOptionGroup());
                 throw new BusinessException("lower option group exist");
             }
@@ -183,7 +186,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
         }
 
         boolean isNameChange = !asisPOption.getName().equals(tobePOption.getName());
-        boolean isOrdChange = asisPOption.getOrd() != tobePOption.getOrd();
+        boolean isOrdChange = !asisPOption.getOrd().equals(tobePOption.getOrd());
 
         if(!isNameChange && !isOrdChange){
             //if nothing to be changed, return asis one
@@ -202,8 +205,8 @@ public class ProductOptionServiceImpl implements ProductOptionService {
                         && !asisPOption.getOptionId().equals(o.getOptionId())
                         && o.getName().equals(tobePOption.getName())){
                     //avoid duplicate option name (except option group's title and itself)
-                    log.debug("asis product option paramerter : "+asis.toString());
-                    log.debug("tobe product option paramerter : "+tobePOption.toString());
+                    log.debug("asis product option parameter : "+asis.toString());
+                    log.debug("tobe product option parameter : "+tobePOption.toString());
                     throw new BusinessException("duplicate name in same option group");
                 }
             }
@@ -283,15 +286,15 @@ public class ProductOptionServiceImpl implements ProductOptionService {
 
     private void verifyPrimaryKeysDefined(ProductOptionDTO pOption){
         if(pOption.getProductId() == 0){
-            log.debug("product option paramerter : "+pOption.toString());
+            log.debug("product option parameter : "+pOption.toString());
             throw new BusinessException("product id must be declared");
 
         }else if(pOption.getOptionGroup() == null || pOption.getOptionGroup() == 0){
-            log.debug("product option paramerter : "+pOption.toString());
+            log.debug("product option parameter : "+pOption.toString());
             throw new BusinessException("option group must be declared");
 
-        }else if(pOption.getOptionId() == null && "".equals(pOption.getOptionId())){
-            log.debug("product option paramerter : "+pOption.toString());
+        }else if(ObjUtil.isEmpty(pOption.getOptionId())){
+            log.debug("product option parameter : "+pOption.toString());
             throw new BusinessException("option id must be declared");
         }
     }

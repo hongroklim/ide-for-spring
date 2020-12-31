@@ -13,6 +13,6 @@ public interface OrderProductDAO {
     public void insert(OrderProductDTO oProduct);
     public void delete(OrderProductDTO oProduct);
     public void updateCnt(OrderProductDTO oProduct);
-    public void updateToNull(OrderProductDTO oProduct);
+    public void updateToInvalid(OrderProductDTO oProduct);
     public void updateStatus(OrderProductDTO oProduct);
 }

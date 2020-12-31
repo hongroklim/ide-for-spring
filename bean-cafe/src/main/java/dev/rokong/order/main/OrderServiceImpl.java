@@ -75,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
         */
 
         //userNm is required
-        userService.getUserNotNull(order.getUserNm());
+        userService.checkUserExist(order.getUserNm());
 
         //set status
         order.setOrderStatus(OrderStatus.WRITING);

@@ -14,39 +14,39 @@ public class UserDAOImpl implements UserDAO {
 
     @Autowired SqlSessionTemplate sqlSession;
 
-    public List<UserDTO> selectUserList(){
-        return sqlSession.selectList(PREFIX+"selectUserList");
+    public List<UserDTO> selectList(){
+        return sqlSession.selectList(PREFIX+"selectList");
     }
 
-    public UserDTO selectUser(String userNm) {
-        return sqlSession.selectOne(PREFIX+"selectUser", userNm);
+    public UserDTO select(String userNm) {
+        return sqlSession.selectOne(PREFIX+"select", userNm);
     }
 
-    public void insertUser(UserDTO user) {
-        sqlSession.insert(PREFIX+"insertUser", user);
+    public int count(String userNm){
+        return sqlSession.selectOne(PREFIX+"count", userNm);
     }
 
-    public void updateUserPassword(UserDTO user) {
-        sqlSession.update(PREFIX+"updateUserPassword", user);
+    public void insert(UserDTO user) {
+        sqlSession.insert(PREFIX+"insert", user);
     }
 
-    public void updateUserEnabled(UserDTO user) {
-        sqlSession.update(PREFIX+"updateUserEnabled", user);
+    public void update(UserDTO user){
+        sqlSession.update(PREFIX+"update", user);
     }
 
-    public void deleteUser(String userNm) {
-        sqlSession.delete(PREFIX+"deleteUser", userNm);
+    public void delete(String userNm) {
+        sqlSession.delete(PREFIX+"delete", userNm);
     }
 
-    public void insertUserAuthorities(UserDTO user){
-        sqlSession.insert(PREFIX+"insertUserAuthorities", user);
+    public void insertAuths(UserDTO user){
+        sqlSession.insert(PREFIX+"insertAuths", user);
     }
     
-    public List<String> selectUserAuthorities(String userNm){
-        return sqlSession.selectList(PREFIX+"selectUserAuthorities", userNm);
+    public List<String> selectAuths(String userNm){
+        return sqlSession.selectList(PREFIX+"selectAuths", userNm);
     }
 
-    public void deleteUserAuthorities(UserDTO user){
-        sqlSession.delete(PREFIX+"deleteUserAuthorities", user);
+    public void deleteAuths(UserDTO user){
+        sqlSession.delete(PREFIX+"deleteAuths", user);
     }
 }

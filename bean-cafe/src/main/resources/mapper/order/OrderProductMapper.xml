@@ -71,12 +71,9 @@
            AND option_cd = #{optionCd}
     </update>
 
-    <update id="updateToNull" parameterType="OrderProductDTO">
+    <update id="updateToInvalid" parameterType="OrderProductDTO">
         UPDATE ord_prod
-           SET option_cd = null
-               <if test='optionCd == null || "".equals(optionCd)'>
-                   , product_id = null
-               </if>
+           SET option_cd = '-' || option_cd
          WHERE product_id = #{productId}
         <if test='optionCd != null and !"".equals(optionCd)'>
             AND option_cd like #{optionCd}

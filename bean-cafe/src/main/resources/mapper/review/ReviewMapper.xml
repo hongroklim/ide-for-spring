@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.rokong.review">
+    <select id="selectList" parameterType="ReviewDTO" resultType="ReviewDTO">
+        SELECT id, user_nm, order_id, product_id, option_cd, rate, content,
+               is_visible, update_dt
+          FROM rev_main
+         WHERE 1 = 1
+            <if test='productId != null and productId != 0'>
+                AND product_id = #{productId}
+                <if test='optionCd != null and !"".equals(optionCd)'>
+                    AND option_cd LIKE #{optionCd}
+                </if>
+            </if>
+            <if test='userNm != null and !"".equals(userNm)'>
+                AND user_nm = #{userNm}
+            </if>
+    </select>
+
+    <select id="select" parameterType="int" resultType="ReviewDTO">
+        SELECT id, user_nm, order_id, product_id, option_cd, rate, content,
+               is_visible, update_dt
+          FROM rev_main
+         WHERE id = #{id}
+    </select>
+
+    <select id="count" parameterType="int" resultType="int">
+        SELECT count(*)
+          FROM rev_main
+         WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="ReviewDTO">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            SELECT nextval('rev_main_id_seq'::regclass)
+        </selectKey>
+        INSERT INTO rev_main
+               (user_nm, order_id, product_id, option_cd, rate, content, is_visible, update_dt)
+        VALUES (#{userNm}, #{orderId}, #{productId}, #{optionCd}, #{rate}, #{content}, #{isVisible}, #{updatDt})
+    </insert>
+
+    <update id="update" parameterType="ReviewDTO">
+        UPDATE rev_main
+           SET update_dt = now()
+            <if test='rate != null'>
+                , rate = #{rate}
+            </if>
+            <if test='content != null'>
+                , content = #{content}
+            </if>
+            <if test='isVisible != null'>
+                , is_visible = #{isVisible}
+            </if>
+         WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE
+          FROM rev_main
+         WHERE id = #{id}
+    </delete>
+</mapper>

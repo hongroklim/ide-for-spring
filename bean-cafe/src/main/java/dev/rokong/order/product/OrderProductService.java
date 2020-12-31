@@ -27,7 +27,16 @@ public interface OrderProductService {
     public OrderProductDTO addOProduct(OrderProductDTO oProduct);
     public OrderProductDTO updateOProductCnt(OrderProductDTO oProduct);
     public void deleteOProduct(OrderProductDTO oProduct);
-    public void updateOProductToNull(int productId, String optionCd);
+
+    /**
+     * when product or product detail is changed, set order product invalid
+     * associated with changed one
+     *
+     * @param productId
+     * @param optionCd
+     */
+    public void updateOProductInvalid(int productId, String optionCd);
+
     public void updateStatus(OrderProductDTO oProduct);
     public void updateStatusByDelivery(int orderId, int deliveryId, OrderStatus orderStatus);
 

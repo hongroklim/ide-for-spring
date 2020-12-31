@@ -24,4 +24,6 @@ public class MockObjects {
     
     @Autowired public MockUser user;
 
+    @Autowired public MockReview review;
+
 }

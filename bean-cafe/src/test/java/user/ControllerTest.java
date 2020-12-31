@@ -136,12 +136,12 @@ public class ControllerTest extends MvcUnitConfig {
         // make new user whose enabled is opposite compared to asis
         UserDTO tobeUser = new UserDTO();
         tobeUser.setUserNm(asisUser.getUserNm());
-        tobeUser.setEnabled(!asisUser.isEnabled());
+        tobeUser.setEnabled(!asisUser.getEnabled());
 
         this.mvc.perform(put("/user/" + asisUser.getUserNm() + "/enabled").contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(this.objectMapper.writeValueAsString(tobeUser))).andDo(log()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.userNm", is(equalTo(tobeUser.getUserNm()))))
-                .andExpect(jsonPath("$.enabled", is(not(equalTo(asisUser.isEnabled()))))); // different pwd in same user
+                .andExpect(jsonPath("$.enabled", is(not(equalTo(asisUser.getEnabled()))))); // different pwd in same user
     }
 
     @Test

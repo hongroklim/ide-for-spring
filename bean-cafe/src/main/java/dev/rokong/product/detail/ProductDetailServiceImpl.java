@@ -107,7 +107,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         this.checkDetailExist(pDetail);
 
         //set null option cd in order product
-        oProductService.updateOProductToNull(pDetail.getProductId(), pDetail.getOptionCd());
+        oProductService.updateOProductInvalid(pDetail.getProductId(), pDetail.getOptionCd());
 
         //delete cart
         cartService.deleteCarts(pDetail.getProductId(), pDetail.getOptionCd());
@@ -127,9 +127,6 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             throw new BusinessException("final price can not be under 0");
         }
 
-        //set null option cd in order product
-        oProductService.updateOProductToNull(pDetail.getProductId(), pDetail.getOptionCd());
-
         pDetailDAO.update(pDetail);
         return this.getDetailNotNull(pDetail);
     }
@@ -143,7 +140,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         ProductDetailDTO pDetail = this.paramByOption(pOption);
 
         //set null option cd in order product
-        oProductService.updateOProductToNull(pDetail.getProductId(), pDetail.getOptionCd());
+        oProductService.updateOProductInvalid(pDetail.getProductId(), pDetail.getOptionCd());
 
         //delete cart
         cartService.deleteCarts(pDetail.getProductId(), pDetail.getOptionCd());
