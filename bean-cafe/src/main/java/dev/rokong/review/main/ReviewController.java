@@ -1,13 +1,16 @@
 package dev.rokong.review.main;
 
 import dev.rokong.dto.ReviewDTO;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/review")
+@RequestMapping(value="/review", produces= MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags={"Review"})
 public class ReviewController {
 
     @Autowired

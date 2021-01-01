@@ -1,6 +1,7 @@
 package dev.rokong.order.main;
 
 import dev.rokong.annotation.OrderStatus;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,11 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.rokong.dto.OrderDTO;
 
 @RestController
-@RequestMapping("/order")
-@ResponseStatus(HttpStatus.OK)
+@RequestMapping(value="/order", produces= MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags={"Order"})
 public class OrderController {
     
-    @Autowired OrderService orderService;
+    @Autowired
+    private OrderService orderService;
 
     @RequestMapping(value="/{id}", method=RequestMethod.GET)
     public OrderDTO getOrder(@PathVariable int id){
@@ -31,18 +33,18 @@ public class OrderController {
         return orderService.createOrder(order);
     }
 
-    @RequestMapping(value="/{id}/pay", method=RequestMethod.PUT)
-    public void updateOrderPay(@PathVariable int id, @RequestBody int payId){
-        OrderDTO param = new OrderDTO(id);
-        param.setPayId(payId);
-        
-        orderService.updateOrderPay(param);
-    }
-
-    @RequestMapping(value="/{id}/status", method=RequestMethod.POST)
+    @RequestMapping(value="/{id}/status", method=RequestMethod.PUT)
     public OrderDTO updateOrderStatus(@PathVariable int id, @RequestBody OrderStatus orderStatus){
         OrderDTO order = new OrderDTO(id);
         order.setOrderStatus(orderStatus);
         return orderService.updateOrderStatus(order);
+    }
+
+    @RequestMapping(value="/{id}/pay", method=RequestMethod.PUT)
+    public void updateOrderPay(@PathVariable int id, @RequestBody int payId){
+        OrderDTO param = new OrderDTO(id);
+        param.setPayId(payId);
+
+        orderService.updateOrderPay(param);
     }
 }

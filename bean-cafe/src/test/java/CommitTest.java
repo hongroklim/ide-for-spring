@@ -6,6 +6,7 @@ import dev.rokong.order.product.OrderProductService;
 import dev.rokong.product.detail.ProductDetailService;
 import dev.rokong.product.main.ProductService;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

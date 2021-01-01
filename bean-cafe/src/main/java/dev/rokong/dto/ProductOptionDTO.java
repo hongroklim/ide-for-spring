@@ -1,15 +1,29 @@
 package dev.rokong.dto;
 
+import dev.rokong.util.ObjUtil;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@ApiModel(value="Product Option", description="product's option")
 public class ProductOptionDTO {
+
+    @ApiModelProperty(value="product id", example="3", position=1)
     private int productId;
+
+    @ApiModelProperty(value="option group", example="2", position=2)
     private Integer optionGroup;
+
+    @ApiModelProperty(value="option id", example="02", position=3)
     private String optionId;
+
+    @ApiModelProperty(value="title or name", example="for gift", position=4)
     private String name;
+
+    @ApiModelProperty(value="display order in siblings", example="2", position=5)
     private Integer ord;
 
     public static final String TITLE_ID = "00";
@@ -29,7 +43,7 @@ public class ProductOptionDTO {
             throw new IllegalArgumentException("optionId's length must be 2");
         }else{
             String tmp = optionId.replaceAll("[0-9A-Za-z]", "");
-            if(tmp != null && !"".equals(tmp)){
+            if(ObjUtil.isNotEmpty(tmp)){
                 throw new IllegalArgumentException("invalid string in optionId : "+tmp);
             }
         }
@@ -39,14 +53,14 @@ public class ProductOptionDTO {
         verifyId(optionId);
 
         if(optionId.endsWith("9")){
-            return optionId.substring(0, 1)+"A";
+            return optionId.charAt(0)+"A";
 
         }else if(optionId.endsWith("Z")){
-            return optionId.substring(0, 1)+"a";
+            return optionId.charAt(0)+"a";
 
         }else if(!optionId.endsWith("z")){
             int ascii = (int) optionId.charAt(1);
-            return optionId.substring(0, 1)
+            return optionId.charAt(0)
                     + Character.toString((char) ++ascii);
             
         } else{//if(optionId.endsWith("z"))

@@ -2,6 +2,7 @@ package review.main;
 
 import config.MvcUnitConfig;
 import dev.rokong.review.main.ReviewController;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -17,6 +18,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     //TODO review ControllerTest
 
+    @Test
     public void getReviews() throws Exception {
 
     }

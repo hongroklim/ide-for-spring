@@ -2,8 +2,10 @@ package dev.rokong.product.detail;
 
 import java.util.List;
 
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,51 +16,46 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.rokong.dto.ProductDetailDTO;
 
 @RestController
-@RequestMapping("/product/{pId}/detail")
+@RequestMapping(value= "/product/{productId}/detail", produces= MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags={"Product Detail"})
 public class ProductDetailController {
     
-    @Autowired ProductDetailService pDetailService;
+    @Autowired
+    private ProductDetailService pDetailService;
 
     @RequestMapping(value="", method=RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
-    public List<ProductDetailDTO> getDetailListInProduct(@PathVariable int pId){
-        ProductDetailDTO param = new ProductDetailDTO(pId);
+    public List<ProductDetailDTO> getDetailListInProduct(@PathVariable int productId){
+        ProductDetailDTO param = new ProductDetailDTO(productId);
         return pDetailService.getDetails(param);
     }
 
-    @RequestMapping(value="/group/{optionCd}", method=RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
-    public List<ProductDetailDTO> getDetailListInGroup(@PathVariable int pId,
+    @RequestMapping(value="/{optionCd}/sub", method=RequestMethod.GET)
+    public List<ProductDetailDTO> getDetailListInGroup(@PathVariable int productId,
             @PathVariable String optionCd){
-        ProductDetailDTO param = new ProductDetailDTO(pId, optionCd);
+        ProductDetailDTO param = new ProductDetailDTO(productId, optionCd);
         return pDetailService.getDetails(param);
     }
 
-    @RequestMapping(value="/option/{optionCd}", method=RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
-    public ProductDetailDTO getDetail(@PathVariable int pId, @PathVariable String optionCd){
-        ProductDetailDTO param = new ProductDetailDTO(pId, optionCd);
+    @RequestMapping(value="/{optionCd}", method=RequestMethod.GET)
+    public ProductDetailDTO getDetail(@PathVariable int productId, @PathVariable String optionCd){
+        ProductDetailDTO param = new ProductDetailDTO(productId, optionCd);
         return pDetailService.getDetail(param);
     }
 
     @RequestMapping(value="", method=RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
     public ProductDetailDTO createDetail(@RequestBody ProductDetailDTO pDetail){
         return pDetailService.createDetail(pDetail);
     }
 
-    @RequestMapping(value="/option/{optionCd}", method=RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteDetail(@PathVariable int pId, @PathVariable String optionCd){
-        ProductDetailDTO param = new ProductDetailDTO(pId, optionCd);
+    @RequestMapping(value="/{optionCd}", method=RequestMethod.DELETE)
+    public void deleteDetail(@PathVariable int productId, @PathVariable String optionCd){
+        ProductDetailDTO param = new ProductDetailDTO(productId, optionCd);
         pDetailService.deleteDetail(param);
     }
 
-    @RequestMapping(value="/option/{optionCd}", method=RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public ProductDetailDTO updateDetail(@PathVariable int pId, @PathVariable String optionCd,
-            @RequestBody ProductDetailDTO pDetail){
+    @RequestMapping(value="/{optionCd}", method=RequestMethod.PUT)
+    public ProductDetailDTO updateDetail(@PathVariable int productId, @PathVariable String optionCd,
+                                         @RequestBody ProductDetailDTO pDetail){
         return pDetailService.updateDetail(pDetail);
     }
-
 }

@@ -45,7 +45,7 @@ public class CartServiceImpl implements CartService {
     public CartDTO getCartNotNull(CartDTO cart){
         CartDTO result = this.getCart(cart);
         if(result == null){
-            log.debug("cart parameter : "+cart.toString());
+            log.debug("cart parameter : {}", cart.toString());
             throw new BusinessException("cart is not exists");
         }
         return result;
@@ -71,9 +71,11 @@ public class CartServiceImpl implements CartService {
         //product is exists
         pService.checkProductExist(cart.getProductId());
 
-        //product cd is exists
-        ProductDetailDTO pDetail = new ProductDetailDTO(cart.getProductId(), cart.getOptionCd());
-        pDetailService.checkDetailExist(pDetail);
+        //product detail is exists
+        if(ObjUtil.isNotEmpty(cart.getOptionCd())){
+            ProductDetailDTO pDetail = new ProductDetailDTO(cart.getProductId(), cart.getOptionCd());
+            pDetailService.checkDetailExist(pDetail);
+        }
 
         //insert
         cartDAO.insert(cart);

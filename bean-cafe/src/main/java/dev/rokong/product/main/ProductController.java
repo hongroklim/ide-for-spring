@@ -2,8 +2,10 @@ package dev.rokong.product.main;
 
 import java.util.List;
 
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.rokong.dto.ProductDTO;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping(value="/product", produces= MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags={"Product"})
 public class ProductController {
     
     @Autowired ProductService pService;

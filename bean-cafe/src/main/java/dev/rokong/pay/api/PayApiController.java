@@ -2,24 +2,24 @@ package dev.rokong.pay.api;
 
 import dev.rokong.dto.OrderDTO;
 import dev.rokong.dto.PayStatusDTO;
-import dev.rokong.exception.BusinessException;
 import dev.rokong.order.main.OrderService;
 import dev.rokong.util.ObjUtil;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/pay/api")
+@RequestMapping(value="pay/api", produces= MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags={"Pay API"})
 public class PayApiController {
 
     @Autowired
@@ -36,12 +36,12 @@ public class PayApiController {
         return (String) this.channelingApi("requestPay", orderId);
     }
 
-    @RequestMapping("/{orderId}/status")
+    @RequestMapping(value="/{orderId}/status", method=RequestMethod.GET)
     public PayStatusDTO paymentStatus(@PathVariable int orderId){
         return (PayStatusDTO) this.channelingApi("getPayStatus", orderId);
     }
 
-    @RequestMapping("/{orderId}/approve")
+    @RequestMapping(value="/{orderId}/approve", method={RequestMethod.GET, RequestMethod.POST})
     public void approvePayment(@PathVariable int orderId,
                                @RequestParam(required=false, defaultValue="") String pg_token){
         Map<String, Object> map = new HashMap<>();

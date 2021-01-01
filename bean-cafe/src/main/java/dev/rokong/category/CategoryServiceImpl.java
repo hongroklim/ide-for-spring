@@ -16,11 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
     
-    @Autowired CategoryDAO cDAO;
-    @Autowired ProductDAO pDAO;
+    @Autowired
+    private CategoryDAO categoryDAO;
+
+    @Autowired
+    private ProductDAO productDAO;
 
     public List<CategoryDTO> getCategoryList(){
-        return cDAO.selectList();
+        return categoryDAO.selectList();
     };
 
     public CategoryDTO createCategory(CategoryDTO category){
@@ -36,18 +39,18 @@ public class CategoryServiceImpl implements CategoryService {
         }else{                      //avoid duplicate ord
             for(CategoryDTO c : siblings){
                 if(c.getOrd() == category.getOrd()){
-                    //throw exeption and break
+                    //throw exception and break
                     throw new BusinessException(c.getOrd()+"th ord under "+c.getUpId()+" already exists");
                 }
             }
         }
 
         //insert new category and return id
-        int createdId = cDAO.insert(category);
+        int createdId = categoryDAO.insert(category);
         category.setId(createdId);
 
         return this.getCategoryNotNull(category);
-    };
+    }
 
     public void deleteCategory(int id){
         this.checkCategoryExist(id);
@@ -59,13 +62,13 @@ public class CategoryServiceImpl implements CategoryService {
             throw new BusinessException(id+"'s children are exists");
         }
 
-        pDAO.updateCategory(id, CategoryDTO.ETC_ID);
+        productDAO.updateCategory(id, CategoryDTO.ETC_ID);
 
-        cDAO.delete(id);
-    };
+        categoryDAO.delete(id);
+    }
     
     public CategoryDTO getCategory(int id){
-        return cDAO.select(id);
+        return categoryDAO.select(id);
     };
     
     public CategoryDTO updateCategory(CategoryDTO category){
@@ -86,7 +89,7 @@ public class CategoryServiceImpl implements CategoryService {
 
             //prevent nested hierarchy
             if(asisCategory.getUpId() == category.getUpId()){
-                if(cDAO.isParentAndChild(asisCategory.getId(), category.getUpId())){
+                if(categoryDAO.isParentAndChild(asisCategory.getId(), category.getUpId())){
                     log.debug("nested hierarchy between "+asisCategory.getId()+" and "+category.getUpId());
                     throw new BusinessException(asisCategory.getId()+" can not be attached under "+category.getUpId());
                 }
@@ -119,23 +122,23 @@ public class CategoryServiceImpl implements CategoryService {
         //set name
         tobeCategory.setName(category.getName());
 
-        cDAO.update(tobeCategory);
+        categoryDAO.update(tobeCategory);
 
         return this.getCategoryNotNull(tobeCategory);
-    };
+    }
 
     public void checkCategoryExist(int id){
         if(id == 0){
             throw new IllegalArgumentException("category id is not defined");
         }
 
-        if (cDAO.count(id) == 0) {
+        if (categoryDAO.count(id) == 0) {
             throw new BusinessException(id+" category is not exists");
         }
     }
 
     public List<CategoryDTO> getCategoryChildren(int upId){
-        return cDAO.selectChildren(upId);
+        return categoryDAO.selectChildren(upId);
     };
     
     public CategoryDTO updateCategoryOrder(CategoryDTO category){
@@ -160,37 +163,40 @@ public class CategoryServiceImpl implements CategoryService {
 
             if(tobeOrder < asisOrder){                      //move forward order
                 //move backward between tobe and asis one
-                cDAO.backwardChildrenOrder(asisCategory.getUpId(),
+                categoryDAO.backwardChildrenOrder(asisCategory.getUpId(),
                     tobeOrder, asisOrder);
             }else{                                          //move backward order
                 //move forward between asis and tobe one
-                cDAO.forwardChildrenOrder(asisCategory.getUpId(),
+                categoryDAO.forwardChildrenOrder(asisCategory.getUpId(),
                     asisOrder, tobeOrder);
             }
 
             //execute update only order
-            cDAO.updateOrder(category);
+            categoryDAO.updateOrder(category);
         }else{
             log.debug("tobe order exceed the max order. it will be appended last");
         }
         
         return this.getCategoryNotNull(category);
-    };
+    }
     
     public CategoryDTO getCategoryNotNull(int id){
-        CategoryDTO category = cDAO.select(id);
+        CategoryDTO category = categoryDAO.select(id);
         if(category == null){
             throw new BusinessException(id+" category is not exists");
         }
         return category;
-    };
+    }
 
     private CategoryDTO getCategoryNotNull(CategoryDTO category){
-        if(category.getId() == 0){
-            throw new BusinessException("categoryId is not defined");
+        if(category == null){
+            throw new IllegalArgumentException("category is null");
+
+        }else if(category.getId() == 0){
+            throw new BusinessException("category id is not defined");
         }
         return this.getCategoryNotNull(category.getId());
-    };
+    }
 
     private int maxOrdOfCategory(List<CategoryDTO> cList){
         int maxOrd = 0;
@@ -208,7 +214,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private int maxOrdOfCategory(int upId){
-        return cDAO.selectMaxOrder(upId);
+        return categoryDAO.selectMaxOrder(upId);
     }
 
     private void appendLastCategoryOrder(CategoryDTO category){
@@ -217,6 +223,6 @@ public class CategoryServiceImpl implements CategoryService {
         //set order max(ord)+1 value
         getCategory.setOrd(this.maxOrdOfCategory(getCategory.getUpId())+1);
 
-        cDAO.updateOrder(getCategory);
+        categoryDAO.updateOrder(getCategory);
     }
 }

@@ -3,8 +3,10 @@ package dev.rokong.user;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,19 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.rokong.dto.UserDTO;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping(value="/user", produces= MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags={"User"})
 public class UserController {
     
-    @Autowired UserService userService;
+    @Autowired
+    private UserService userService;
 
     @RequestMapping(value="", method=RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
     public List<UserDTO> getUsers(){
         return userService.getUsers();
     }
 
     @RequestMapping(value="", method=RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
     public UserDTO createUser(@RequestBody UserDTO user) {
         return userService.createUser(user);
     }
@@ -39,19 +41,17 @@ public class UserController {
     }
 
     @RequestMapping(value="/{userNm}/pwd", method=RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
     public UserDTO updateUserPassword(@RequestBody UserDTO user){
         return userService.updateUser(user);
     }
 
     @RequestMapping(value="/{userNm}/enabled", method=RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
     public UserDTO updateUserEnabled(@RequestBody UserDTO user){
         return userService.updateUser(user);
     }
 
-    @RequestMapping(value="/{userNm}/authority", method=RequestMethod.PATCH)
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value="/{userNm}/authority", method=RequestMethod.PUT)
+    
     public List<String> addUserAuthority(@RequestBody UserDTO user){
         List<GrantedAuthority> authorities = userService.addUserAuthorities(user);
         
@@ -63,13 +63,13 @@ public class UserController {
     }
 
     @RequestMapping(value="/{userNm}/authority", method=RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
+    
     public void deleteUserAuthority(@RequestBody UserDTO user){
         userService.deleteUserAuthorities(user);
     }
 
     @RequestMapping(value="/{userNm}", method=RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
+    
     public void deleteUser(@PathVariable String userNm){
         userService.deleteUser(userNm);
     }

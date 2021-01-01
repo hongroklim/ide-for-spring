@@ -1,26 +1,33 @@
 package dev.rokong.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import lombok.Data;
-
 @Data
 @JsonIgnoreProperties({"authorities", "username", "password"})
+@ApiModel(value="User", description="users")
 public class UserDTO {
+
+    @ApiModelProperty(value="user name", example="customer1", position=1)
     private String userNm;
+
+    @ApiModelProperty(value="password", example="customer1", position=2)
     private String pwd;
+
+    @ApiModelProperty(value="is enabled", example="true", position=3)
     private Boolean enabled;
+
+    @ApiModelProperty(value="user authorities", example="", position=4)
     private List<String> authority;
 
+    @ApiModelProperty(hidden = true)
     public List<GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
@@ -33,6 +40,7 @@ public class UserDTO {
         return authorities;
     }
 
+    @ApiModelProperty(hidden = true)
     public void setAuthorities(List<GrantedAuthority> authorities){
         this.authority = new ArrayList<>();
         for(GrantedAuthority auth : authorities){

@@ -1,59 +1,45 @@
 package dev.rokong.cart;
 
+import dev.rokong.dto.CartDTO;
+import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
-import dev.rokong.dto.CartDTO;
-
 @RestController
-@RequestMapping("/cart/user/{userNm}")
+@RequestMapping(value="/cart", produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags={"Cart"})
 public class CartController {
     
-    @Autowired CartService cartService;
+    @Autowired
+    private CartService cartService;
 
     @RequestMapping(value="", method=RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
-    public List<CartDTO> getCarts(@PathVariable String userNm){
-        CartDTO param = new CartDTO(userNm);
-        return cartService.getCarts(param);
+    @ApiOperation(value="get carts", notes = "get user's cart list [userNm]")
+    public List<CartDTO> getCarts(@ModelAttribute CartDTO cart){
+        return cartService.getCarts(cart);
     }
 
     @RequestMapping(value="", method=RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value="create cart",
+            notes = "add product in user's cart [userNm, productId, optionCd, cnt]")
     public CartDTO addCart(@RequestBody CartDTO cart){
         return cartService.createCart(cart);
     }
 
+    @RequestMapping(value="", method=RequestMethod.PUT)
+    @ApiOperation(value="update count",
+            notes = "update product's count [userNm, productId, optionCd, cnt]")
+    public CartDTO updateCartCnt(@RequestBody CartDTO cart){
+        return cartService.updateCartCnt(cart);
+    }
+
     @RequestMapping(value="", method=RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteCartAll(@PathVariable String userNm){
-        CartDTO param = new CartDTO(userNm);
-        cartService.deleteCarts(param);
+    @ApiOperation(value="delete cart",
+            notes = "product id or option cd can be used [userNm, productId, optionCd]")
+    public void deleteCarts(@ModelAttribute CartDTO cart){
+        cartService.deleteCarts(cart);
     }
-
-    @RequestMapping(value="/product/{pId}/option/{oCd}", method=RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteCart(@PathVariable String userNm, @PathVariable int pId,
-            @PathVariable String oCd){
-        CartDTO param = new CartDTO(userNm, pId, oCd);
-        cartService.deleteCart(param);
-    }
-
-    @RequestMapping(value="/product/{pId}/option/{oCd}", method=RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public CartDTO updateCartCnt(@PathVariable String userNm, @PathVariable int pId,
-            @PathVariable String oCd, @RequestBody CartDTO cart){
-        CartDTO param = new CartDTO(userNm, pId, oCd);
-        param.setCnt(cart.getCnt());
-        return cartService.updateCartCnt(param);
-    }
-
 }
