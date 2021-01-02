@@ -38,6 +38,7 @@ public class DaoTest extends SpringConfig {
         CategoryDTO category = new CategoryDTO();
         category.setName("test01");
         category.setUpId(cList.get(2).getId());
+        category.setOrd(cDAO.selectMaxOrder(cList.get(2).getUpId())+1);
 
         //compare returned id with select one
         int selectKey = cDAO.insert(category);

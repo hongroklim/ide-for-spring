@@ -155,7 +155,7 @@ public class ControllerTest extends MvcUnitConfig {
         authList.add("role02");
         newUser.setAuthority(authList);
 
-        MvcResult result = this.mvc.perform(patch("/user/" + newUser.getUserNm() + "/authority")
+        MvcResult result = this.mvc.perform(put("/user/" + newUser.getUserNm() + "/authority")
                 .contentType(MediaType.APPLICATION_JSON_UTF8).content(this.objectMapper.writeValueAsString(newUser)))
                 .andDo(log()).andExpect(status().isOk()).andReturn();
 

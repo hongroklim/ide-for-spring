@@ -36,7 +36,7 @@
         </selectKey>
         INSERT INTO rev_main
                (user_nm, order_id, product_id, option_cd, rate, content, is_visible, update_dt)
-        VALUES (#{userNm}, #{orderId}, #{productId}, #{optionCd}, #{rate}, #{content}, #{isVisible}, #{updatDt})
+        VALUES (#{userNm}, #{orderId}, #{productId}, #{optionCd}, #{rate}, #{content}, #{isVisible}, now())
     </insert>
 
     <update id="update" parameterType="ReviewDTO">
@@ -59,4 +59,13 @@
           FROM rev_main
          WHERE id = #{id}
     </delete>
+
+    <update id="updateOProductInvalid" parameterType="ReviewDTO">
+        UPDATE rev_main
+           SET option_cd = '-' || option_cd
+         WHERE product_id = #{productId}
+        <if test='optionCd != null and !"".equals(optionCd)'>
+            AND option_cd like #{optionCd}
+        </if>
+    </update>
 </mapper>

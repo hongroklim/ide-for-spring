@@ -61,7 +61,7 @@ public class ProductServiceImpl implements ProductService {
         
         //set default enabled
         if(product.getEnabled() == null){
-            product.setEnabled(false);
+            product.setEnabled(true);
         }
 
         //seller name must be defined
@@ -131,6 +131,12 @@ public class ProductServiceImpl implements ProductService {
 
         //verify
         this.verifyParameter(product);
+
+        //get product delivery
+        if(product.getDeliveryId() != null){
+            ProductDeliveryDTO pDelivery = pDeliveryService.getPDeliveryNotNull(product.getDeliveryId());
+            product.setDeliveryPrice(pDelivery.getPrice());
+        }
 
         //null value will not be updated
         pDAO.update(product);

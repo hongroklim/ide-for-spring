@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
+import dev.rokong.mock.MockObjects;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,32 +20,38 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DaoTest extends SpringConfig {
     
-    @Autowired ProductOptionService pOptionService;
-    @Autowired ProductOptionDAO pOptionDAO;
+    @Autowired
+    private ProductOptionService pOptionService;
+    @Autowired
+    private ProductOptionDAO pOptionDAO;
+
+    @Autowired
+    private MockObjects mObj;
 
     @Test
     public void updateProductOptionOrder(){
         //asis Product option
-        ProductOptionDTO asisPOption = new ProductOptionDTO(2, 1, "02");
-        asisPOption = pOptionService.getPOptionNotNull(asisPOption);
+        List<ProductOptionDTO> list = mObj.pOption.anyList(4);
+        ProductOptionDTO asisPOption = list.get(0);
 
         //tobe Product option
         ProductOptionDTO tobePOption = pOptionService.getPOptionNotNull(asisPOption);
-        tobePOption.setOrd(4);
+        int tobeOrd = (asisPOption.getOrd() == 1) ? 2 : asisPOption.getOrd()-1;
+        tobePOption.setOrd(tobeOrd);
 
         //list before update
         ProductOptionDTO param = new ProductOptionDTO(asisPOption);
         param.setOptionId("");
-        List<ProductOptionDTO> list = pOptionService.getPOptionList(param);
+        list = pOptionService.getPOptionList(param);
         log.info("before list : "+list.toString());
 
-        ProductOptionDTO result = pOptionService.updatePOption(asisPOption, tobePOption);
+        ProductOptionDTO result = pOptionService.updatePOption(tobePOption);
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getName(), is(equalTo(asisPOption.getName())));
-        assertThat(result.getOrd(), is(equalTo(4)));
+        assertThat(result.getOrd(), is(equalTo(tobeOrd)));
 
-        //liset after update
+        //list after update
         list = pOptionService.getPOptionList(param);
         log.info("after list : "+list.toString());
     }

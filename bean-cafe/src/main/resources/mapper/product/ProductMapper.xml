@@ -55,16 +55,13 @@
                <if test="enabled != null">
                    , enabled = #{enabled}
                </if>
-               <if test='sellerNm != null and !"".equals(sellerNm)'>
-                   , seller_nm = #{sellerNm}
-               </if>
                <if test="stockCnt != null">
                    , stock_cnt = #{stockCnt}
                </if>
                <if test="deliveryId != null and deliveryId != 0">
                    , delivery_id = #{deliveryId}
                </if>
-               <if test='deliveryPrice != null and deliveryPrice != 0'>
+               <if test='deliveryPrice != null'>
                    , delivery_price = #{deliveryPrice}
                </if>
                <if test='discountPrice != null'>

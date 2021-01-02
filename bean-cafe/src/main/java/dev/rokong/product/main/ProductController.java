@@ -3,6 +3,7 @@ package dev.rokong.product.main;
 import java.util.List;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,32 +24,34 @@ public class ProductController {
     @Autowired ProductService pService;
 
     @RequestMapping(value="", method=RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value="get product list", notes="get product list")
     public List<ProductDTO> getProductList(){
         return pService.getProductList();
     }
 
     @RequestMapping(value="", method=RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value="create product", notes="create product [name, price, (categoryId), (enabled)," +
+            "sellerNm, (stockCnt), (deliveryId), (deliveryPrice), (discountPrice)]")
     public ProductDTO createProduct(@RequestBody ProductDTO product){
         return pService.createProduct(product);
     }
 
     @RequestMapping(value="/{id}", method=RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value="get product", notes="get product by id")
     public ProductDTO getProduct(@PathVariable int id){
         return pService.getProduct(id);
     }
 
     @RequestMapping(value="/{id}", method=RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public ProductDTO updateProduct(@RequestBody ProductDTO product){
-        //name, categoryId, sellerNm, stockCnt, enabled
+    @ApiOperation(value="update product", notes="[(name), (price), (categoryId), (stockCnt), (enabled)," +
+            "(deliveryId), (discountPrice)]")
+    public ProductDTO updateProduct(@PathVariable int id, @RequestBody ProductDTO product){
+        product.setId(id);
         return pService.updateProduct(product);
     }
 
     @RequestMapping(value="/{id}", method=RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value="delete product", notes="delete product")
     public void deleteProduct(@PathVariable int id){
         pService.deleteProduct(id);
     }

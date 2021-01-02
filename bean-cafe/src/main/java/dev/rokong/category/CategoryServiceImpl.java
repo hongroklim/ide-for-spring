@@ -2,6 +2,7 @@ package dev.rokong.category;
 
 import java.util.List;
 
+import dev.rokong.util.ObjUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,11 +35,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         //avoid duplicate order with same level
         List<CategoryDTO> siblings = this.getCategoryChildren(category.getUpId());
-        if(category.getOrd() == 0){ //max(ord)+1
+        if(category.getOrd() == null || category.getOrd() == 0){ //max(ord)+1
             category.setOrd(this.maxOrdOfCategory(siblings)+1);
         }else{                      //avoid duplicate ord
             for(CategoryDTO c : siblings){
-                if(c.getOrd() == category.getOrd()){
+                if(c.getOrd().equals(category.getOrd())){
                     //throw exception and break
                     throw new BusinessException(c.getOrd()+"th ord under "+c.getUpId()+" already exists");
                 }
@@ -72,57 +73,64 @@ public class CategoryServiceImpl implements CategoryService {
     };
     
     public CategoryDTO updateCategory(CategoryDTO category){
+        if(category == null){
+            throw new IllegalArgumentException("category is not defined");
+        }
+
         CategoryDTO asisCategory = this.getCategoryNotNull(category);
         CategoryDTO tobeCategory = new CategoryDTO(asisCategory.getId());
 
+        boolean changeName = ObjUtil.isNotEmpty(category.getName()) && !asisCategory.getName().equals(category.getName());
+        boolean changeUpId = category.getUpId()!=null && !asisCategory.getUpId().equals(category.getUpId());
+        boolean changeOrd = category.getOrd()!=null && !asisCategory.getOrd().equals(category.getOrd());
+
         //if nothing to be changed, return asis DTO
-        if(asisCategory.getName().equals(category.getName())){
-            if(asisCategory.getUpId() == category.getUpId()){
-                log.debug("category's name and upId is equal to asis one");
-                return asisCategory;
-            }
+        if(!changeName && !changeUpId & !changeOrd){
+            log.debug("category's ord, name, upId are equal to asis one");
+            return asisCategory;
         }
 
-        if(category.getUpId() != 0){
+        //if upId is going to be changed
+        if(changeUpId){
             //check upId category exists
             this.checkCategoryExist(category.getUpId());
 
             //prevent nested hierarchy
-            if(asisCategory.getUpId() == category.getUpId()){
-                if(categoryDAO.isParentAndChild(asisCategory.getId(), category.getUpId())){
-                    log.debug("nested hierarchy between "+asisCategory.getId()+" and "+category.getUpId());
-                    throw new BusinessException(asisCategory.getId()+" can not be attached under "+category.getUpId());
+            if(categoryDAO.isParentAndChild(asisCategory.getId(), category.getUpId())){
+                log.debug("nested hierarchy between "+category.getId()+" and "+category.getUpId());
+                throw new BusinessException(category.getId()+" can not be attached under "+category.getUpId());
+            }
+
+            //after validating, set up id
+            tobeCategory.setUpId(category.getUpId());
+        }else{
+            //or set asis one
+            tobeCategory.setUpId(asisCategory.getUpId());
+        }
+
+        if(changeName || changeUpId){
+            //avoid duplicate name
+            List<CategoryDTO> siblings = this.getCategoryChildren(tobeCategory.getUpId());
+            for(CategoryDTO c : siblings){
+                if(c.getId() != category.getId() && c.getName().equals(category.getName())){
+                    //same name with different id
+                    throw new BusinessException(c.getName()+" name under "+c.getUpId()+" already exists");
                 }
             }
+
+            //set name
+            tobeCategory.setName(category.getName());
         }
 
-        //after validating, set up id
-        tobeCategory.setUpId(category.getUpId());
-
-        //check order is duplicate
-        boolean isOrdDuplicated = false;
-        List<CategoryDTO> siblings = this.getCategoryChildren(tobeCategory.getUpId());
-        for(CategoryDTO c : siblings){
-            if(c.getName().equals(category.getName())){
-                //avoid duplicate name
-                throw new BusinessException(c.getName()+" name under "+c.getUpId()+" already exists");
-            }else if(c.getOrd() == category.getOrd()){
-                //avoid duplicate order
-                isOrdDuplicated = true;
-            }
+        if(changeName || changeUpId){
+            //update name or upId
+            categoryDAO.update(tobeCategory);
         }
 
-        //set order
-        if(isOrdDuplicated){
-            tobeCategory.setOrd(this.maxOrdOfCategory(siblings)+1);
-        }else{
-            tobeCategory.setOrd(category.getOrd());
+        //if ord is defined, update order
+        if(category.getOrd() != null){
+            this.updateCategoryOrder(category);
         }
-        
-        //set name
-        tobeCategory.setName(category.getName());
-
-        categoryDAO.update(tobeCategory);
 
         return this.getCategoryNotNull(tobeCategory);
     }
@@ -139,9 +147,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     public List<CategoryDTO> getCategoryChildren(int upId){
         return categoryDAO.selectChildren(upId);
-    };
+    }
     
-    public CategoryDTO updateCategoryOrder(CategoryDTO category){
+    private void updateCategoryOrder(CategoryDTO category){
         CategoryDTO asisCategory = this.getCategoryNotNull(category);
         
         int asisOrder = asisCategory.getOrd();
@@ -149,11 +157,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         if(tobeOrder == asisOrder){
             //return asisCategory if nothing to be changed
-            return asisCategory;
+            return;
         }
 
         //to check tobeOrder beyonds max(order)
-        int maxOrd = this.maxOrdOfCategory(category.getUpId());
+        int maxOrd = this.maxOrdOfCategory(asisCategory.getUpId());
 
         //prevent unique constraint (upId, ord)
         this.appendLastCategoryOrder(category);
@@ -176,8 +184,6 @@ public class CategoryServiceImpl implements CategoryService {
         }else{
             log.debug("tobe order exceed the max order. it will be appended last");
         }
-        
-        return this.getCategoryNotNull(category);
     }
     
     public CategoryDTO getCategoryNotNull(int id){

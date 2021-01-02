@@ -58,12 +58,12 @@ public class ControllerTest extends MvcUnitConfig {
         assertThat(res, is(notNullValue()));
 
         url = "/product/"+anyPOption.getProductId()+"/option";
-        url +="/group/"+anyPOption.getOptionGroup();
+        url +="/"+anyPOption.getOptionGroup();
         res = this.reqAndResBodyList(url, RequestMethod.GET, null, ProductOptionDTO.class);
 
         url = "/product/"+anyPOption.getProductId()+"/option";
-        url += "/group/"+anyPOption.getOptionGroup();
-        url += "/id/"+"01";
+        url += "/"+anyPOption.getOptionGroup();
+        url += "/01";
         ProductOptionDTO res2 = this.reqAndResBody(url, RequestMethod.GET, null, ProductOptionDTO.class);
         assertThat(res2, is(notNullValue()));
     }
@@ -75,12 +75,12 @@ public class ControllerTest extends MvcUnitConfig {
             return url;
         }
 
-        url += "/group/"+pOption.getOptionGroup();
+        url += "/"+pOption.getOptionGroup();
         if(pOption.getOptionId() == null || "".equals(pOption.getOptionId())){
             return url;
         }
 
-        url += "/id/"+pOption.getOptionId();
+        url += "/"+pOption.getOptionId();
         return url;
     }
 
@@ -291,6 +291,7 @@ public class ControllerTest extends MvcUnitConfig {
 
     @Test
     public void updateProductOptionGroupOrder() throws Exception {
+        //create product
         int productId = this.initializeProductOption();
 
         List<ProductOptionDTO> list = pOptionService.getPOptionList(
@@ -298,7 +299,8 @@ public class ControllerTest extends MvcUnitConfig {
         );
         assertThat(list, is(notNullValue()));
         assertThat(list.size(), is(greaterThan(1)));
-        
+
+        //get random product option
         ProductOptionDTO param = RandomUtil.randomItem(list);
 
         int maxGroup = list.get(list.size()-1).getOptionGroup();

@@ -49,8 +49,8 @@ public class ControllerTest extends MvcUnitConfig {
 
         if(pDetail.getOptionCd() != null && !"".equals(pDetail.getOptionCd())){
             //append option cd
-            sbuf.append("/option/")
-                .append(pDetail.getOptionCd());
+            sbuf.append("/")
+                    .append(pDetail.getOptionCd());
         }
 
         return sbuf.toString();
@@ -82,10 +82,11 @@ public class ControllerTest extends MvcUnitConfig {
     
     @Test
     public void getDetailListInGroup() throws Exception {
+        mockObj.pDetail.anyList(4);
         ProductDetailDTO param = new ProductDetailDTO(anyDetail);
 
         String url = "/product/"+param.getProductId()+"/detail";
-        url += "/group/"+param.getOptionCd();
+        url += "/"+param.getOptionCd()+"/sub";
 
         List<ProductDetailDTO> res = this.reqAndResBodyList(
             url, RequestMethod.GET, null, ProductDetailDTO.class);

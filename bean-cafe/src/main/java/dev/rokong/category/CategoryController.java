@@ -45,27 +45,16 @@ public class CategoryController {
 
     @RequestMapping(value="", method=RequestMethod.POST)
     @ApiOperation(value="create category",
-            notes = "create category. if ord==0, append last [name, upId, ord(0)]")
+            notes = "create category. if ord==0, append last [name, upId, ord]")
     public CategoryDTO createCategory(@RequestBody CategoryDTO category){
         return cService.createCategory(category);
     }
 
-    @RequestMapping(value="/{id}/parent", method=RequestMethod.PUT)
-    @ApiOperation(value="update category's parent", notes = "change category's parent [id, upId]")
+    @RequestMapping(value="/{id}", method=RequestMethod.PUT)
+    @ApiOperation(value="update category", notes = "change category's parent [id, (name), (upId), (ord)]")
     public CategoryDTO updateCategory(@PathVariable int id, @RequestBody CategoryDTO category){
-        if(category != null && category.getId() == 0){
-            category.setId(id);
-        }
+        category.setId(id);
         return cService.updateCategory(category);
-    }
-
-    @RequestMapping(value="/{id}/order", method=RequestMethod.PUT)
-    @ApiOperation(value="update category's order", notes = "change category's order in siblings [id, ord]")
-    public CategoryDTO updateCategoryOrder(@PathVariable int id, @RequestBody CategoryDTO category){
-        if(category != null && category.getId() == 0){
-            category.setId(id);
-        }
-        return cService.updateCategoryOrder(category);
     }
 
     @RequestMapping(value="/{id}", method=RequestMethod.DELETE)

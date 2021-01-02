@@ -46,8 +46,7 @@ public class ControllerTest extends MvcUnitConfig {
                 .append(pId);
             
             if(ObjUtil.isNotEmpty(option)){
-                sbuf.append("/option")
-                    .append("/")
+                sbuf.append("/")
                     .append(option);
             }
         }

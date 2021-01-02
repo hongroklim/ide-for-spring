@@ -67,15 +67,16 @@ public class ControllerTest extends MvcUnitConfig {
         //tobe payType
         PayTypeDTO payType = mockObj.payType.anyList(2).get(1);
 
+        //set pay id
+        order.setPayId(payType.getId());
+
         //update
         String url = "/order/"+order.getId()+"/pay";
-        this.reqAndResBody(url, RequestMethod.PUT, payType.getId(), null);
+        this.reqAndResBody(url, RequestMethod.PUT, order, null);
 
         OrderDTO afterOrder = oService.getOrderNotNull(order.getId());
 
-        assertThat(afterOrder.getPayId(), is(not(equalTo(order.getPayId()))));
         assertThat(afterOrder.getPayId(), is(equalTo(payType.getId())));
-
     }
 
     @Test
@@ -85,15 +86,18 @@ public class ControllerTest extends MvcUnitConfig {
         String url = "/order/"+order.getId()+"/status";
 
         //payment ready
-        OrderDTO resp = this.reqAndResBody(url, RequestMethod.POST,
-                OrderStatus.PAYMENT_STANDBY.name(), OrderDTO.class);
+        OrderDTO param = new OrderDTO(order.getId());
+        param.setOrderStatus(OrderStatus.PAYMENT_STANDBY);
+        OrderDTO resp = this.reqAndResBody(url, RequestMethod.PUT,
+                param, OrderDTO.class);
 
         assertThat(resp, is(notNullValue()));
         assertThat(resp.getOrderStatus(), is(equalTo(OrderStatus.PAYMENT_STANDBY)));
 
         //cancel order
-        resp = this.reqAndResBody(url, RequestMethod.POST,
-                OrderStatus.CANCELED_PAYMENT.name(), OrderDTO.class);
+        param.setOrderStatus(OrderStatus.CANCELED_PAYMENT);
+        resp = this.reqAndResBody(url, RequestMethod.PUT,
+                param, OrderDTO.class);
 
         assertThat(resp, is(notNullValue()));
         assertThat(resp.getOrderStatus(), is(equalTo(OrderStatus.CANCELED_PAYMENT)));

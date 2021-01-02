@@ -9,6 +9,7 @@ import dev.rokong.order.main.OrderService;
 import dev.rokong.order.delivery.OrderDeliveryService;
 import dev.rokong.product.detail.ProductDetailService;
 import dev.rokong.product.main.ProductService;
+import dev.rokong.review.main.ReviewService;
 import dev.rokong.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class OrderProductServiceImpl implements OrderProductService {
 
     @Autowired
     private ProductDetailService pDetailService;
+
+    @Autowired
+    private ReviewService reviewService;
 
     public List<OrderProductDTO> getOProducts(OrderProductDTO oProduct){
         return oProductDAO.selectList(oProduct);
@@ -129,7 +133,6 @@ public class OrderProductServiceImpl implements OrderProductService {
     }
     
     public OrderProductDTO updateOProductCnt(OrderProductDTO oProduct){
-
         OrderProductDTO getOProd = this.getOProductNotNull(oProduct);
         
         //verify cnt
@@ -158,6 +161,8 @@ public class OrderProductServiceImpl implements OrderProductService {
         oProduct.setOptionCd(optionCd);
 
         oProductDAO.updateToInvalid(oProduct);
+
+        reviewService.updateOProductInvalid(productId, optionCd);
     }
 
     private int totalPriceInList(List<? extends OrderProductDTO> list){
@@ -180,7 +185,7 @@ public class OrderProductServiceImpl implements OrderProductService {
             log.debug("order product parameter : "+oProduct.toString());
             throw new BusinessException("order id is not defined");
             
-        }else if(ObjUtil.isEmpty(oProduct.getProductId())){
+        }else if(oProduct.getProductId() == null || oProduct.getProductId() == 0){
             log.debug("order product parameter : "+oProduct.toString());
             throw new BusinessException("product id is not defined");
         }

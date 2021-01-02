@@ -52,7 +52,7 @@ public class ControllerTest extends MvcUnitConfig {
     }
 
     @Test
-    public void createCatgory() throws Exception {
+    public void createCategory() throws Exception {
         // get category list to extract upId
         List<CategoryDTO> cList = cService.getCategoryList();
         assertThat(cList, is(notNullValue()));
@@ -257,7 +257,7 @@ public class ControllerTest extends MvcUnitConfig {
         //set new order into category
         category0.setOrd(category1.getOrd());
 
-        CategoryDTO getCategory = this.reqAndResBody("/category/"+category0.getId()+"/order",
+        CategoryDTO getCategory = this.reqAndResBody("/category/"+category0.getId(),
             RequestMethod.PUT, category0, CategoryDTO.class);
 
         //same id, change order

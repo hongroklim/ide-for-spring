@@ -24,7 +24,15 @@ public class ReviewServiceImpl implements ReviewService {
     private OrderProductService oProductService;
 
     public List<ReviewDTO> getReviewList(ReviewDTO review) {
-        return null;
+        if(review == null){
+            throw new IllegalArgumentException("review is null");
+        }
+
+        if(review.getProductId() == 0 && ObjUtil.isEmpty(review.getUserNm())){
+            throw new BusinessException("product id or userNm must be defined at least one");
+        }
+
+        return reviewDAO.selectList(review);
     }
 
     private void verifyIdDefined(int id){
@@ -102,5 +110,13 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteReview(int id) {
         this.checkReviewExist(id);
         reviewDAO.delete(id);
+    }
+
+    public void updateOProductInvalid(int productId, String optionCd){
+        ReviewDTO review = new ReviewDTO();
+        review.setProductId(productId);
+        review.setOptionCd(optionCd);
+
+        reviewDAO.updateOProductInvalid(review);
     }
 }

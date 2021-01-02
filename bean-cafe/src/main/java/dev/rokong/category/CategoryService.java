@@ -13,5 +13,4 @@ public interface CategoryService {
     public CategoryDTO createCategory(CategoryDTO category);
     public void deleteCategory(int id);
     public CategoryDTO updateCategory(CategoryDTO category);
-    public CategoryDTO updateCategoryOrder(CategoryDTO category);
 }

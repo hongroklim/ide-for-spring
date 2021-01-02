@@ -39,4 +39,8 @@ public class ReviewDAOImpl implements ReviewDAO {
     public void delete(int id) {
         sqlSession.update(PREFIX+"delete", id);
     }
+
+    public void updateOProductInvalid(ReviewDTO review){
+        sqlSession.update(PREFIX + "updateOProductInvalid", review);
+    }
 }

@@ -12,4 +12,5 @@ public interface ReviewService {
     public ReviewDTO createReview(ReviewDTO review);
     public ReviewDTO updateReview(ReviewDTO review);
     public void deleteReview(int id);
+    public void updateOProductInvalid(int productId, String optionCd);
 }

@@ -36,8 +36,23 @@
         DELETE
           FROM prod_det
          WHERE product_id = #{productId}
-            AND option_cd = #{optionCd}
+           AND option_cd = #{optionCd}
     </delete>
+    <update id="update" parameterType="ProductDetailDTO">
+        UPDATE prod_det
+           SET option_cd = #{optionCd}
+        <if test='priceChange != null'>
+            , price_change = #{priceChange}
+        </if>
+        <if test='stockCnt != null'>
+            , stock_cnt = #{stockCnt}
+        </if>
+        <if test='enabled != null'>
+            , enabled = #{enabled}
+        </if>
+        WHERE product_id = #{productId}
+          AND option_cd = #{optionCd}
+    </update>
     <delete id="deleteList" parameterType="ProductDetailDTO">
         DELETE
           FROM prod_det
@@ -46,12 +61,4 @@
            AND option_cd like #{optionCd}
          </if>
     </delete>
-    <update id="update" parameterType="ProductDetailDTO">
-        UPDATE prod_det
-           SET price_change = #{priceChange},
-               stock_cnt = #{stockCnt},
-               enabled = #{enabled}
-         WHERE product_id = #{productId}
-           AND option_cd = #{optionCd}
-    </update>
 </mapper>

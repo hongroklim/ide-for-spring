@@ -83,9 +83,23 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             throw new BusinessException("product detail is already exists");
         }
 
+        //set default value
+        if(pDetail.getPriceChange() == null){
+            pDetail.setPriceChange(0);
+        }
+
+        if(pDetail.getEnabled() == null){
+            pDetail.setEnabled(true);
+        }
+
+        if(pDetail.getStockCnt() == null || pDetail.getStockCnt() < 0){
+            log.debug("stock count is not defined or minus. it will be 0");
+            pDetail.setStockCnt(0);
+        }
+
         //is product exists
         ProductDTO product = pService.getProductNotNull(pDetail.getProductId());
-        
+
         //compare price with original product
         if(product.getPrice() + pDetail.getPriceChange() < 0){
             log.debug("product : "+product.toString());
@@ -93,11 +107,14 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             throw new BusinessException("final price can not be under 0");
         }
 
+        //verify option cd
         this.verifyOptionCd(pDetail);
 
+        //create full name
         String name = this.createFullName(pDetail);
         pDetail.setFullNm(name);
 
+        //insert
         pDetailDAO.insert(pDetail);
 
         return this.getDetailNotNull(pDetail);
@@ -120,14 +137,23 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         this.checkDetailExist(pDetail);
 
         //compare price with original product
-        ProductDTO product = pService.getProductNotNull(pDetail.getProductId());
-        if(product.getPrice() + pDetail.getPriceChange() < 0){
-            log.debug("product : "+product.toString());
-            log.debug("product detail parameter : "+pDetail.toString());
-            throw new BusinessException("final price can not be under 0");
+        if(pDetail.getPriceChange() != null){
+            ProductDTO product = pService.getProductNotNull(pDetail.getProductId());
+            if(product.getPrice() + pDetail.getPriceChange() < 0){
+                log.debug("product : "+product.toString());
+                log.debug("product detail parameter : "+pDetail.toString());
+                throw new BusinessException("final price can not be under 0");
+            }
         }
 
+        //check stock cnt
+        if(pDetail.getStockCnt() != null && pDetail.getStockCnt() < 0){
+            throw new BusinessException("stock count must be greater than or equal to 0");
+        }
+
+        //update
         pDetailDAO.update(pDetail);
+
         return this.getDetailNotNull(pDetail);
     }
 
@@ -258,8 +284,9 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             }
 
             String optionId = pOption.getOptionId();
-            if(optionId == null || "".equals(optionId)){
-                //option id is empty -> return entire group
+            if(optionId == null || "".equals(optionId)
+                    || ProductOptionDTO.TITLE_ID.equals(optionId)){
+                //option id is empty or refer group title -> return entire group
                 sbuf.append("__");
             }else{
                 //is not -> return specific option id

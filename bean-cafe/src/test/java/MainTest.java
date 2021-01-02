@@ -1,12 +1,16 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
 import config.MvcConfig;
 import dev.rokong.pay.api.PayApiController;
 import dev.rokong.pay.api.PayApiService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -44,6 +48,7 @@ public class MainTest extends MvcConfig {
             getPayTypeId = PayApiService.class.getMethod(methodName, null);
         } catch (NoSuchMethodException e) {
             log.debug("method name : {}", methodName, e);
+            throw new RuntimeException("can not get pay type field");
         }
 
         Field[] fields = PayApiController.class.getDeclaredFields();
@@ -72,5 +77,4 @@ public class MainTest extends MvcConfig {
             }
         }
     }
-
 }

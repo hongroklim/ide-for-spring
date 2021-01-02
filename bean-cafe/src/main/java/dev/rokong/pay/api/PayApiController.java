@@ -5,6 +5,8 @@ import dev.rokong.dto.PayStatusDTO;
 import dev.rokong.order.main.OrderService;
 import dev.rokong.util.ObjUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,16 +34,20 @@ public class PayApiController {
     private PayApiService kakaoPayService;
 
     @RequestMapping(value="/{orderId}", method= RequestMethod.POST)
+    @ApiOperation(value="request payment",
+            notes="prepare payment by requesting API and get redirect URL [orderId]")
     public String requestPayment(@PathVariable int orderId){
         return (String) this.channelingApi("requestPay", orderId);
     }
 
     @RequestMapping(value="/{orderId}/status", method=RequestMethod.GET)
+    @ApiOperation(value="get payment status", notes="get payment status of order in API [orderId]")
     public PayStatusDTO paymentStatus(@PathVariable int orderId){
         return (PayStatusDTO) this.channelingApi("getPayStatus", orderId);
     }
 
     @RequestMapping(value="/{orderId}/approve", method={RequestMethod.GET, RequestMethod.POST})
+    @ApiOperation(value="approve payment", notes="approve payment of order by seller [orderId]")
     public void approvePayment(@PathVariable int orderId,
                                @RequestParam(required=false, defaultValue="") String pg_token){
         Map<String, Object> map = new HashMap<>();

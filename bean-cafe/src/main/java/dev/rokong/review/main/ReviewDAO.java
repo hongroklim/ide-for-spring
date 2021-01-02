@@ -24,4 +24,6 @@ public interface ReviewDAO {
      */
     public void update(ReviewDTO review);
     public void delete(int id);
+
+    public void updateOProductInvalid(ReviewDTO review);
 }

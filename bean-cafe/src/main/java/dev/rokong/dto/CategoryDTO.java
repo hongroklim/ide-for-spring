@@ -17,10 +17,10 @@ public class CategoryDTO {
     private String name;
 
     @ApiModelProperty(value="parent's id", example="7", position=3)
-    private int upId;
+    private Integer upId;
 
     @ApiModelProperty(value="display order in siblings", example="2", allowableValues="range[1, infinity]", position=4)
-    private int ord;
+    private Integer ord;
 
     public static final int ROOT_ID = 0;
     public static final int ETC_ID = 1;

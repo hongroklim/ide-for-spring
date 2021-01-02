@@ -34,8 +34,13 @@
 
     <update id="update" parameterType="ProductOptionDTO">
         UPDATE prod_opt
-           SET name = #{name},
-               ord = #{ord}
+           SET option_id = #{optionId}
+            <if test='name != null and !"".equals(name)'>
+                , name = #{name}
+            </if>
+            <if test='ord != null and ord != 0'>
+                , ord = #{ord}
+            </if>
          WHERE product_id = #{productId}
            AND option_group = #{optionGroup}
            AND option_id = #{optionId}

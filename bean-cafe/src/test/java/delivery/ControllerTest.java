@@ -23,9 +23,9 @@ import dev.rokong.util.RandomUtil;
 public class ControllerTest extends MvcUnitConfig {
 
     @Autowired
-    DeliveryController deliveryController;
+    private DeliveryController deliveryController;
     @Autowired
-    DeliveryService deliveryService;
+    private DeliveryService deliveryService;
 
     @Override
     public void setMvc() {
@@ -50,9 +50,8 @@ public class ControllerTest extends MvcUnitConfig {
     private String createURL(DeliveryDTO delivery){
         StringBuffer sbuf = new StringBuffer();
 
-        sbuf.append("/order")
-            .append("/").append(delivery.getOrderId())
-            .append("/").append("delivery");
+        sbuf.append("/delivery")
+            .append("/").append(delivery.getOrderId());
 
         return sbuf.toString();
     }

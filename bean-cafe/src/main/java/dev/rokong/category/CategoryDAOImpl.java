@@ -70,11 +70,13 @@ public class CategoryDAOImpl implements CategoryDAO {
         sqlSession.update(PREFIX+"arrangeChildrenOrder", upId);
     }
 
-    public boolean isParentAndChild(int parentId, int ChildId){
+    public boolean isParentAndChild(int parentId, int childId){
         Map<String, Integer> hm = new HashMap<>();
         hm.put("parentId", parentId);
-        hm.put("ChildId", ChildId);
-        return sqlSession.selectOne(PREFIX+"isParentAndChild", hm);
+        hm.put("childId", childId);
+        Boolean result = sqlSession.selectOne(PREFIX+"isParentAndChild", hm);
+
+        return result != null && result;
     }
 
     public int selectMaxOrder(int upId){

@@ -34,6 +34,8 @@ public class ControllerTest extends MvcUnitConfig {
 
     private CartDTO anyCart;
 
+    private static final String CART_URL = "/cart";
+
     @Before
     public void initAnyCart(){
         this.anyCart = mockObj.cart.any();
@@ -50,34 +52,21 @@ public class ControllerTest extends MvcUnitConfig {
     }
 
     private String cartURL(CartDTO cart){   
-        assertThat(cart, is(notNullValue()));
-        StringBuffer sbuf = new StringBuffer();
-        sbuf.append("/cart/user/");
-
-        //set userNm 
-        assertThat(ObjUtil.isNotEmpty(cart.getUserNm()), is(equalTo(true)));
-        sbuf.append(cart.getUserNm());
-
-        if(ObjUtil.isNotEmpty(cart.getProductId())){
-            //if productId defined, set product id and option cd
-            sbuf.append("/product/")
-                .append(cart.getProductId())
-                .append("/option/")
-                .append(cart.getOptionCd());
-        }
-
-        return sbuf.toString();
+        return CART_URL;
     }
 
     @Test
     public void getCarts() throws Exception{
-        CartDTO param = new CartDTO(this.anyCart.getUserNm());
+        CartDTO cart = new CartDTO(this.anyCart.getUserNm());
+        String url = CART_URL;
+        url += "?userNm="+cart.getUserNm();
+
         List<CartDTO> res = this.reqAndResBodyList(
-            this.cartURL(param), RequestMethod.GET, null, CartDTO.class
+            url, RequestMethod.GET, cart, CartDTO.class
         );
 
         assertThat(ObjUtil.isNotEmpty(res), is(equalTo(true)));
-        assertThat(res.get(0).getUserNm(), is(equalTo(param.getUserNm())));
+        assertThat(res.get(0).getUserNm(), is(equalTo(cart.getUserNm())));
     }
 
     @Test
