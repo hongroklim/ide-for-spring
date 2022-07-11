@@ -3,24 +3,25 @@ version: "3"
 services:
   # code-server
   cdr:
-    environment:
-      TZ: "Asia/Seoul"
+    container_name: ide-cdr
     build:
       context: .
-      dockerfile: ./cdr-Dockerfile
+      dockerfile: ./cdr/Dockerfile
+    environment:
+      TZ: $TZ
+      PASSWORD: $CDR_PASSWORD
     volumes:
-        # dood
+        # DOOD
       - /var/run/docker.sock:/var/run/docker.sock
-        # data (extensions, settings etc)
-      - ./cdr-data:/home/coder/.local/share/code-server
-        # project
-      - ./bean-cafe:/home/coder/bean-cafe
-        # maven repository
+        # Local data (extensions, settings etc)
+      - ./cdr/data:/home/coder/.local/share/code-server
+        # Project
+      - ./$APP_NAME:/home/coder/$APP_NAME
+        # Maven repository
       - $HOME/.m2/repository:/home/coder/.m2/repository
-        # wildfly deploy (wired with wildfly)
-      - deployments:/home/coder/wildfly/standalone/deployments
-        # wildfly logs (wired with cdr)
-      - logs:/home/coder/wildfly/standalone/log
+        # WAS deploy and logs
+      - ./wildfly/deployments:/home/coder/wildfly/standalone/deployments
+      - ./wildfly/logs:/home/coder/wildfly/standalone/log
     ports:
       - 127.0.0.1:8081:8080
     networks:
@@ -29,11 +30,16 @@ services:
 
   # database
   psql:
+    container_name: ide-psql
+    build:
+      context: .
+      dockerfile: ./psql/Dockerfile
     environment:
-      POSTGRES_PASSWORD: "ghdfhr"
-    image: postgres:9-alpine
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
     volumes:
-        # database data
+        # Database Data
       - psql-data:/var/lib/postgresql/data
     ports:
       - 127.0.0.1:5432:5432
@@ -43,12 +49,14 @@ services:
   
   # query tool
   pgadmin4:
+    container_name: ide-pga
+    image: dpage/pgadmin4:6.11
     environment:
-      PGADMIN_DEFAULT_EMAIL: "hongrr123@gmail.com"
-      PGADMIN_DEFAULT_PASSWORD: "ghdfhr"
-    image: dpage/pgadmin4:4.29
+      TZ: $TZ
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     volumes:
-      - ./pga-data:/var/lib/pgadmin
+      - ./pga/data:/var/lib/pgadmin
     ports:
       - 127.0.0.1:5433:80
     networks:
@@ -57,20 +65,24 @@ services:
 
   # WAS
   wildfly:
-    environment:
-      TZ: "Asia/Seoul"
+    container_name: ide-was
     build:
       context: .
-      dockerfile: ./bean-cafe-Dockerfile
+      dockerfile: ./wildfly/Dockerfile
+      args:
+        WILDFLY_ADMIN_NAME: $WILDFLY_ADMIN_NAME
+        WILDFLY_ADMIN_PASSWORD: $WILDFLY_ADMIN_PASSWORD
+    environment:
+      TZ: $TZ
     volumes:
-        # maven repository
-      - $HOME/.m2/repository:/root/.m2/repository
-        # tomcat deploy (wired with cdr)
-      - deployments:/opt/jboss/wildfly/standalone/deployments
-        # wildfly logs (wired with cdr)
-      - logs:/opt/jboss/wildfly/standalone/log
+        # WAS deploy and logs
+      - ./wildfly/deployments:/opt/jboss/wildfly/standalone/deployments
+      - ./wildfly/logs:/opt/jboss/wildfly/standalone/log
     ports:
+        # Application
       - 127.0.0.1:8082:8080
+        # Management Console
+      - 127.0.0.1:8083:9990
     networks:
       intranet:
         ipv4_address: 172.18.0.14
@@ -85,6 +97,5 @@ networks:
           gateway: 172.18.0.1
 
 volumes:
-  deployments:
-  logs:
   psql-data:
+    external: true

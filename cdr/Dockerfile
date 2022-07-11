@@ -1,8 +1,5 @@
-FROM codercom/code-server:3.7.4
+FROM codercom/code-server:4.5.0
 USER root
-
-# cdr config
-COPY cdr-config.yaml /home/coder/.config/code-server/config.yaml
 
 # cdr data
 RUN mkdir -p /home/coder/.local/share/code-server \
@@ -60,8 +57,8 @@ RUN set -eux; \
 	wget -O openjdk.tgz "$downloadUrl" --progress=dot:giga; \
 	\
 	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --batch --keyserver ha.pool.sks-keyservers.net --keyserver-options no-self-sigs-only --recv-keys CA5F11C6CE22644D42C6AC4492EF8D39DC13168F; \
-	gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys EAC843EBD3EFDB98CC772FADA5CD6035332FA671; \
+	gpg --batch --keyserver hkp://keyserver.ubuntu.com:80 --keyserver-options no-self-sigs-only --recv-keys CA5F11C6CE22644D42C6AC4492EF8D39DC13168F; \
+	gpg --batch --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EAC843EBD3EFDB98CC772FADA5CD6035332FA671; \
 	gpg --batch --list-sigs --keyid-format 0xLONG CA5F11C6CE22644D42C6AC4492EF8D39DC13168F \
 		| tee /dev/stderr \
 		| grep '0xA5CD6035332FA671' \
@@ -84,13 +81,12 @@ RUN set -eux; \
 	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	\
-	{ \
+  mkdir -p /etc/ca-certificates/update.d; \
+  \
+  { \
 		echo '#!/usr/bin/env bash'; \
 		echo 'set -Eeuo pipefail'; \
-		echo 'if ! [ -d "$JAVA_HOME" ]; then echo >&2 "error: missing JAVA_HOME environment variable"; exit 1; fi'; \
-		echo 'cacertsFile=; for f in "$JAVA_HOME/lib/security/cacerts" "$JAVA_HOME/jre/lib/security/cacerts"; do if [ -e "$f" ]; then cacertsFile="$f"; break; fi; done'; \
-		echo 'if [ -z "$cacertsFile" ] || ! [ -f "$cacertsFile" ]; then echo >&2 "error: failed to find cacerts file in $JAVA_HOME"; exit 1; fi'; \
-		echo 'trust extract --overwrite --format=java-cacerts --filter=ca-anchors --purpose=server-auth "$cacertsFile"'; \
+		echo 'trust extract --overwrite --format=java-cacerts --filter=ca-anchors --purpose=server-auth "$JAVA_HOME/lib/security/cacerts"'; \
 	} > /etc/ca-certificates/update.d/docker-openjdk; \
 	chmod +x /etc/ca-certificates/update.d/docker-openjdk; \
 	/etc/ca-certificates/update.d/docker-openjdk; \
@@ -117,13 +113,14 @@ ENV PATH $JAVA_HOME/bin:$PATH
 
 RUN { echo '#/bin/sh'; echo 'echo "$JAVA_HOME"'; } > /usr/local/bin/docker-java-home && chmod +x /usr/local/bin/docker-java-home && [ "$JAVA_HOME" = "$(docker-java-home)" ]
 
-ENV JAVA_VERSION 8u265
+ENV JAVA_VERSION 8u332
 
 RUN set -eux; \
 	\
 	arch="$(dpkg --print-architecture)"; \
 	case "$arch" in \
-		amd64 | i386:x86-64) downloadUrl=https://github.com/AdoptOpenJDK/openjdk8-upstream-binaries/releases/download/jdk8u265-b01/OpenJDK8U-jdk_x64_linux_8u265b01.tar.gz ;; \
+    arm64 | aarch64)     downloadUrl=https://github.com/AdoptOpenJDK/openjdk8-upstream-binaries/releases/download/jdk8u332-b09/OpenJDK8U-jdk_aarch64_linux_8u332b09.tar.gz ;; \
+		amd64 | i386:x86-64) downloadUrl=https://github.com/AdoptOpenJDK/openjdk8-upstream-binaries/releases/download/jdk8u332-b09/OpenJDK8U-jdk_x64_linux_8u332b09.tar.gz ;; \
 		*) echo >&2 "error: unsupported architecture: '$arch'"; exit 1 ;; \
 	esac; \
 	\
@@ -140,8 +137,8 @@ RUN set -eux; \
 	wget -O openjdk.tgz "$downloadUrl" --progress=dot:giga; \
 	\
 	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --batch --keyserver ha.pool.sks-keyservers.net --keyserver-options no-self-sigs-only --recv-keys CA5F11C6CE22644D42C6AC4492EF8D39DC13168F; \
-	gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys EAC843EBD3EFDB98CC772FADA5CD6035332FA671; \
+	gpg --batch --keyserver hkp://keyserver.ubuntu.com:80 --keyserver-options no-self-sigs-only --recv-keys CA5F11C6CE22644D42C6AC4492EF8D39DC13168F; \
+	gpg --batch --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EAC843EBD3EFDB98CC772FADA5CD6035332FA671; \
 	gpg --batch --list-sigs --keyid-format 0xLONG CA5F11C6CE22644D42C6AC4492EF8D39DC13168F \
 		| tee /dev/stderr \
 		| grep '0xA5CD6035332FA671' \
@@ -164,26 +161,28 @@ RUN set -eux; \
 	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	\
-	{ \
+  mkdir -p /etc/ca-certificates/update.d; \
+  \
+  { \
 		echo '#!/usr/bin/env bash'; \
 		echo 'set -Eeuo pipefail'; \
 		echo 'if ! [ -d "$JAVA_HOME" ]; then echo >&2 "error: missing JAVA_HOME environment variable"; exit 1; fi'; \
 		echo 'cacertsFile=; for f in "$JAVA_HOME/lib/security/cacerts" "$JAVA_HOME/jre/lib/security/cacerts"; do if [ -e "$f" ]; then cacertsFile="$f"; break; fi; done'; \
 		echo 'if [ -z "$cacertsFile" ] || ! [ -f "$cacertsFile" ]; then echo >&2 "error: failed to find cacerts file in $JAVA_HOME"; exit 1; fi'; \
 		echo 'trust extract --overwrite --format=java-cacerts --filter=ca-anchors --purpose=server-auth "$cacertsFile"'; \
-	} > /etc/ca-certificates/update.d/docker-openjdk; \
-	chmod +x /etc/ca-certificates/update.d/docker-openjdk; \
-	/etc/ca-certificates/update.d/docker-openjdk; \
+	} > /etc/ca-certificates/update.d/docker-openjdk-8; \
+	chmod +x /etc/ca-certificates/update.d/docker-openjdk-8; \
+	/etc/ca-certificates/update.d/docker-openjdk-8; \
 	\
-	find "$JAVA_HOME/lib" -name '*.so' -exec dirname '{}' ';' | sort -u > /etc/ld.so.conf.d/docker-openjdk.conf; \
+	find "$JAVA_HOME/lib" -name '*.so' -exec dirname '{}' ';' | sort -u > /etc/ld.so.conf.d/docker-openjdk-8.conf; \
 	ldconfig; \
 	\
 	javac -version; \
 	java -version
 
-# maven
-ARG MAVEN_VERSION=3.6.3
-ARG SHA=c35a1803a6e70a126e80b2b3ae33eed961f83ed74d18fcd16909b2d44d7dada3203f1ffe726c17ef8dcca2dcaa9fca676987befeadc9b9f759967a8cb77181c0
+# Maven
+ARG MAVEN_VERSION=3.8.6
+ARG SHA=f790857f3b1f90ae8d16281f902c689e4f136ebe584aba45e4b1fa66c80cba826d3e0e52fdd04ed44b4c66f6d3fe3584a057c26dfcac544a60b301e6d0f91c26
 ARG BASE_URL=https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries
 
 RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
@@ -198,7 +197,8 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$CODER_HOME/.m2"
 
-COPY cdr-mvn.xml /usr/share/maven/ref/maven-settings.xml
+# Maven configurations
+COPY ./cdr/maven-settings.xml /usr/share/maven/ref/maven-settings.xml
 
 # code-server
 USER coder
