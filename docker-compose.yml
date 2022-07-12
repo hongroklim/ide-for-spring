@@ -38,6 +38,7 @@ services:
       dockerfile: ./psql/Dockerfile
     environment:
       POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_SCHEMA: $POSTGRES_SCHEMA
       POSTGRES_USER: $POSTGRES_USER
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
       POSTGRES_INITDB_ARGS: --encoding=UTF-8
@@ -56,8 +57,8 @@ services:
     image: dpage/pgadmin4:6.11
     environment:
       TZ: $TZ
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: $PGADMIN_EMAIL
+      PGADMIN_DEFAULT_PASSWORD: $PGADMIN_PASSWORD
     volumes:
       - ./pga/data:/var/lib/pgadmin
     ports:
@@ -101,4 +102,3 @@ networks:
 
 volumes:
   psql-data:
-    external: true
