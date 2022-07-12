@@ -1,0 +1,14 @@
+{
+    "java.home": "/usr/local/openjdk-11",
+    "java.configuration.runtimes": [
+        {
+          "name": "Java-8",
+          "path": "/usr/local/openjdk-8"
+        },
+        {
+            "name": "Java-11",
+            "path": "/usr/local/openjdk-11",
+            "default": true
+        }
+    ]
+}

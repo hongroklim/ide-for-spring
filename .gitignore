@@ -1,12 +1,16 @@
 .DS_Store
 .idea
-.vscode
 
 my-app/.*
 my-app/target/*
+!my-app/.vscode/
+my-app/.vscode/*
+!my-app/.vscode/launch.json
 
 cdr/data/*
-!cdr/data/.gitkeep
+!cdr/data/User
+cdr/data/User/*
+!cdr/data/User/settings.json
 
 pga/data/*
 !pga/data/.gitkeep
