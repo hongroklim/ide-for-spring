@@ -2,9 +2,8 @@
 .idea
 .vscode
 
-bean-cafe/.*
-bean-cafe/target/*
-bean-cafe/bean-cafe.iml
+my-app/.*
+my-app/target/*
 
 cdr/data/*
 !cdr/data/.gitkeep

@@ -10,6 +10,8 @@ services:
     environment:
       TZ: $TZ
       PASSWORD: $CDR_PASSWORD
+      WILDFLY_ADMIN_NAME: $WILDFLY_ADMIN_NAME
+      WILDFLY_ADMIN_PASSWORD: $WILDFLY_ADMIN_PASSWORD
     volumes:
         # DOOD
       - /var/run/docker.sock:/var/run/docker.sock
