@@ -1,18 +1,17 @@
 # IDE for Spring
 
 > Fully-Dockernized Spring WebMVC Development Environment  
-> \#VSCode, \#WildFly, \#PostgreSQL, \#PGAdmin4
 
-**IDE for Spring** runs all services required to develop Spring WebMVC
-on the Docker. After executing `docker-compose up -d`, the followings are
-launched and inter-connected together;
+**IDE for Spring** provides all services and tools, based on Docker, to
+develop Spring WebMVC.
 
-* VSCode (Code Editor) - [127.0.0.1:8081](http://127.0.0.1:8081)
-* WildFly (WAS) - [127.0.0.1:8082](http://127.0.0.1:8082)
-* WebApp (Sample Project) - [127.0.0.1:8082/my-app](http://127.0.0.1:8082/my-app)
-* WildFly Management Console - [127.0.0.1:8083](http://127.0.0.1:8083/console)
-* PostgreSQL (DBMS) - 127.0.0.1:5432
-* PGAdmin4 (Query Tool) - [127.0.0.1:5433](http://127.0.0.1:5433)
+|:----------:|:-----------:|:-----------------------------------------------------:|
+| VSCode     | Code Editor | [127.0.0.1:8081](http://127.0.0.1:8081)               |
+| WildFly    | WAS         | [127.0.0.1:8082](http://127.0.0.1:8082)               |
+| WildFly    | Console     | [127.0.0.1:8083](http://127.0.0.1:8083/console)       |
+| SpringWeb  | WebApp      | [127.0.0.1:8082/my-app](http://127.0.0.1:8082/my-app) |
+| PostgreSQL | DBMS        | 127.0.0.1:5432                                        |
+| PGAdmin4   | Query Tool  | [127.0.0.1:5433](http://127.0.0.1:5433)               |
 
 Enjoy your programming!
 
@@ -37,7 +36,7 @@ Enjoy your programming!
 ### Remote Debugging (on VSCode)
 1. `Debug` > `Debug WildFly` and start
 
-### Monitoring (on WildFly Management Console)
+### Monitoring (on WildFly Console)
 1. Access [127.0.0.1:8083](http://127.0.0.1:8083/console)
 1. Login (`myname` and `mywildflypassword` default)
 1. (See) [WildFly Admin Guide](https://docs.wildfly.org/17/Admin_Guide.html#web-management-interface)
@@ -64,16 +63,16 @@ in your preferences. (e.g. Java Extension Pack, XML and lombok)
 All configurations are assigned with default values. They can be modifed as
 well as added.
 
-[./.env](./.env)  
+[./.env](./.env)\
 Usernames and passwords of the services.
 
-[./docker-compose.yml](./docker-compose.yml)  
+[./docker-compose.yml](./docker-compose.yml)\
 Mount directory, external ports and IP address of intranet.
 
-[./wildfly/standalone.xml](./wildfly/standalone.xml)
+[./wildfly/standalone.xml](./wildfly/standalone.xml)\
 WildFly configurations.
 
-[./psql/init.sh](./psql/init.sh)
+[./psql/init.sh](./psql/init.sh)\
 Initialize PostgreSQL with a script (e.g. dump or schema).
 
 ## Using with NGINX
@@ -83,6 +82,7 @@ solve this problem.
 
 ```bash
 # Install NGINX
+
 $ sudo apt-get update
 $ sudo apt-get install nginx
 
@@ -90,8 +90,9 @@ $ sudo apt-get install nginx
 $ sudo service nginx start
 ```
 
-**/etc/nginx/conf.d/default.d**
 ```
+# /etc/nginx/conf.d/default.d
+
 server {
 	listen [::]:80;
   server_name localhost
@@ -141,6 +142,7 @@ server {
 
 ```bash
 # Restart
+
 $ sudo service nginx restart
 ```
 

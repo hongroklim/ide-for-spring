@@ -12,6 +12,8 @@ services:
       PASSWORD: $CDR_PASSWORD
       WILDFLY_ADMIN_NAME: $WILDFLY_ADMIN_NAME
       WILDFLY_ADMIN_PASSWORD: $WILDFLY_ADMIN_PASSWORD
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
     volumes:
         # DOOD
       - /var/run/docker.sock:/var/run/docker.sock
@@ -78,6 +80,8 @@ services:
         WILDFLY_ADMIN_PASSWORD: $WILDFLY_ADMIN_PASSWORD
     environment:
       TZ: $TZ
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
     volumes:
         # WAS deploy and logs
       - ./wildfly/deployments:/opt/jboss/wildfly/standalone/deployments

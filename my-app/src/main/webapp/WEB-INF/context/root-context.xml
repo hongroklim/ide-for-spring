@@ -9,6 +9,9 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+    <!-- placeholder -->
+    <context:property-placeholder />
+
     <!-- spring bean configuration without Controller -->
     <context:component-scan base-package="com.company" use-default-filters="true">
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
@@ -19,6 +22,8 @@
         <constructor-arg name="properties">
             <util:properties id="hikariProperties" location="classpath:hikari.properties" />
         </constructor-arg>
+        <property name="username" value="${POSTGRES_USER}" />
+        <property name="password" value="${POSTGRES_PASSWORD}" />
     </bean>
     
     <!-- java.sql - dataSource -->
