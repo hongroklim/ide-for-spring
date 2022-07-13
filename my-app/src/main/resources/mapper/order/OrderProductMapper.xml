@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.orderProduct">
+    <select id="selectOProduct" parameterType="OrderProductDTO" resultType="OrderProductDTO">
+        SELECT order_id, product_id, option_cd, seller_nm, cnt,
+               price, discount_price, product_nm, option_nm,
+               status_cd, delivery_id
+          FROM ord_prod
+         WHERE order_id = #{orderId}
+        <if test='productId != null and productId != 0'>
+            AND product_id = #{productId}
+            <if test='optionCd != null and !"".equals(optionCd)'>
+                AND option_cd LIKE #{optionCd}
+            </if>
+        </if>
+    </select>
+
+    <insert id="insertOProduct" parameterType="OrderProductDTO">
+        INSERT INTO ord_prod
+               (order_id, product_id, option_cd, seller_nm, cnt,
+                price, discount_price, product_nm, option_nm, status_cd, delivery_id)
+        VALUES (#{orderId}, #{productId}, #{optionCd}, #{sellerNm}, #{cnt},
+                #{price}, #{discountPrice}, #{productNm}, #{optionNm}, #{statusCd}, #{deliveryId})
+    </insert>
+
+    <delete id="deleteOProduct" parameterType="OrderProductDTO">
+        DELETE
+          FROM ord_prod
+         WHERE order_id = #{orderId}
+        <if test='productId != null and productId != 0'>
+            AND product_id = #{productId}
+            <if test='optionCd != null and !"".equals(optionCd)'>
+                AND option_cd LIKE #{optionCd}
+            </if>
+        </if>
+    </delete>
+
+    <update id="updateOProductCnt" parameterType="OrderProductDTO">
+        UPDATE ord_prod
+           SET cnt = #{cnt}
+         WHERE order_id = #{orderId}
+           AND product_id = #{productId}
+           AND option_cd = #{optionCd}
+    </update>
+
+    <update id="updateOProductToNull" parameterType="OrderProductDTO">
+        UPDATE ord_prod
+           SET option_cd = null
+               <if test='optionCd == null || "".equals(optionCd)'>
+                   , product_id = null
+               </if>
+         WHERE product_id = #{productId}
+        <if test='optionCd != null and !"".equals(optionCd)'>
+            AND option_cd like #{optionCd}
+        </if>
+    </update>
+
+    <select id="countOProductsByDelivery" parameterType="OrderProductDTO" resultType="int">
+        SELECT count(*)
+          FROM ord_prod
+         WHERE order_id = #{orderId}
+           AND delivery_id = #{deliveryId}
+    </select>
+</mapper>

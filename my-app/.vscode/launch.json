@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug Wildfly",
+            "request": "attach",
+            "hostName": "172.18.0.14",
+            "port": 8787
+        }
+    ]
+}

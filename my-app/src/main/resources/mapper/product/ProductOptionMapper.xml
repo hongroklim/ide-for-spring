@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.productOption">
+    <select id="selectProductOption" parameterType="ProductOptionDTO" resultType="ProductOptionDTO">
+        SELECT product_id, option_group, option_id, name, ord
+          FROM prod_opt
+         WHERE product_id = #{productId}
+        <if test="optionGroup != null">
+           AND option_group = #{optionGroup}    
+        </if>
+        <if test='optionId != null and !"".equals(optionId)'>
+            AND option_id = #{optionId}
+         </if>
+         ORDER BY product_id, option_group, option_id
+    </select>
+
+    <insert id="insertProductOption" parameterType="ProductOptionDTO">
+        INSERT INTO prod_opt
+               (product_id, option_group, option_id, name, ord)
+        VALUES (#{productId}, #{optionGroup}, #{optionId}, #{name}, #{ord})
+    </insert>
+
+    <delete id="deleteProductOption">
+        DELETE
+          FROM prod_opt
+         WHERE product_id = #{productId}
+        <if test="optionGroup != null">
+           AND option_group = #{optionGroup}    
+        </if>
+        <if test='optionId != null and !"".equals(optionId)'>
+           AND option_id = #{optionId}    
+        </if>
+    </delete>
+
+    <update id="updateProductOption" parameterType="hashmap">
+        UPDATE prod_opt
+           SET name = #{name},
+               ord = #{ord}
+         WHERE product_id = #{pOption.productId}
+           AND option_group = #{pOption.optionGroup}
+           AND option_id = #{pOption.optionId}
+    </update>
+
+    <update id="backwardOptionOrder" parameterType="hashmap">
+        UPDATE prod_opt
+           SET ord = ord+1
+         WHERE product_id = #{pOption.productId}
+           AND option_group = #{pOption.optionGroup}
+           AND ord <![CDATA[ >= ]]> #{startOrder}
+           AND ord <![CDATA[ <= ]]> #{endOrder}
+    </update>
+
+    <update id="forwardOptionOrder" parameterType="hashmap">
+        UPDATE prod_opt
+           SET ord = ord-1
+         WHERE product_id = #{pOption.productId}
+           AND option_group = #{pOption.optionGroup}
+           AND ord <![CDATA[ >= ]]> #{startOrder}
+           AND ord <![CDATA[ <= ]]> #{endOrder}
+    </update>
+
+    <update id="updateOptionGroup" parameterType="hashmap">
+        UPDATE prod_opt
+           SET option_group = #{tobeGroup}
+         WHERE product_id = #{pOption.productId}
+           AND option_group = #{pOption.optionGroup}
+    </update>
+
+    <update id="backwardOptionGroup" parameterType="hashmap">
+        UPDATE prod_opt
+           SET option_group = option_group+1
+         WHERE product_id = #{productId}
+           AND option_group <![CDATA[ >= ]]> #{startGroup}
+           AND option_group <![CDATA[ <= ]]> #{endGroup}
+    </update>
+  
+    <update id="forwardOptionGroup" parameterType="hashmap">
+        UPDATE prod_opt
+           SET option_group = option_group-1
+         WHERE product_id = #{productId}
+           AND option_group <![CDATA[ >= ]]> #{startGroup}
+           AND option_group <![CDATA[ <= ]]> #{endGroup}
+    </update>
+</mapper>

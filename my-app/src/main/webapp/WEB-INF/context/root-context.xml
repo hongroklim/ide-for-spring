@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- placeholder -->
+    <context:property-placeholder />
+
+    <!-- spring bean configuration without Controller -->
+    <context:component-scan base-package="com.company" use-default-filters="true">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+
+    <!-- HikariCP configuration -->
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <constructor-arg name="properties">
+            <util:properties id="hikariProperties" location="classpath:hikari.properties" />
+        </constructor-arg>
+        <property name="username" value="${POSTGRES_USER}" />
+        <property name="password" value="${POSTGRES_PASSWORD}" />
+    </bean>
+    
+    <!-- java.sql - dataSource -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg name="configuration" ref="hikariConfig" />
+    </bean>
+
+    <!-- spring transactionManager -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <constructor-arg name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!-- enable @Transactional -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <!-- mybatis-spring - sqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="mapperLocations" value="classpath:/mapper/**/*Mapper.xml" />
+        <property name="configLocation" value="classpath:/mybatis-config.xml" />
+    </bean>
+
+    <!-- mybatis-spring - sqlSessionTemplate -->
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+</beans>
