@@ -5,6 +5,7 @@
 **IDE for Spring** provides all services and tools, based on Docker, to
 develop Spring WebMVC.
 
+|            |             |                                                       |
 |:----------:|:-----------:|:-----------------------------------------------------:|
 | VSCode     | Code Editor | [127.0.0.1:8081](http://127.0.0.1:8081)               |
 | WildFly    | WAS         | [127.0.0.1:8082](http://127.0.0.1:8082)               |
